@@ -6,11 +6,9 @@ import {
   CheckCircle2,
   Clock3,
   XCircle,
-  AlertCircle,
   RefreshCw,
   Phone,
   Mail,
-  User,
   Plus,
   Stethoscope,
   ExternalLink,
@@ -20,24 +18,84 @@ import {
   Check,
   X,
   Database,
-  Building2,
   TrendingUp,
-  FileSpreadsheet,
-  Star,
-  Award,
-  Sparkles,
-  ShieldCheck
+  Palette,
+  CloudUpload
 } from 'lucide-react';
 
 const API_BASE = 'http://localhost:5000/api/appointments';
 const DOCTOR_API = 'http://localhost:5000/api/doctors';
+const THEME_API = 'http://localhost:5000/api/theme';
+
+const CLINIC_THEMES = [
+  {
+    id: 'clinical',
+    name: 'Clinical Teal (Official Pralash Default)',
+    tagline: 'Modern clinical precision with restorative surgical teal and soothing cyan.',
+    primaryColor: '#0D5C75',
+    secondaryColor: '#14B8A6',
+    accentColor: '#0284C7',
+    badge: 'Standard Clinic Theme',
+    previewBg: '#F8FAFC',
+    textColor: '#0F172A',
+  },
+  {
+    id: 'emerald',
+    name: 'Nordic Emerald',
+    tagline: 'Soothing organic eucalyptus tone, tailored for holistic wellness and trichology.',
+    primaryColor: '#064E3B',
+    secondaryColor: '#10B981',
+    accentColor: '#34D399',
+    badge: 'Holistic & Scalp',
+    previewBg: '#F0FDF4',
+    textColor: '#064E3B',
+  },
+  {
+    id: 'sapphire',
+    name: 'Royal Sapphire',
+    tagline: 'Authoritative deep navy and vibrant azure for high-precision surgical excellence.',
+    primaryColor: '#1E3A8A',
+    secondaryColor: '#3B82F6',
+    accentColor: '#60A5FA',
+    badge: 'High-Tech Surgery',
+    previewBg: '#EFF6FF',
+    textColor: '#1E3A8A',
+  },
+  {
+    id: 'rose',
+    name: 'Aesthetic Rose Gold',
+    tagline: 'Luxury aesthetic dermatology, anti-aging cosmetology, and gentle skin rejuvenation.',
+    primaryColor: '#831843',
+    secondaryColor: '#F43F5E',
+    accentColor: '#FB7185',
+    badge: 'Cosmetic & Skin Care',
+    previewBg: '#FFF1F2',
+    textColor: '#831843',
+  },
+  {
+    id: 'dark',
+    name: 'Midnight Obsidian',
+    tagline: 'Sleek nocturnal contrast with glowing surgical cyan and restorative teal.',
+    primaryColor: '#090D16',
+    secondaryColor: '#06B6D4',
+    accentColor: '#38BDF8',
+    badge: 'Dark Mode UI',
+    previewBg: '#090D16',
+    textColor: '#F8FAFC',
+  },
+];
 
 export default function App() {
   const [appointments, setAppointments] = useState([]);
   const [doctors, setDoctors] = useState([]);
+  const [currentTheme, setCurrentTheme] = useState('clinical');
+  const [updatingTheme, setUpdatingTheme] = useState(false);
+  const [themeNotification, setThemeNotification] = useState('');
+  const [uploadingDoctorPhoto, setUploadingDoctorPhoto] = useState(false);
+  const [photoUploadSuccess, setPhotoUploadSuccess] = useState(false);
   const [backendConnected, setBackendConnected] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('appointments'); // 'appointments' | 'doctors' | 'analytics'
+  const [activeTab, setActiveTab] = useState('appointments'); // 'appointments' | 'doctors' | 'analytics' | 'theme'
 
   // Appointment Filters & Search
   const [searchQuery, setSearchQuery] = useState('');
@@ -114,9 +172,78 @@ export default function App() {
     }
   };
 
+  // Fetch active theme from MongoDB backend
+  const fetchTheme = async () => {
+    try {
+      const res = await fetch(THEME_API);
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && json.data && json.data.theme) {
+          setCurrentTheme(json.data.theme);
+        }
+      }
+    } catch (err) {
+      console.warn('Error fetching theme from API:', err);
+    }
+  };
+
+  // Update website theme (Admin only)
+  const handleSelectTheme = async (themeId) => {
+    setUpdatingTheme(true);
+    setThemeNotification('');
+    try {
+      const res = await fetch(THEME_API, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ theme: themeId, updatedBy: 'Admin Console' }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        setCurrentTheme(themeId);
+        const themeObj = CLINIC_THEMES.find((t) => t.id === themeId);
+        setThemeNotification(`Website theme updated to "${themeObj?.name}". The live public website has been switched!`);
+        setTimeout(() => setThemeNotification(''), 7000);
+      }
+    } catch (err) {
+      alert('Error updating theme: ' + err.message);
+    } finally {
+      setUpdatingTheme(false);
+    }
+  };
+
+  // Upload doctor photo to Cloudinary
+  const handleDoctorPhotoFileSelect = async (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+
+    setUploadingDoctorPhoto(true);
+    setPhotoUploadSuccess(false);
+
+    const formData = new FormData();
+    formData.append('image', file);
+
+    try {
+      const res = await fetch('http://localhost:5000/api/doctors/upload-image', {
+        method: 'POST',
+        body: formData,
+      });
+      const json = await res.json();
+      if (json.success && json.imageUrl) {
+        setNewDoctor((prev) => ({ ...prev, image: json.imageUrl }));
+        setPhotoUploadSuccess(true);
+      } else {
+        alert(json.message || 'Failed to upload photo to Cloudinary');
+      }
+    } catch (err) {
+      alert('Error connecting to Cloudinary service: ' + err.message);
+    } finally {
+      setUploadingDoctorPhoto(false);
+    }
+  };
+
   const refreshAll = async () => {
     setLoading(true);
-    await Promise.all([fetchAppointments(), fetchDoctors()]);
+    await Promise.all([fetchAppointments(), fetchDoctors(), fetchTheme()]);
     setLoading(false);
   };
 
@@ -394,6 +521,26 @@ export default function App() {
             <TrendingUp size={18} />
             <span>Department Analytics</span>
           </button>
+
+          <button
+            className={`nav-item ${activeTab === 'theme' ? 'active' : ''}`}
+            onClick={() => setActiveTab('theme')}
+          >
+            <Palette size={18} />
+            <span>Theme & Appearance</span>
+            <span style={{
+              marginLeft: 'auto',
+              fontSize: '0.65rem',
+              padding: '2px 7px',
+              borderRadius: '6px',
+              background: 'rgba(255,255,255,0.12)',
+              color: '#38bdf8',
+              fontWeight: 800,
+              textTransform: 'capitalize'
+            }}>
+              {currentTheme}
+            </span>
+          </button>
         </nav>
 
         <div className="sidebar-footer">
@@ -435,6 +582,7 @@ export default function App() {
               {activeTab === 'appointments' && 'Appointments & Patient Triage'}
               {activeTab === 'doctors' && 'Consultant Specialists Directory'}
               {activeTab === 'analytics' && 'Clinical Department Analytics'}
+              {activeTab === 'theme' && 'Website Theme & Aesthetic Configuration'}
             </h2>
             <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
               HRBR Layout, Kalyan Nagar Clinic &bull; Mon–Sun 9:30 AM – 8:00 PM
@@ -896,6 +1044,206 @@ export default function App() {
             </div>
           </main>
         )}
+
+        {/* TAB 4: THEME & APPEARANCE (ADMIN-ONLY THEME CONTROL) */}
+        {activeTab === 'theme' && (
+          <main className="admin-content">
+            <div className="table-card" style={{ padding: '28px', maxWidth: '1200px' }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px', marginBottom: '24px' }}>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                    <Palette size={20} color="var(--secondary)" />
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-main)' }}>
+                      Global Website Theme & Color Palette
+                    </h3>
+                    <span style={{ fontSize: '0.72rem', padding: '3px 8px', borderRadius: '6px', background: '#e0f2fe', color: '#0284c7', fontWeight: 700 }}>
+                      Admin-Only Control
+                    </span>
+                  </div>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', maxWidth: '680px' }}>
+                    The public website theme can only be updated from this administrator panel. When you apply a new theme below, it instantly saves to MongoDB and updates the entire live public website across all 10 pages in real time.
+                  </p>
+                </div>
+
+                <a
+                  href="http://localhost:3000"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="btn btn-outline"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                >
+                  <span>Preview Live Website</span>
+                  <ExternalLink size={14} />
+                </a>
+              </div>
+
+              {themeNotification && (
+                <div style={{
+                  padding: '12px 16px',
+                  borderRadius: '10px',
+                  background: '#d1fae5',
+                  border: '1px solid #6ee7b7',
+                  color: '#065f46',
+                  fontSize: '0.85rem',
+                  fontWeight: 600,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  marginBottom: '20px'
+                }}>
+                  <CheckCircle2 size={18} />
+                  <span>{themeNotification}</span>
+                </div>
+              )}
+
+              {/* THEME PREVIEWS GRID */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '20px' }}>
+                {CLINIC_THEMES.map((th) => {
+                  const isActive = currentTheme === th.id;
+                  return (
+                    <div
+                      key={th.id}
+                      style={{
+                        padding: '22px',
+                        borderRadius: '16px',
+                        background: '#ffffff',
+                        border: isActive ? '2px solid #006a61' : '1px solid var(--border-color)',
+                        boxShadow: isActive ? '0 10px 25px -5px rgba(0, 106, 97, 0.2)' : 'var(--shadow-sm)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
+                        gap: '16px',
+                        position: 'relative',
+                        transition: 'all 0.2s ease',
+                      }}
+                    >
+                      {isActive && (
+                        <div style={{
+                          position: 'absolute',
+                          top: '14px',
+                          right: '14px',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '5px',
+                          padding: '4px 10px',
+                          borderRadius: '9999px',
+                          background: '#d1fae5',
+                          color: '#065f46',
+                          fontSize: '0.72rem',
+                          fontWeight: 800,
+                          border: '1px solid #a7f3d0'
+                        }}>
+                          <Check size={12} />
+                          <span>ACTIVE LIVE THEME</span>
+                        </div>
+                      )}
+
+                      <div>
+                        <div style={{ fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)', fontWeight: 700 }}>
+                          {th.badge}
+                        </div>
+                        <h4 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-main)', marginTop: '4px' }}>
+                          {th.name}
+                        </h4>
+                        <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '4px', lineHeight: 1.4 }}>
+                          {th.tagline}
+                        </p>
+
+                        {/* Color Swatches */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '16px' }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                            <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: th.primaryColor, border: '1px solid rgba(0,0,0,0.1)' }} />
+                            <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>Primary</span>
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                            <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: th.secondaryColor, border: '1px solid rgba(0,0,0,0.1)' }} />
+                            <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>Secondary</span>
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                            <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: th.accentColor, border: '1px solid rgba(0,0,0,0.1)' }} />
+                            <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>Accent</span>
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', marginLeft: 'auto' }}>
+                            <div style={{ width: '56px', height: '28px', borderRadius: '6px', background: th.previewBg, border: '1px solid rgba(0,0,0,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 700, color: th.textColor }}>
+                              Aa
+                            </div>
+                            <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>Canvas</span>
+                          </div>
+                        </div>
+
+                        {/* Live UI Mock Preview */}
+                        <div style={{
+                          marginTop: '16px',
+                          padding: '12px',
+                          borderRadius: '10px',
+                          background: th.previewBg,
+                          border: '1px solid rgba(0,0,0,0.08)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          gap: '10px'
+                        }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <div style={{ width: '22px', height: '22px', borderRadius: '6px', background: th.primaryColor, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '0.65rem', fontWeight: 900 }}>
+                              A
+                            </div>
+                            <span style={{ fontSize: '0.75rem', fontWeight: 800, color: th.textColor }}>
+                              PRALASH
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            style={{
+                              padding: '5px 10px',
+                              borderRadius: '6px',
+                              background: th.secondaryColor,
+                              color: '#ffffff',
+                              border: 'none',
+                              fontSize: '0.7rem',
+                              fontWeight: 700,
+                              cursor: 'default'
+                            }}
+                          >
+                            Book Visit
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Action Button */}
+                      <div>
+                        {isActive ? (
+                          <div style={{
+                            padding: '10px',
+                            borderRadius: '10px',
+                            background: '#f0fdf4',
+                            border: '1px solid #bbf7d0',
+                            textAlign: 'center',
+                            color: '#166534',
+                            fontWeight: 700,
+                            fontSize: '0.82rem'
+                          }}>
+                            ✓ Currently Active on Public Site
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => handleSelectTheme(th.id)}
+                            disabled={updatingTheme}
+                            className="btn btn-secondary"
+                            style={{ width: '100%', justifyContent: 'center', fontSize: '0.82rem' }}
+                          >
+                            <Palette size={14} />
+                            <span>{updatingTheme ? 'Switching Theme...' : `Set "${th.name.split(' (')[0]}" as Active Theme`}</span>
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </main>
+        )}
       </div>
 
       {/* APPOINTMENT DETAIL MODAL */}
@@ -1230,13 +1578,58 @@ export default function App() {
               </div>
 
               <div className="form-group">
-                <label>Photo Image URL</label>
-                <input
-                  type="url"
-                  placeholder="https://images.unsplash.com/..."
-                  value={newDoctor.image}
-                  onChange={(e) => setNewDoctor({ ...newDoctor, image: e.target.value })}
-                />
+                <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <CloudUpload size={16} color="var(--secondary)" />
+                    <strong>Doctor Photo (Cloudinary Storage Only) *</strong>
+                  </span>
+                  {uploadingDoctorPhoto && (
+                    <span style={{ fontSize: '0.75rem', color: '#0284c7', fontWeight: 700 }}>
+                      Uploading to Cloudinary...
+                    </span>
+                  )}
+                  {photoUploadSuccess && (
+                    <span style={{ fontSize: '0.75rem', color: '#059669', fontWeight: 700 }}>
+                      ✓ Stored on Cloudinary
+                    </span>
+                  )}
+                </label>
+
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginTop: '4px' }}>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleDoctorPhotoFileSelect}
+                    style={{ fontSize: '0.82rem', padding: '6px', border: '1px dashed var(--border-color)', borderRadius: '8px', width: '100%' }}
+                  />
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '8px' }}>
+                  {newDoctor.image && (
+                    <img
+                      src={newDoctor.image}
+                      alt="Doctor Preview"
+                      style={{
+                        width: '46px',
+                        height: '46px',
+                        borderRadius: '10px',
+                        objectFit: 'cover',
+                        border: '2px solid #006a61',
+                        flexShrink: 0,
+                      }}
+                    />
+                  )}
+                  <input
+                    type="text"
+                    placeholder="Direct Cloudinary URL or image source..."
+                    value={newDoctor.image}
+                    onChange={(e) => setNewDoctor({ ...newDoctor, image: e.target.value })}
+                    style={{ fontSize: '0.78rem', color: '#64748b' }}
+                  />
+                </div>
+                <span style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '3px', display: 'block' }}>
+                  ☁️ Automatically uploaded & permanently hosted on Cloudinary (cloud: dcahokqjx).
+                </span>
               </div>
 
               <div className="form-group">
