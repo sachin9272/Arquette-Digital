@@ -1,0 +1,179 @@
+@import "tailwindcss";
+
+@layer base {
+  :root,
+  [data-theme="clinical"] {
+    --brand-primary: #0A1E34;
+    --brand-primary-hover: #102A45;
+    --brand-secondary: #006A61;
+    --brand-secondary-hover: #0D9488;
+    --brand-accent: #0284C7;
+    --brand-accent-light: #E0F2FE;
+    --brand-surface: #FFFFFF;
+    --brand-surface-card: #FFFFFF;
+    --brand-surface-low: #F8FAFC;
+    --brand-surface-container: #ECEEF0;
+    --brand-background: #F7F9FB;
+    --brand-border: #E2E8F0;
+    --brand-text: #191C1E;
+    --brand-muted: #44474D;
+    --brand-badge-bg: #86F2E4;
+    --brand-badge-text: #006F66;
+    --brand-tag-bg: #E6E8EA;
+    --brand-emergency: #DC2626;
+    --brand-emergency-bg: #FEF2F2;
+  }
+
+  [data-theme="emerald"] {
+    --brand-primary: #064E3B;
+    --brand-primary-hover: #065F46;
+    --brand-secondary: #059669;
+    --brand-secondary-hover: #10B981;
+    --brand-accent: #0D9488;
+    --brand-accent-light: #CCFBF1;
+    --brand-surface: #FFFFFF;
+    --brand-surface-card: #FFFFFF;
+    --brand-surface-low: #F0FDF4;
+    --brand-surface-container: #DCFCE7;
+    --brand-background: #F7FCF9;
+    --brand-border: #BBF7D0;
+    --brand-text: #064E3B;
+    --brand-muted: #374151;
+    --brand-badge-bg: #A7F3D0;
+    --brand-badge-text: #047857;
+    --brand-tag-bg: #E2E8F0;
+    --brand-emergency: #DC2626;
+    --brand-emergency-bg: #FEF2F2;
+  }
+
+  [data-theme="sapphire"] {
+    --brand-primary: #1E1B4B;
+    --brand-primary-hover: #312E81;
+    --brand-secondary: #2563EB;
+    --brand-secondary-hover: #1D4ED8;
+    --brand-accent: #38BDF8;
+    --brand-accent-light: #E0F2FE;
+    --brand-surface: #FFFFFF;
+    --brand-surface-card: #FFFFFF;
+    --brand-surface-low: #F0F9FF;
+    --brand-surface-container: #E0E7FF;
+    --brand-background: #F8FAFC;
+    --brand-border: #CBD5E1;
+    --brand-text: #0F172A;
+    --brand-muted: #475569;
+    --brand-badge-bg: #BAE6FD;
+    --brand-badge-text: #0369A1;
+    --brand-tag-bg: #EEF2F6;
+    --brand-emergency: #DC2626;
+    --brand-emergency-bg: #FEF2F2;
+  }
+
+  [data-theme="rose"] {
+    --brand-primary: #4C0519;
+    --brand-primary-hover: #881337;
+    --brand-secondary: #E11D48;
+    --brand-secondary-hover: #BE123C;
+    --brand-accent: #F43F5E;
+    --brand-accent-light: #FFE4E6;
+    --brand-surface: #FFFFFF;
+    --brand-surface-card: #FFFFFF;
+    --brand-surface-low: #FFF1F2;
+    --brand-surface-container: #FFE4E6;
+    --brand-background: #FFF5F6;
+    --brand-border: #FECDD3;
+    --brand-text: #1C1917;
+    --brand-muted: #57534E;
+    --brand-badge-bg: #FECDD3;
+    --brand-badge-text: #9F1239;
+    --brand-tag-bg: #F5E8EB;
+    --brand-emergency: #E11D48;
+    --brand-emergency-bg: #FFF1F2;
+  }
+
+  [data-theme="dark"] {
+    --brand-primary: #38BDF8;
+    --brand-primary-hover: #7DD3FC;
+    --brand-secondary: #2DD4BF;
+    --brand-secondary-hover: #5EEAD4;
+    --brand-accent: #818CF8;
+    --brand-accent-light: #1E293B;
+    --brand-surface: #0F172A;
+    --brand-surface-card: #1E293B;
+    --brand-surface-low: #0B1120;
+    --brand-surface-container: #1E293B;
+    --brand-background: #020617;
+    --brand-border: #334155;
+    --brand-text: #F8FAFC;
+    --brand-muted: #94A3B8;
+    --brand-badge-bg: #134E4A;
+    --brand-badge-text: #5EEAD4;
+    --brand-tag-bg: #1E293B;
+    --brand-emergency: #F87171;
+    --brand-emergency-bg: #450A0A;
+  }
+}
+
+@theme {
+  --color-brand-primary: var(--brand-primary);
+  --color-brand-primary-hover: var(--brand-primary-hover);
+  --color-brand-secondary: var(--brand-secondary);
+  --color-brand-secondary-hover: var(--brand-secondary-hover);
+  --color-brand-accent: var(--brand-accent);
+  --color-brand-accent-light: var(--brand-accent-light);
+  --color-brand-surface: var(--brand-surface);
+  --color-brand-surface-card: var(--brand-surface-card);
+  --color-brand-surface-low: var(--brand-surface-low);
+  --color-brand-surface-container: var(--brand-surface-container);
+  --color-brand-background: var(--brand-background);
+  --color-brand-border: var(--brand-border);
+  --color-brand-text: var(--brand-text);
+  --color-brand-muted: var(--brand-muted);
+  --color-brand-badge-bg: var(--brand-badge-bg);
+  --color-brand-badge-text: var(--brand-badge-text);
+  --color-brand-tag-bg: var(--brand-tag-bg);
+  --color-brand-emergency: var(--brand-emergency);
+  --color-brand-emergency-bg: var(--brand-emergency-bg);
+
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+}
+
+body {
+  background-color: var(--brand-background);
+  color: var(--brand-text);
+  font-family: var(--font-sans);
+  scroll-behavior: smooth;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* Custom smooth transitions for theme switches */
+* {
+  border-color: var(--brand-border);
+}
+
+/* Glassmorphism helpers */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+[data-theme="dark"] .glass-panel {
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(12px);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--brand-surface-low);
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 4px;
+}
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: #334155;
+}

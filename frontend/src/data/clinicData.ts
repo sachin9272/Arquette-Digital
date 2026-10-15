@@ -1,0 +1,697 @@
+import { Doctor, ServiceDetail, BlogPost, Testimonial, ThemeOption } from '@/types';
+
+export const CLINIC_INFO = {
+  name: "PRALASH Dermystique & Dentique",
+  legalName: "PRALASH Dermystique & Dentique Multi-Specialty Clinic",
+  tagline: "Advanced Dental, Hair & Skin Care in Bangalore Grounded in Clinical Excellence",
+  description: "Premier multi-specialty dental, skin, and hair clinic in HRBR Layout, Kalyan Nagar, Bengaluru. Combining advanced medical-grade technology, certified specialists, and evidence-based personalized care.",
+  address: {
+    street: "Block 1, 708, 3rd Cross Rd, HRBR Layout 1st Block, Kalyan Nagar",
+    city: "Bengaluru",
+    postcode: "560043",
+    country: "India",
+  },
+  phone: "+91 99005 17699",
+  emergencyPhone: "+91 99005 17699",
+  email: "care@pralash.com",
+  appointmentEmail: "bookings@pralash.com",
+  operatingHours: "Monday – Sunday: 9:30 AM – 8:00 PM (Open All 7 Days)",
+  establishedYear: 2016,
+  nearbyAreas: [
+    "HRBR Layout",
+    "Kalyan Nagar",
+    "Kammanahalli",
+    "Hennur",
+    "Banaswadi",
+    "Hebbal",
+  ],
+  accreditations: [
+    "4.8★ Rated Clinic in Bangalore (Over 1,200+ Patient Reviews)",
+    "Strict Medical-Grade Hospital Sterilization Protocols",
+    "Certified Bio-Sapphire FUE & GFC Hair Restoration Center",
+    "Digital CAD/CAM & 3D Guided Implant Dentistry Suite",
+    "Cosmetic Dermatology Society of India (CDSI) Registered",
+    "International Society of Hair Restoration Surgery (ISHRS)",
+  ],
+  stats: [
+    { label: "Satisfied Patients Treated", value: "25,000+" },
+    { label: "Verified Clinic Rating", value: "4.8★" },
+    { label: "Clinical Specialties", value: "3-in-1" },
+    { label: "Open All Days", value: "7 Days" },
+  ]
+};
+
+export const THEME_OPTIONS: ThemeOption[] = [
+  {
+    id: 'clinical',
+    name: 'Clinical Navy & Teal (Default)',
+    description: 'Crisp sterile whites, deep marine authority, and precision surgical teal.',
+    primaryColor: '#0A1E34',
+    secondaryColor: '#006A61',
+    accentColor: '#0284C7',
+  },
+  {
+    id: 'emerald',
+    name: 'Nordic Emerald Sanctuary',
+    description: 'Holistic restorative green, biological precision, and calming eucalyptus tones.',
+    primaryColor: '#064E3B',
+    secondaryColor: '#059669',
+    accentColor: '#0D9488',
+  },
+  {
+    id: 'sapphire',
+    name: 'Prestige Royal Healthcare',
+    description: 'Deep royal indigo and vibrant clinical cobalt for high institutional prestige.',
+    primaryColor: '#1E1B4B',
+    secondaryColor: '#2563EB',
+    accentColor: '#38BDF8',
+  },
+  {
+    id: 'rose',
+    name: 'Aesthetic Rose & Radiant',
+    description: 'Warm berry noir and luminous rose coral tailored for aesthetics & skin wellness.',
+    primaryColor: '#4C0519',
+    secondaryColor: '#E11D48',
+    accentColor: '#F43F5E',
+  },
+  {
+    id: 'dark',
+    name: 'Midnight Clinical Dark',
+    description: 'Sleek nocturnal contrast with glowing surgical cyan and restorative teal.',
+    primaryColor: '#38BDF8',
+    secondaryColor: '#2DD4BF',
+    accentColor: '#818CF8',
+  },
+];
+
+export const DOCTORS: Doctor[] = [
+  {
+    id: "dr-sarah-jenkins",
+    name: "Dr. Sarah Jenkins",
+    title: "Senior Consultant Dermatologist & Mohs Surgeon",
+    department: "Skin",
+    qualifications: "MBBS, MD (Dermatology), FRCP, FAAD",
+    experienceYears: 16,
+    rating: 4.9,
+    reviewCount: 342,
+    image: "https://res.cloudinary.com/dcahokqjx/image/upload/v1792093445/pralash_doctors/gwzgfenkpsssgp72oal0.jpg",
+    availability: "Mon, Wed, Fri (9:00 AM - 4:00 PM)",
+    fee: 1800,
+    bio: "Dr. Jenkins is an internationally acclaimed dermatologist specializing in laser resurfacing, severe acne protocol, and non-invasive skin rejuvenation.",
+    languages: ["English", "French"],
+    specializations: ["Laser Resurfacing", "Acne Scar Revision", "Melasma & Pigmentation", "Skin Cancer Screening"],
+    isAvailableToday: true,
+  },
+  {
+    id: "dr-alister-vance",
+    name: "Dr. Alistair Vance",
+    title: "Chief of Implantology & Cosmetic Dentistry",
+    department: "Dental",
+    qualifications: "BDS, MSc Implant Dentistry (London), FDS RCS",
+    experienceYears: 19,
+    rating: 4.95,
+    reviewCount: 489,
+    image: "https://res.cloudinary.com/dcahokqjx/image/upload/v1792093447/pralash_doctors/yifa1qbkcw2qxaaoknrz.jpg",
+    availability: "Tue, Thu, Sat (8:30 AM - 5:00 PM)",
+    fee: 1500,
+    bio: "Pioneering dental surgeon dedicated to minimally invasive 3D-guided dental implants, digital smile design, and porcelain veneer transformations.",
+    languages: ["English", "German"],
+    specializations: ["Dental Implants", "Full Mouth Reconstruction", "Porcelain Veneers", "Sedation Dentistry"],
+    isAvailableToday: true,
+  },
+  {
+    id: "dr-priya-patel",
+    name: "Dr. Priya Patel",
+    title: "Lead Trichologist & Hair Restoration Surgeon",
+    department: "Hair",
+    qualifications: "MBBS, MD, FISHRS (Certified Trichologist)",
+    experienceYears: 14,
+    rating: 4.88,
+    reviewCount: 278,
+    image: "https://res.cloudinary.com/dcahokqjx/image/upload/v1792093429/pralash_doctors/zoqiwm0vdhbukatuuc6s.jpg",
+    availability: "Mon, Tue, Thu, Fri (10:00 AM - 6:00 PM)",
+    fee: 1650,
+    bio: "Dr. Patel combines microscopic trichoscopic analysis with robotic FUE hair transplants and bio-cellular PRP therapies to restore natural density.",
+    languages: ["English", "Hindi", "Gujarati"],
+    specializations: ["FUE Hair Transplants", "Scalp PRP Therapy", "Alopecia Areata Protocols", "Female Pattern Thinning"],
+    isAvailableToday: false,
+  },
+  {
+    id: "dr-marcus-thornton",
+    name: "Dr. Marcus Thornton",
+    title: "Senior Consultant Orthodontist",
+    department: "Dental",
+    qualifications: "BDS, MOrth RCS (Eng), Diamond Invisalign Provider",
+    experienceYears: 12,
+    rating: 4.92,
+    reviewCount: 310,
+    image: "https://res.cloudinary.com/dcahokqjx/image/upload/v1792093446/pralash_doctors/tfggij5mtti0qf8ccosu.jpg",
+    availability: "Wed, Thu, Fri (9:00 AM - 5:30 PM)",
+    fee: 1400,
+    bio: "Recognized as a Premier Elite Invisalign provider in Bangalore, Dr. Thornton creates harmonious smiles without traditional wire braces.",
+    languages: ["English", "Spanish"],
+    specializations: ["Clear Aligners (Invisalign)", "Complex Malocclusion", "Accelerated Orthodontics", "Retention Systems"],
+    isAvailableToday: true,
+  },
+  {
+    id: "dr-elena-rostova",
+    name: "Dr. Elena Rostova",
+    title: "Consultant Aesthetic Dermatologist",
+    department: "Skin",
+    qualifications: "MD, Board Certified Aesthetic Medicine (BCAM)",
+    experienceYears: 11,
+    rating: 4.85,
+    reviewCount: 220,
+    image: "https://res.cloudinary.com/dcahokqjx/image/upload/v1792093445/pralash_doctors/kwi7us2xuabceelih2aw.jpg",
+    availability: "Mon, Tue, Wed, Sat (9:00 AM - 4:00 PM)",
+    fee: 1700,
+    bio: "Specializing in facial harmonisation, medical-grade chemical peels, and non-surgical thread lifting with subtle, natural, youthful results.",
+    languages: ["English", "Russian"],
+    specializations: ["Facial Harmonisation", "Dermal Fillers & Biostimulators", "Hydrafacial MD", "Collagen Induction Therapy"],
+    isAvailableToday: true,
+  },
+  {
+    id: "dr-julian-hayes",
+    name: "Dr. Julian Hayes",
+    title: "Consultant Trichology Surgeon & Hair Pathologist",
+    department: "Hair",
+    qualifications: "MB ChB, MRCS, Dipl. Hair Restoration Surgery",
+    experienceYears: 15,
+    rating: 4.91,
+    reviewCount: 195,
+    image: "https://res.cloudinary.com/dcahokqjx/image/upload/v1792093446/pralash_doctors/fprjnj9jcfmedsnu0fmf.jpg",
+    availability: "Tue, Thu, Sat (10:00 AM - 5:00 PM)",
+    fee: 1750,
+    bio: "Renowned expert in reconstructive hairline grafting, donor area preservation, and combination polynucleotide scalp therapies.",
+    languages: ["English"],
+    specializations: ["Direct Hair Implantation (DHI)", "Eyebrow & Beard Restoration", "Scalp Micropigmentation (SMP)", "Polynucleotides"],
+    isAvailableToday: false,
+  },
+  {
+    id: "dr-rebecca-stone",
+    name: "Dr. Rebecca Stone",
+    title: "Lead Consultant Physician & Diagnostic Triage",
+    department: "Internal Medicine",
+    qualifications: "MBBS, MRCP (UK), MSc Preventative Cardiology",
+    experienceYears: 18,
+    rating: 4.97,
+    reviewCount: 412,
+    image: "https://res.cloudinary.com/dcahokqjx/image/upload/v1792093491/pralash_doctors/api8rvs1mtnnpbqskkio.jpg",
+    availability: "Mon to Fri (8:00 AM - 4:00 PM)",
+    fee: 1600,
+    bio: "Dr. Stone heads comprehensive executive health assessments, systemic diagnostics, preventative screenings, and complex multi-morbid care.",
+    languages: ["English"],
+    specializations: ["Executive Health Screenings", "Preventative Cardiology", "Diagnostic Ultrasound", "Biomarker Optimization"],
+    isAvailableToday: true,
+  },
+  {
+    id: "dr-kavita-sharma",
+    name: "Dr. Kavita Sharma",
+    title: "Specialist Endodontist & Restorative Dental Surgeon",
+    department: "Dental",
+    qualifications: "BDS, MDS Endodontics, MEndo RCS (Edin)",
+    experienceYears: 13,
+    rating: 4.89,
+    reviewCount: 265,
+    image: "https://res.cloudinary.com/dcahokqjx/image/upload/v1792093447/pralash_doctors/kpbqt7xc2flxfciczqil.jpg",
+    availability: "Mon, Wed, Fri, Sat (9:00 AM - 5:00 PM)",
+    fee: 1450,
+    bio: "Dedicated to single-visit painless root canal therapy using surgical operating microscopes with a tooth preservation rate of 99.2%.",
+    languages: ["English", "Hindi"],
+    specializations: ["Microscopic Root Canal", "Dental Trauma Management", "Tooth Re-treatment", "Crown & Onlay Restorations"],
+    isAvailableToday: true,
+  },
+];
+
+export const DENTAL_SERVICE: ServiceDetail = {
+  id: "dental-treatments",
+  slug: "dental",
+  department: "Dental",
+  title: "Precision Cosmetic & Restorative Dentistry",
+  headline: "World-Class Dental Surgery, Clear Aligners, and Painless Micro-Restorations",
+  heroImage: "https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&q=80&w=1200",
+  description: "Our Bengaluru dental suites integrate Zeiss dental microscopes, 3D digital intraoral scanners, digital RVG x-rays, and painless computer-assisted anesthesia to deliver impeccable smiles with zero compromise on dental vitality.",
+  treatments: [
+    {
+      name: "3D-Guided Titanium Dental Implants",
+      description: "Computer-guided single or full-arch (All-on-4/6) implants providing lifelong stability with natural bone integration.",
+      idealFor: "Missing teeth, loose dentures, bone loss prevention",
+      duration: "60 - 90 mins",
+      recovery: "2 - 3 days mild swelling",
+      priceFrom: 35000,
+    },
+    {
+      name: "Invisalign® Diamond Elite Clear Aligners",
+      description: "Custom digital orthodontic aligners crafted with SmartTrack material for discreet, accelerated teeth straightening.",
+      idealFor: "Crowding, gaps, overbites, adult orthodontic alignment",
+      duration: "4 - 12 months average",
+      recovery: "Zero downtime",
+      priceFrom: 75000,
+    },
+    {
+      name: "Handcrafted Porcelain Veneers & Smile Makeover",
+      description: "Ultra-thin, artisan ceramic veneers designed in our digital lab to match your facial symmetry and tooth luminescence.",
+      idealFor: "Discolored teeth, chips, gaps, asymmetric tooth shape",
+      duration: "2 - 3 appointments",
+      recovery: "Immediate",
+      priceFrom: 15000,
+    },
+    {
+      name: "Single-Visit Microscopic Root Canal Therapy",
+      description: "Painless root canal treatment performed under high-power magnification to completely disinfect complex root anatomy.",
+      idealFor: "Severe toothache, infected nerve, dental trauma",
+      duration: "75 mins",
+      recovery: "Normal chewing in 24 hours",
+      priceFrom: 7500,
+    },
+    {
+      name: "Laser Teeth Whitening (Philips Zoom Whitespeed)",
+      description: "In-chair LED light-activated whitening system lifting enamel shades up to 8 levels brighter safely in one hour.",
+      idealFor: "Coffee, tea, wine stains, aging enamel yellowing",
+      duration: "60 mins",
+      recovery: "Immediate brightness",
+      priceFrom: 8000,
+    },
+    {
+      name: "Comprehensive Periodontal & Deep Hygiene Clean",
+      description: "Ultrasonic air-polishing and sub-gingival scaling to eradicate plaque, tartar, and halt gum disease progression.",
+      idealFor: "Bleeding gums, bad breath, preventative oral health",
+      duration: "45 mins",
+      recovery: "Immediate freshness",
+      priceFrom: 2500,
+    }
+  ],
+  technologies: [
+    "Carestream 3D CBCT Low-Radiation Scanner",
+    "Carl Zeiss Surgical Dental Operating Microscope",
+    "iTero Lumina 3D Digital Intraoral Scanner (No gooey molds)",
+    "The Wand® Computerised Painless Local Anesthetic"
+  ],
+  faqs: [
+    {
+      question: "Are dental implants painful?",
+      answer: "No. With our computer-guided micro-incisions and computerized anesthesia, most patients experience less discomfort than a standard filling and return to normal activities the next day."
+    },
+    {
+      question: "How long does Invisalign take compared to metal braces?",
+      answer: "Invisalign treatment typically takes between 6 to 14 months, which is often 30-40% faster than traditional bracket orthodontics due to targeted tooth trajectory software."
+    },
+    {
+      question: "Do you offer emergency dental appointments?",
+      answer: "Yes, we reserve daily emergency slots for acute toothaches, fractured teeth, dislodged crowns, and trauma. Call our emergency triage line immediately at +44 (0) 800 472 8800."
+    }
+  ]
+};
+
+export const SKIN_SERVICE: ServiceDetail = {
+  id: "skin-treatments",
+  slug: "skin",
+  department: "Skin",
+  title: "Advanced Medical Dermatology & Aesthetics",
+  headline: "Evidence-Based Dermatological Protocols for Acne, Hyperpigmentation, and Skin Longevity",
+  heroImage: "https://images.unsplash.com/photo-1512290900672-1f55b9659f4d?auto=format&fit=crop&q=80&w=1200",
+  description: "Led by certified clinical dermatologists and cosmetologists, our skin center delivers state-of-the-art medical lasers, HydraFacial MD®, depigmentation, and evidence-based protocols for complex skin concerns in Bengaluru.",
+  treatments: [
+    {
+      name: "Fractional CO2 & Erbium Laser Skin Resurfacing",
+      description: "Medical-grade ablative and non-ablative laser therapy that breaks up deep acne scars and triggers vigorous dermal collagen production.",
+      idealFor: "Boxcar & icepick acne scars, deep rhytids, textural damage",
+      duration: "45 - 60 mins",
+      recovery: "4 - 7 days epidermal healing",
+      priceFrom: 9500,
+    },
+    {
+      name: "Targeted Medical Acne Eradication Protocol",
+      description: "Multi-modal diagnostic triage combining prescription therapies, salicylic backwashes, blue light therapy, and sebum regulation.",
+      idealFor: "Cystic acne, hormonal flare-ups, comedonal congestion",
+      duration: "30 mins per session",
+      recovery: "Minimal redness",
+      priceFrom: 3500,
+    },
+    {
+      name: "Cosmelan® Depigmentation & Melasma Management",
+      description: "The world's leading chemical depigmentation protocol designed to inhibit tyrosinase activity and eliminate stubborn dermal melasma.",
+      idealFor: "Hormonal melasma, sun spots, post-inflammatory hyperpigmentation",
+      duration: "60 mins clinic + home kit",
+      recovery: "3 - 5 days mild peeling",
+      priceFrom: 18000,
+    },
+    {
+      name: "HydraFacial Elite MD® Medical Infusion",
+      description: "Patented vortex-fusion technology that deeply cleanses, extracts sebum from pores, and infuses restorative antioxidants and hyaluronic acid.",
+      idealFor: "Dull complexion, congested pores, instant pre-event radiance",
+      duration: "50 mins",
+      recovery: "Immediate glow, zero downtime",
+      priceFrom: 4500,
+    },
+    {
+      name: "Comprehensive Full-Body Mole & Melanoma Mapping",
+      description: "Digital dermoscopy and high-resolution automated mole mapping identifying dysplastic nevi and early-stage melanoma risks.",
+      idealFor: "High mole count, family history of melanoma, fair skin",
+      duration: "45 mins",
+      recovery: "Immediate report",
+      priceFrom: 5500,
+    },
+    {
+      name: "Skin-Booster & Polynucleotide Bio-Remodelling (Profhilo®)",
+      description: "Ultra-pure hyaluronic acid and salmon-DNA polynucleotides injected at strategic bio-aesthetic points to dramatically plump lax skin.",
+      idealFor: "Skin crepiness, neck laxity, dehydrated skin barrier",
+      duration: "30 mins",
+      recovery: "24 hours tiny papules",
+      priceFrom: 16000,
+    }
+  ],
+  technologies: [
+    "Lutronic Ultra™ Fractional Thulium Laser",
+    "Fotona Dynamis SP Dual-Wavelength Nd:YAG / Er:YAG",
+    "FotoFinder ATBM Master Automated Total Body Dermoscopy",
+    "Original HydraFacial MD® Medical Grade Delivery Platform"
+  ],
+  faqs: [
+    {
+      question: "What is the difference between a salon facial and medical dermatology?",
+      answer: "Medical dermatology treatments at Arquette are performed or supervised by GMC-registered dermatologists utilizing prescription-only compounds and medical-class laser devices that alter skin cellular biology, unlike superficial aesthetic spa facials."
+    },
+    {
+      question: "How many sessions are required for acne scars?",
+      answer: "Most moderate to severe acne scar cases achieve 60-80% noticeable improvement over a protocol of 3 to 4 fractional laser or subcision sessions spaced 6 weeks apart."
+    },
+    {
+      question: "Are chemical peels safe for deeper skin tones (Fitzpatrick IV-VI)?",
+      answer: "Yes, when calibrated correctly. We specialize in multicultural dermatology and use specific non-inflammatory acids (such as mandelic and lactic acid blends) to ensure pigmentation safety."
+    }
+  ]
+};
+
+export const HAIR_SERVICE: ServiceDetail = {
+  id: "hair-treatments",
+  slug: "hair",
+  department: "Hair",
+  title: "Clinical Trichology & Robotic Hair Restoration",
+  headline: "Diagnostic Trichoscopy, Autologous Platelet Therapies, and Natural Micro-FUE Transplants",
+  heroImage: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&q=80&w=1200",
+  description: "Our center for trichology treats androgenetic alopecia, telogen effluvium, and thinning hair through certified ISHRS medical surgeons and proprietary bio-cellular scalp therapies.",
+  treatments: [
+    {
+      name: "Bio-Sapphire Micro-FUE Hair Transplant",
+      description: "Direct follicular unit extraction utilizing ultra-precise sapphire blades under 0.8mm for minimal tissue trauma, maximum graft survival, and dense, natural angulation.",
+      idealFor: "Receding hairline, crown thinning, male & female pattern baldness",
+      duration: "5 - 7 hours",
+      recovery: "3 - 5 days micro-crusting",
+      priceFrom: 45000,
+    },
+    {
+      name: "Growth Factor Concentrate (GFC) Advanced Therapy",
+      description: "Next-generation autologous therapy isolating pure, acellular growth factors from your blood at 3x higher concentrations than traditional PRP for enhanced follicle reactivation.",
+      idealFor: "Active hair thinning, post-COVID shedding, early androgenetic alopecia",
+      duration: "45 mins",
+      recovery: "Zero downtime, return to work immediately",
+      priceFrom: 7500,
+    },
+    {
+      name: "Autologous Scalp PRP (Platelet-Rich Plasma) Therapy",
+      description: "Bioactive platelet growth factors micro-injected into the follicular dermal layer to halt hair shedding, stimulate micro-circulation, and boost strand thickness.",
+      idealFor: "Diffuse hair thinning, maintenance therapy, post-transplant support",
+      duration: "45 mins",
+      recovery: "Same-day normal activities",
+      priceFrom: 5500,
+    },
+    {
+      name: "Digital Trichoscopic Scalp & Follicle Diagnostics",
+      description: "Polarized high-magnification dermatoscopy analyzing hair caliber diversity, perifollicular inflammation, and follicular unit counts.",
+      idealFor: "Unexplained hair loss, sudden shedding, scalp itchiness",
+      duration: "45 mins",
+      recovery: "Immediate diagnostic report",
+      priceFrom: 2500,
+    },
+    {
+      name: "Targeted Scalp Mesotherapy & Peptide Infusions",
+      description: "Direct micro-delivery of pharmaceutical biotin, zinc, saw palmetto, and copper peptides into the dermal papilla to combat DHT.",
+      idealFor: "Telogen effluvium, nutritional shedding, fragile hair strands",
+      duration: "30 mins",
+      recovery: "Zero downtime",
+      priceFrom: 3500,
+    },
+    {
+      name: "Scalp Micropigmentation (SMP) Density Illusion",
+      description: "Medical-grade scalp tattoo pigments placed as micro-dots replicating natural shaved hair follicles or camouflaging thinning scalps.",
+      idealFor: "Buzzed look, thinning crown, transplant scar concealment",
+      duration: "2 - 3 sessions",
+      recovery: "48 hours avoid sweating",
+      priceFrom: 15000,
+    },
+    {
+      name: "Eyebrow & Facial Hair Micro-Grafting",
+      description: "Artistic microscopic transplantation of single-hair follicles to rebuild sparse eyebrows or patchy beards with exact natural flow.",
+      idealFor: "Overplucked eyebrows, alopecia barbae, facial scars",
+      duration: "3 - 4 hours",
+      recovery: "3 - 5 days",
+      priceFrom: 32000,
+    }
+  ],
+  technologies: [
+    "DermLite FotoFinder Micro-Trichoscope",
+    "Magellan Bio-Centrifuge Autologous PRP Closed System",
+    "WAW FUE Wireless Motorised Micro-Punch",
+    "Cold LED Photobiomodulation Scalp Arrays"
+  ],
+  faqs: [
+    {
+      question: "How long after an FUE hair transplant do I see permanent results?",
+      answer: "Transplanted follicles shed around weeks 3 to 6 (shock loss), and new permanent hair starts sprouting at month 3. Peak density and natural styling maturation are typically achieved between months 9 and 12."
+    },
+    {
+      question: "Does PRP therapy hurt?",
+      answer: "We apply a medical vibration device and high-potency topical numbing prior to injections. The vast majority of our patients rate discomfort as 2 out of 10."
+    },
+    {
+      question: "Is hair restoration suitable for women?",
+      answer: "Yes, over 40% of our trichology patients are women. We run full endocrine and ferritin blood panels alongside trichoscopy to treat root causes such as iron deficiency, thyroid flux, or female pattern thinning."
+    }
+  ]
+};
+
+export const BLOG_POSTS: BlogPost[] = [
+  {
+    id: "blog-1",
+    slug: "clear-aligners-vs-traditional-braces-guide",
+    title: "Clear Aligners vs. Traditional Braces: What Specialist Orthodontists Want You to Know",
+    excerpt: "Discover the clinical differences, wear-time discipline, and aesthetic considerations when deciding between Invisalign and ceramic braces.",
+    department: "Dental",
+    authorName: "Dr. Marcus Thornton",
+    authorRole: "Consultant Orthodontist",
+    authorImage: "https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&q=80&w=200",
+    readTime: "5 min read",
+    publishedDate: "October 10, 2026",
+    coverImage: "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&q=80&w=800",
+    tags: ["Orthodontics", "Invisalign", "Dental Health"],
+    content: [
+      "For decades, metal brackets and archwires were the sole method to resolve complex malocclusion. However, advancements in thermoplastic polyurethanes have revolutionized orthodontics.",
+      "Clear aligners work via a sequence of digitally rendered custom trays that exert gentle, continuous micro-forces. Because the aligners are removable for meals and brushing, periodontal inflammation is significantly reduced compared to fixed brackets.",
+      "Key clinical consideration: Patient compliance is critical. For optimal results, clear aligners must be worn 22 hours per day. Those who cannot commit to this rhythm may achieve more predictable results with aesthetic ceramic fixed appliances."
+    ]
+  },
+  {
+    id: "blog-2",
+    slug: "post-summer-melasma-and-pigmentation-reversal",
+    title: "Post-Summer Melasma & Hyperpigmentation: Clinical Laser vs. Chemical Exfoliation",
+    excerpt: "Why heat and UV trigger deep dermal pigment, and the dual-step protocol dermatologists rely on to reverse sun spots safely.",
+    department: "Skin",
+    authorName: "Dr. Sarah Jenkins",
+    authorRole: "Senior Consultant Dermatologist",
+    authorImage: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=200",
+    readTime: "6 min read",
+    publishedDate: "October 02, 2026",
+    coverImage: "https://images.unsplash.com/photo-1512290900672-1f55b9659f4d?auto=format&fit=crop&q=80&w=800",
+    tags: ["Dermatology", "Melasma", "Laser Resurfacing"],
+    content: [
+      "Ultraviolet radiation directly stimulates melanocytes, but many patients are unaware that infrared heat alone can cause melasma rebound. In autumnal months, clinical clinics see a surge in rebound pigmentation.",
+      "To address this without triggering post-inflammatory hyperpigmentation (PIH), we apply a bi-phasic approach: first, topically quieting tyrosinase enzymes using tranexamic acid and cysteamine, followed by gentle fractional Thulium laser passes.",
+      "Patients must remember that broad-spectrum physical sunscreen containing iron oxides is essential to shield against visible blue light emitted by indoor monitors and atmospheric daylight."
+    ]
+  },
+  {
+    id: "blog-3",
+    slug: "understanding-early-hair-shedding-prp-treatments",
+    title: "Telogen Effluvium vs. Androgenetic Thinning: When is PRP Truly Effective?",
+    excerpt: "Not all hair shedding is male or female pattern baldness. Learn how trichoscopic diagnostics determine the exact cause of thinning hair.",
+    department: "Hair",
+    authorName: "Dr. Priya Patel",
+    authorRole: "Lead Trichologist",
+    authorImage: "https://images.unsplash.com/photo-1594824813580-f2c9f4d76388?auto=format&fit=crop&q=80&w=200",
+    readTime: "7 min read",
+    publishedDate: "September 24, 2026",
+    coverImage: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&q=80&w=800",
+    tags: ["Trichology", "Hair Loss", "PRP Therapy"],
+    content: [
+      "Differentiating between diffuse hair shedding (telogen effluvium) and progressive miniaturization (androgenetic alopecia) requires microscopic examination of the scalp. Viewing hair shafts under 70x magnification reveals caliber variability indicative of DHT sensitivity.",
+      "Platelet-Rich Plasma (PRP) is highly potent when hair follicles are miniaturized yet still vascularized. PRP infuses PDGF, VEGF, and TGF-beta into the dermal papilla, stimulating anagen phase transition.",
+      "If a follicle has been dormant for over four to five years, surgical FUE grafting represents the clinically verified solution for regaining natural hairline density."
+    ]
+  },
+  {
+    id: "blog-4",
+    slug: "what-to-expect-during-dental-implant-surgery",
+    title: "3D Guided Surgery: What Truly Happens During a Dental Implant Procedure",
+    excerpt: "Demystifying surgical dental implants: from computer-guided titanium placement to porcelain crown restoration.",
+    department: "Dental",
+    authorName: "Dr. Alistair Vance",
+    authorRole: "Chief of Implantology",
+    authorImage: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=200",
+    readTime: "4 min read",
+    publishedDate: "September 15, 2026",
+    coverImage: "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&q=80&w=800",
+    tags: ["Implantology", "Restorative Dentistry", "Oral Health"],
+    content: [
+      "Modern implant dentistry has transitioned completely into virtual planning. Using 3D CBCT scans, we fabricate a micro-surgical guide that ensures millimeter-exact angle and depth of insertion.",
+      "The placement itself takes approximately 20 to 30 minutes under local anesthesia. Titanium creates a biological bond called osseointegration with surrounding bone cells over 8 to 12 weeks.",
+      "Once fused, the implant acts as a permanent prosthetic root, capable of bearing the identical bite force of a natural adult molar without harming adjacent healthy teeth."
+    ]
+  },
+  {
+    id: "blog-5",
+    slug: "mole-checks-and-early-melanoma-detection",
+    title: "The ABCDE Rule of Skin Checks: A Consultant's Guide to Mole Health",
+    excerpt: "How to identify dysplastic moles at home, when to book a dermatoscope screening, and why early detection is 99% curable.",
+    department: "Skin",
+    authorName: "Dr. Sarah Jenkins",
+    authorRole: "Senior Consultant Dermatologist",
+    authorImage: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=200",
+    readTime: "5 min read",
+    publishedDate: "August 28, 2026",
+    coverImage: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&q=80&w=800",
+    tags: ["Melanoma", "Mole Check", "Skin Cancer Prevention"],
+    content: [
+      "Skin cancer is one of the few cancers visible with the naked eye. Remembering the ABCDE rule can save lives: Asymmetry, Border irregularity, Color variegation, Diameter over 6mm, and Evolution over time.",
+      "Automated total body mapping captures every lesion in calibrated digital microscopy, alerting the clinician to fractional alterations imperceptible to casual inspection.",
+      "We recommend an annual full-body mole check for anyone with fair skin, more than 50 moles, or a direct family history of atypical moles."
+    ]
+  },
+  {
+    id: "blog-6",
+    slug: "post-fue-transplant-care-timeline",
+    title: "Your First 14 Days After an FUE Hair Transplant: The Surgeon's Post-Op Manual",
+    excerpt: "Step-by-step guidance on gentle saline washing, sleeping posture, and resuming workouts following follicular unit extraction.",
+    department: "Hair",
+    authorName: "Dr. Julian Hayes",
+    authorRole: "Consultant Hair Pathologist",
+    authorImage: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&q=80&w=200",
+    readTime: "6 min read",
+    publishedDate: "August 12, 2026",
+    coverImage: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&q=80&w=800",
+    tags: ["Hair Transplant", "FUE Post-Op", "Recovery"],
+    content: [
+      "The first 72 hours post-transplant are pivotal for graft survival. Follicular units are anchoring into freshly vascularized recipient slits, requiring continuous thermal saline hydration.",
+      "Sleeping at a 45-degree angle during nights 1 through 4 prevents fluid from settling into the forehead and eyelids.",
+      "By day 10, all scabs can be gently massaged off in the shower using baby shampoo, and light cardiovascular exercise can safely resume."
+    ]
+  }
+];
+
+export const TESTIMONIALS: Testimonial[] = [
+  {
+    id: "t-1",
+    patientName: "Lady Victoria Kensington",
+    treatment: "Cosmetic Porcelain Veneers & Whitening",
+    department: "Dental",
+    rating: 5,
+    comment: "Dr. Alistair Vance is an absolute artist. My smile looks effortlessly natural—not like fake plastic chiclets. The clinic atmosphere in Mayfair feels more like a private lounge than a dental practice.",
+    date: "September 2026",
+    doctorName: "Dr. Alistair Vance",
+    verified: true,
+  },
+  {
+    id: "t-2",
+    patientName: "James MacIntyre",
+    treatment: "FUE Hair Restoration (2,400 Grafts)",
+    department: "Hair",
+    rating: 5,
+    comment: "At 38, my receding hairline was severely impacting my executive confidence. Dr. Priya Patel designed an age-appropriate, soft hairline that looks 100% natural. Nine months later, the density is incredible.",
+    date: "August 2026",
+    doctorName: "Dr. Priya Patel",
+    verified: true,
+  },
+  {
+    id: "t-3",
+    patientName: "Sophia Martinez-Blunt",
+    treatment: "Fractional Laser & Acne Scar Revision",
+    department: "Skin",
+    rating: 5,
+    comment: "After struggling with cystic acne scars for over a decade, three sessions with Dr. Jenkins completely transformed my skin texture. The care, honesty, and post-procedure follow-ups were beyond reproach.",
+    date: "July 2026",
+    doctorName: "Dr. Sarah Jenkins",
+    verified: true,
+  },
+  {
+    id: "t-4",
+    patientName: "Marcus Sterling",
+    treatment: "Invisalign Diamond Full Arch",
+    department: "Dental",
+    rating: 5,
+    comment: "Smooth, professional, and discreet. Dr. Thornton completed my tooth realignment in just 8 months without anyone at work even noticing I was wearing aligners.",
+    date: "September 2026",
+    doctorName: "Dr. Marcus Thornton",
+    verified: true,
+  },
+  {
+    id: "t-5",
+    patientName: "Dr. Eleanor Vance (PhD)",
+    treatment: "Executive Health Assessment & Full-Body Mole Map",
+    department: "Internal Medicine",
+    rating: 5,
+    comment: "The diagnostic thoroughness at Arquette is second to none. Same-day blood biomarker results and high-resolution mole tracking provided complete peace of mind.",
+    date: "June 2026",
+    doctorName: "Dr. Rebecca Stone",
+    verified: true,
+  },
+  {
+    id: "t-6",
+    patientName: "Oliver Davies",
+    treatment: "Scalp PRP & Trichology Protocol",
+    department: "Hair",
+    rating: 5,
+    comment: "My hair shedding stopped within three sessions of PRP. The team treats hair health like genuine medical science, not snake oil.",
+    date: "August 2026",
+    doctorName: "Dr. Julian Hayes",
+    verified: true,
+  }
+];
+
+export const ALL_SERVICES_CATALOG = [
+  {
+    category: "Dental Suite",
+    department: "Dental" as const,
+    slug: "dental",
+    icon: "Stethoscope",
+    description: "Specialized oral surgery, computer-guided implantology, clear aligners, and painless endodontics.",
+    highlights: ["3D Titanium Implants", "Invisalign® Diamond Elite", "Porcelain Smile Makeovers", "Microscopic Root Canal"],
+    link: "/services/dental",
+  },
+  {
+    category: "Clinical Dermatology & Aesthetics",
+    department: "Skin" as const,
+    slug: "skin",
+    icon: "Sparkles",
+    description: "Consultant-led laser dermatology, chronic acne solutions, depigmentation, and automated mole mapping.",
+    highlights: ["Fractional Laser Resurfacing", "Cosmelan® Melasma Care", "FotoFinder Mole Mapping", "Polynucleotide Bio-Remodelling"],
+    link: "/services/skin",
+  },
+  {
+    category: "Trichology & Hair Restoration",
+    department: "Hair" as const,
+    slug: "hair",
+    icon: "Activity",
+    description: "Microscopic follicular unit transplantation (FUE), scalp PRP therapies, and precision trichoscopy diagnostics.",
+    highlights: ["Micro-FUE Hair Transplants", "Autologous Scalp PRP", "Digital Trichoscopy", "Scalp Micropigmentation"],
+    link: "/services/hair",
+  },
+  {
+    category: "Executive Internal Medicine & Triage",
+    department: "Internal Medicine" as const,
+    slug: "general",
+    icon: "ShieldAlert",
+    description: "Rapid-access diagnostic pathology, preventative cardiology, biomarker profiling, and acute triage.",
+    highlights: ["Same-Day Blood Biomarkers", "Executive Full-Body MOT", "Ultrasound Diagnostics", "Preventative Cardiology"],
+    link: "/services",
+  }
+];
