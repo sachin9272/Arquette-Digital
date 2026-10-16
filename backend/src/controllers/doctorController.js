@@ -1,6 +1,7 @@
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import mongoose from 'mongoose';
 import Doctor from '../models/Doctor.js';
 import {
   uploadBufferToCloudinary,
@@ -9,6 +10,14 @@ import {
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+const getDoctorQueryFilter = (id) => {
+  if (!id) return {};
+  if (mongoose.isValidObjectId(id)) {
+    return { $or: [{ _id: id }, { doctorId: id }] };
+  }
+  return { doctorId: id };
+};
 
 const SEED_DOCTORS = [
   {
@@ -177,8 +186,13 @@ const ensureCloudinaryImage = async (imageInput, file) => {
 // @access  Public
 export const getAllDoctors = async (req, res) => {
   try {
-    const { department, search } = req.query;
+    const { department, search, includeInactive } = req.query;
     const query = {};
+
+    // For public / frontend requests, only return active doctors unless includeInactive=true (e.g. Admin Panel)
+    if (includeInactive !== 'true' && includeInactive !== true) {
+      query.isActive = { $ne: false };
+    }
 
     if (department && department !== 'all') {
       query.department = department;
@@ -215,9 +229,7 @@ export const getAllDoctors = async (req, res) => {
 export const getDoctorById = async (req, res) => {
   try {
     const { id } = req.params;
-    const doctor = id.startsWith('dr-')
-      ? await Doctor.findOne({ doctorId: id })
-      : await Doctor.findById(id);
+    const doctor = await Doctor.findOne(getDoctorQueryFilter(id));
 
     if (!doctor) {
       return res.status(404).json({
@@ -339,6 +351,7 @@ export const createDoctor = async (req, res) => {
         ? specializations.split(',').map((s) => s.trim())
         : [department],
       isAvailableToday: isAvailableToday !== undefined ? Boolean(isAvailableToday) : true,
+      isActive: req.body.isActive !== undefined ? Boolean(req.body.isActive) : true,
     });
 
     const saved = await doctor.save();
@@ -370,8 +383,12 @@ export const updateDoctor = async (req, res) => {
       updateFields.image = await ensureCloudinaryImage(req.body.image, req.file);
     }
 
+    if (req.body.isActive !== undefined) {
+      updateFields.isActive = Boolean(req.body.isActive);
+    }
+
     const updated = await Doctor.findOneAndUpdate(
-      id.startsWith('dr-') ? { doctorId: id } : { _id: id },
+      getDoctorQueryFilter(id),
       updateFields,
       { new: true, runValidators: true }
     );
@@ -403,9 +420,7 @@ export const updateDoctor = async (req, res) => {
 export const deleteDoctor = async (req, res) => {
   try {
     const { id } = req.params;
-    const deleted = await Doctor.findOneAndDelete(
-      id.startsWith('dr-') ? { doctorId: id } : { _id: id }
-    );
+    const deleted = await Doctor.findOneAndDelete(getDoctorQueryFilter(id));
 
     if (!deleted) {
       return res.status(404).json({
