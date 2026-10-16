@@ -1,188 +1,246 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   ShieldCheck,
   Phone,
   Mail,
   MapPin,
   Clock,
+  Sparkles,
+  Star,
+  Award,
+  Calendar,
+  ChevronRight,
   HeartHandshake,
-  CheckCircle,
 } from 'lucide-react';
 import { CLINIC_INFO } from '@/data/clinicData';
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="w-full bg-brand-primary text-white border-t border-brand-border/20 mt-auto transition-colors">
-      {/* Accreditation strip */}
-      <div className="border-b border-white/10 bg-white/5 py-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-            {CLINIC_INFO.accreditations.slice(0, 4).map((acc, idx) => (
-              <div key={idx} className="flex items-center justify-center gap-2 text-xs font-semibold text-slate-300">
-                <CheckCircle className="w-4 h-4 text-brand-secondary shrink-0" />
-                <span>{acc}</span>
-              </div>
-            ))}
+    <footer className="relative w-full bg-[#08121e] text-slate-300 mt-auto overflow-hidden">
+      {/* Top Subtle Radiant Line & Soft Ambient Glow */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-px bg-gradient-to-r from-transparent via-brand-secondary/50 to-transparent" />
+      <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-96 h-32 bg-brand-secondary/10 blur-3xl pointer-events-none" />
+
+      {/* Trust & Quality Assurance Highlights (Borderless & Open) */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 lg:gap-8">
+          <div className="flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-xl bg-white/[0.04] flex items-center justify-center text-brand-secondary shrink-0">
+              <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+            </div>
+            <div>
+              <div className="text-xs sm:text-sm font-semibold text-white tracking-wide">4.8★ Patient Rating</div>
+              <div className="text-[11px] sm:text-xs text-slate-400">1,200+ Verified Reviews</div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-xl bg-white/[0.04] flex items-center justify-center text-brand-secondary shrink-0">
+              <ShieldCheck className="w-4 h-4" />
+            </div>
+            <div>
+              <div className="text-xs sm:text-sm font-semibold text-white tracking-wide">Sterile Protocols</div>
+              <div className="text-[11px] sm:text-xs text-slate-400">Hospital-Grade Safety</div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-xl bg-white/[0.04] flex items-center justify-center text-brand-secondary shrink-0">
+              <Award className="w-4 h-4" />
+            </div>
+            <div>
+              <div className="text-xs sm:text-sm font-semibold text-white tracking-wide">Certified Specialists</div>
+              <div className="text-[11px] sm:text-xs text-slate-400">Surgeons &amp; Dermatologists</div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-xl bg-white/[0.04] flex items-center justify-center text-brand-secondary shrink-0">
+              <Calendar className="w-4 h-4" />
+            </div>
+            <div>
+              <div className="text-xs sm:text-sm font-semibold text-white tracking-wide">Open All 7 Days</div>
+              <div className="text-[11px] sm:text-xs text-brand-secondary font-medium">9:30 AM – 8:00 PM Daily</div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
-          {/* Clinic Brand Overview */}
-          <div className="lg:col-span-2 space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-brand-secondary flex items-center justify-center text-white font-bold text-lg">
-                A
+      {/* Main Footer Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-14">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-12">
+          {/* Brand & Overview Column */}
+          <div className="lg:col-span-4 space-y-5">
+            <Link href="/" className="inline-block group">
+              <div className="bg-white rounded-xl p-2 px-3.5 inline-flex items-center shadow-md transition-transform group-hover:scale-105">
+                <Image
+                  src="/pralash-logo.jpg"
+                  alt="PRALASH Dermystique &amp; Dentique"
+                  width={180}
+                  height={55}
+                  className="h-10 w-auto object-contain"
+                />
               </div>
-              <div>
-                <span className="text-xl font-bold tracking-tight text-white font-serif block">
-                  ARQUETTE
-                </span>
-                <span className="text-[10px] tracking-widest text-brand-badge-bg uppercase font-bold block">
-                  Multi-Speciality Clinic
-                </span>
-              </div>
-            </div>
-            <p className="text-sm text-slate-300 max-w-sm leading-relaxed">
-              {CLINIC_INFO.description} Operating at the forefront of digital healthcare, surgical safety, and tailored aesthetic care in Bengaluru.
+            </Link>
+
+            <p className="text-xs leading-relaxed text-slate-400 max-w-sm">
+              Premier multi-specialty clinical center combining modern dental surgery, evidence-based medical dermatology, and advanced hair restoration in Bengaluru.
             </p>
-            <div className="pt-2 space-y-2 text-xs text-slate-300">
-              <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-brand-secondary shrink-0" />
-                <span>{CLINIC_INFO.address.street}, {CLINIC_INFO.address.city} {CLINIC_INFO.address.postcode}</span>
+
+            <div className="space-y-3 text-xs text-slate-300 pt-1">
+              <div className="flex items-start gap-2.5">
+                <MapPin className="w-4 h-4 text-brand-secondary shrink-0 mt-0.5" />
+                <span className="leading-snug text-slate-300">
+                  Block 1, 708, 3rd Cross Rd, HRBR Layout, Kalyan Nagar, Bengaluru 560043
+                </span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2.5">
                 <Phone className="w-4 h-4 text-brand-secondary shrink-0" />
-                <span>Appointments: {CLINIC_INFO.phone}</span>
+                <a
+                  href={`tel:${CLINIC_INFO.phone}`}
+                  className="hover:text-white transition-colors font-medium text-brand-secondary"
+                >
+                  Direct Helpline: {CLINIC_INFO.phone}
+                </a>
               </div>
-              <div className="flex items-center gap-2 text-red-300 font-semibold">
-                <ShieldCheck className="w-4 h-4 text-red-400 shrink-0" />
-                <span>24/7 Emergency Triage: {CLINIC_INFO.emergencyPhone}</span>
-              </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2.5">
                 <Mail className="w-4 h-4 text-brand-secondary shrink-0" />
-                <span>{CLINIC_INFO.email}</span>
+                <a
+                  href={`mailto:${CLINIC_INFO.email}`}
+                  className="hover:text-white transition-colors text-slate-300"
+                >
+                  {CLINIC_INFO.email}
+                </a>
               </div>
+            </div>
+
+            <div className="pt-1 flex items-center gap-2 text-[11px] text-slate-400">
+              <HeartHandshake className="w-3.5 h-3.5 text-brand-secondary" />
+              <span>Cashless Mediclaim &amp; 0% EMI Assistance Available</span>
             </div>
           </div>
 
-          {/* Quick Links Column */}
-          <div>
-            <h4 className="text-sm font-bold text-white uppercase tracking-wider mb-4 border-b border-white/10 pb-2">
-              The Clinic
+          {/* Clinical Specialties Column */}
+          <div className="lg:col-span-3 space-y-4">
+            <h4 className="text-xs font-semibold text-slate-200 uppercase tracking-wider">
+              Clinical Specialties
             </h4>
-            <ul className="space-y-2.5 text-xs text-slate-300">
-              <li>
-                <Link href="/" className="hover:text-white transition-colors">
-                  01 Home
-                </Link>
-              </li>
-              <li>
-                <Link href="/about" className="hover:text-white transition-colors">
-                  02 About the Clinic
-                </Link>
-              </li>
-              <li>
-                <Link href="/doctors" className="hover:text-white transition-colors">
-                  03 Our Doctors & Consultants
-                </Link>
-              </li>
-              <li>
-                <Link href="/booking" className="hover:text-white transition-colors text-brand-badge-bg font-semibold">
-                  08 Appointment Booking
-                </Link>
-              </li>
-              <li>
-                <Link href="/blog" className="hover:text-white transition-colors">
-                  09 Blog & Patient Education
-                </Link>
-              </li>
-              <li>
-                <Link href="/contact" className="hover:text-white transition-colors">
-                  10 Contact & Emergency Desk
-                </Link>
-              </li>
+            <ul className="space-y-2.5 text-xs">
+              {[
+                { label: '3D Dental Implants & Surgery', href: '/services/dental' },
+                { label: 'Invisalign® Clear Aligners', href: '/services/dental' },
+                { label: 'Porcelain Smile Makeovers', href: '/services/dental' },
+                { label: 'Medical Dermatology & Laser', href: '/services/skin' },
+                { label: 'Severe Acne Scar Revision', href: '/services/skin' },
+                { label: 'Bio-Sapphire FUE Hair Transplants', href: '/services/hair' },
+                { label: 'GFC & Scalp PRP Therapy', href: '/services/hair' },
+              ].map((item, idx) => (
+                <li key={idx}>
+                  <Link
+                    href={item.href}
+                    className="group flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors"
+                  >
+                    <ChevronRight className="w-3 h-3 text-slate-600 group-hover:text-brand-secondary transition-colors" />
+                    <span>{item.label}</span>
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
-          {/* Medical Specialties Column */}
-          <div>
-            <h4 className="text-sm font-bold text-white uppercase tracking-wider mb-4 border-b border-white/10 pb-2">
-              Clinical Suites
+          {/* Patient Care & Quick Links */}
+          <div className="lg:col-span-2 space-y-4">
+            <h4 className="text-xs font-semibold text-slate-200 uppercase tracking-wider">
+              Patient Resources
             </h4>
-            <ul className="space-y-2.5 text-xs text-slate-300">
-              <li>
-                <Link href="/services" className="hover:text-white transition-colors font-medium">
-                  04 All Services Hub
-                </Link>
-              </li>
-              <li>
-                <Link href="/services/dental" className="hover:text-white transition-colors">
-                  05 Dental Treatments & Implants
-                </Link>
-              </li>
-              <li>
-                <Link href="/services/skin" className="hover:text-white transition-colors">
-                  06 Skin Treatments & Laser
-                </Link>
-              </li>
-              <li>
-                <Link href="/services/hair" className="hover:text-white transition-colors">
-                  07 Hair Treatments & FUE
-                </Link>
-              </li>
-              <li>
-                <Link href="/services" className="hover:text-white transition-colors">
-                  Diagnostic Pathology Lab
-                </Link>
-              </li>
-              <li>
-                <Link href="/services" className="hover:text-white transition-colors">
-                  Preventative Cardiology MOT
-                </Link>
-              </li>
+            <ul className="space-y-2.5 text-xs">
+              {[
+                { label: 'About Our Clinic', href: '/about' },
+                { label: 'Consultant Doctors', href: '/doctors' },
+                { label: 'Book Appointment', href: '/booking' },
+                { label: 'Treatment Directory', href: '/services' },
+                { label: 'Clinical Health Blog', href: '/blog' },
+                { label: 'Contact & Directions', href: '/contact' },
+              ].map((item, idx) => (
+                <li key={idx}>
+                  <Link
+                    href={item.href}
+                    className="group flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors"
+                  >
+                    <ChevronRight className="w-3 h-3 text-slate-600 group-hover:text-brand-secondary transition-colors" />
+                    <span>{item.label}</span>
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
-          {/* Operating Hours & Safety */}
-          <div>
-            <h4 className="text-sm font-bold text-white uppercase tracking-wider mb-4 border-b border-white/10 pb-2">
-              Clinic Hours
+          {/* Clinic Visit & Hours (Seamless Soft Card) */}
+          <div className="lg:col-span-3 space-y-4">
+            <h4 className="text-xs font-semibold text-slate-200 uppercase tracking-wider">
+              Consultation Desk
             </h4>
-            <div className="space-y-2 text-xs text-slate-300">
-              <div className="flex items-center gap-1.5 font-semibold text-white">
-                <Clock className="w-3.5 h-3.5 text-brand-secondary" />
-                <span>Outpatient Department</span>
-              </div>
-              <p>Mon - Fri: 8:00 AM - 8:00 PM</p>
-              <p>Saturday: 9:00 AM - 6:00 PM</p>
-              <p className="text-slate-400">Sunday: Urgent On-Call Only</p>
 
-              <div className="pt-4">
-                <div className="flex items-center gap-1.5 font-semibold text-brand-badge-bg">
-                  <HeartHandshake className="w-3.5 h-3.5" />
-                  <span>Private Insurance Accepted</span>
+            <div className="p-5 rounded-2xl bg-white/[0.03] space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-xs font-semibold text-white">
+                  <Clock className="w-4 h-4 text-brand-secondary" />
+                  <span>Outpatient Hours</span>
                 </div>
-                <p className="text-[11px] text-slate-400 mt-1">
-                  Bupa, AXA Health, Aviva, Vitality, and direct international settlement.
-                </p>
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-brand-secondary/20 text-brand-secondary">
+                  <span className="w-1.5 h-1.5 rounded-full bg-brand-secondary animate-pulse" />
+                  Open Today
+                </span>
+              </div>
+
+              <div className="text-xs text-slate-300 space-y-1">
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Monday – Sunday</span>
+                  <span className="font-semibold text-white">9:30 AM – 8:00 PM</span>
+                </div>
+                <div className="text-[11px] text-slate-400">Open all 7 days for consultations</div>
+              </div>
+
+              <div className="pt-1">
+                <Link
+                  href="/booking"
+                  className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-brand-secondary hover:bg-brand-secondary-hover text-white text-xs font-semibold transition-all shadow-sm"
+                >
+                  <Calendar className="w-3.5 h-3.5" />
+                  <span>Reserve Consultation</span>
+                </Link>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Regulatory & Copyright Bar */}
-        <div className="mt-12 pt-6 border-t border-white/10 flex flex-col md:flex-row items-center justify-between text-xs text-slate-400 gap-4">
-          <p>
-            &copy; {new Date().getFullYear()} {CLINIC_INFO.legalName}. All rights reserved. Registered in England & Wales.
-          </p>
-          <div className="flex items-center gap-6">
-            <span className="hover:text-slate-200 cursor-pointer">Privacy & GDPR Policy</span>
-            <span className="hover:text-slate-200 cursor-pointer">Clinical Governance</span>
-            <span className="hover:text-slate-200 cursor-pointer">Cookie Settings</span>
-            <span className="hover:text-slate-200 cursor-pointer">Accessibility Statement</span>
+        {/* Regulatory, Legal & Copyright Strip */}
+        <div className="mt-14 pt-8 border-t border-white/[0.05] flex flex-col md:flex-row items-center justify-between text-xs text-slate-400 gap-4">
+          <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left">
+            <span>&copy; 2026 {CLINIC_INFO.legalName}. All rights reserved.</span>
+            <span className="hidden sm:inline text-slate-700">•</span>
+            <span className="text-[11px] text-slate-400">
+              NABH Quality Assured Medical Center
+            </span>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-center gap-5 text-[11px]">
+            <Link href="/about" className="hover:text-slate-200 transition-colors">
+              Clinical Governance
+            </Link>
+            <Link href="/contact" className="hover:text-slate-200 transition-colors">
+              Patient Care Charter
+            </Link>
+            <span className="hover:text-slate-200 transition-colors cursor-pointer">
+              Privacy Policy
+            </span>
+            <span className="hover:text-slate-200 transition-colors cursor-pointer">
+              Terms of Treatment
+            </span>
           </div>
         </div>
       </div>

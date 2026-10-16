@@ -2,11 +2,10 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import {
   Phone,
-  Clock,
-  MapPin,
   Calendar,
   Menu,
   X,
@@ -47,50 +46,19 @@ export const Header: React.FC = () => {
 
   return (
     <header className="sticky top-0 z-40 w-full bg-brand-surface/95 backdrop-blur-md shadow-xs border-b border-brand-border/60 transition-colors">
-      {/* Top Triage & Emergency Strip */}
-      <div className="bg-brand-primary text-white text-xs border-b border-white/10 transition-colors">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-9">
-          <div className="flex items-center gap-4 sm:gap-6">
-            <a
-              href={`tel:${CLINIC_INFO.emergencyPhone}`}
-              className="flex items-center gap-1.5 text-red-300 hover:text-white font-semibold transition-colors"
-            >
-              <span className="w-2 h-2 rounded-full bg-red-400 animate-ping inline-block" />
-              <span>Emergency: {CLINIC_INFO.emergencyPhone}</span>
-            </a>
-            <div className="hidden md:flex items-center gap-1.5 text-slate-300">
-              <Clock className="w-3.5 h-3.5" />
-              <span>Mon–Sun: 9:30 AM – 8:00 PM</span>
-            </div>
-            <div className="hidden lg:flex items-center gap-1.5 text-slate-300">
-              <MapPin className="w-3.5 h-3.5" />
-              <span>HRBR Layout, Kalyan Nagar, Bengaluru</span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <span className="hidden sm:inline-block text-[11px] font-medium text-slate-300">
-              NABH Accredited Multi-Speciality Center
-            </span>
-          </div>
-        </div>
-      </div>
 
       {/* Main Navigation Bar */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
         {/* Brand Logo */}
-        <Link href="/" className="flex items-center gap-3 group">
-          <div className="w-11 h-11 rounded-xl bg-brand-primary flex items-center justify-center text-white shadow-sm transition-transform group-hover:scale-105">
-            <span className="font-bold text-xl tracking-tighter">A</span>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-lg font-black tracking-tight text-brand-primary leading-tight font-serif">
-              ARQUETTE
-            </span>
-            <span className="text-[10px] tracking-widest text-brand-secondary uppercase font-bold">
-              Multi-Speciality Clinic
-            </span>
-          </div>
+        <Link href="/" className="flex items-center gap-3 group py-1">
+          <Image
+            src="/pralash-logo.jpg"
+            alt="PRALASH Dermystique &amp; Dentique"
+            width={200}
+            height={60}
+            priority
+            className="h-12 sm:h-14 w-auto object-contain transition-transform group-hover:scale-105"
+          />
         </Link>
 
         {/* Desktop Navigation Links */}
@@ -106,11 +74,10 @@ export const Header: React.FC = () => {
                 >
                   <button
                     type="button"
-                    className={`flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-semibold transition-colors cursor-pointer ${
-                      pathname.startsWith('/services')
+                    className={`flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-semibold transition-colors cursor-pointer ${pathname.startsWith('/services')
                         ? 'text-brand-secondary bg-brand-surface-low'
                         : 'text-brand-text hover:text-brand-secondary hover:bg-brand-surface-low'
-                    }`}
+                      }`}
                   >
                     <span>{link.label}</span>
                     <ChevronDown className="w-4 h-4 text-brand-muted group-hover:rotate-180 transition-transform duration-200" />
@@ -125,11 +92,10 @@ export const Header: React.FC = () => {
                           <Link
                             key={child.label}
                             href={child.href}
-                            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-colors ${
-                              pathname === child.href
+                            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-colors ${pathname === child.href
                                 ? 'bg-brand-surface-container text-brand-secondary'
                                 : 'text-brand-text hover:bg-brand-surface-low hover:text-brand-secondary'
-                            }`}
+                              }`}
                           >
                             <span className="w-7 h-7 rounded-lg bg-brand-surface-low flex items-center justify-center text-brand-secondary">
                               <Icon className="w-4 h-4" />
@@ -148,11 +114,10 @@ export const Header: React.FC = () => {
               <Link
                 key={link.label}
                 href={link.href}
-                className={`px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
-                  isActive(link.href)
+                className={`px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${isActive(link.href)
                     ? 'text-brand-secondary bg-brand-surface-low font-bold'
                     : 'text-brand-text hover:text-brand-secondary hover:bg-brand-surface-low'
-                }`}
+                  }`}
               >
                 {link.label}
               </Link>
@@ -202,74 +167,74 @@ export const Header: React.FC = () => {
               onClick={() => setIsMobileMenuOpen(false)}
               className="block px-3 py-2.5 rounded-lg text-sm font-semibold text-brand-text hover:bg-brand-surface-low"
             >
-              01 Home
+              Home
             </Link>
             <Link
               href="/about"
               onClick={() => setIsMobileMenuOpen(false)}
               className="block px-3 py-2.5 rounded-lg text-sm font-semibold text-brand-text hover:bg-brand-surface-low"
             >
-              02 About the Clinic
+              About the Clinic
             </Link>
             <Link
               href="/doctors"
               onClick={() => setIsMobileMenuOpen(false)}
               className="block px-3 py-2.5 rounded-lg text-sm font-semibold text-brand-text hover:bg-brand-surface-low"
             >
-              03 Our Doctors
+              Our Specialists & Doctors
             </Link>
-            <div className="pt-2 pb-1 px-3 text-xs font-bold text-brand-muted uppercase">
-              Clinical Specialties
+            <div className="pt-3 pb-1 px-3 text-xs font-bold text-brand-secondary uppercase tracking-wider">
+              Clinical Suites
             </div>
             <Link
               href="/services"
               onClick={() => setIsMobileMenuOpen(false)}
               className="block px-3 py-2 rounded-lg text-sm font-medium text-brand-text hover:bg-brand-surface-low pl-6"
             >
-              04 All Services Directory
+              All Services Directory
             </Link>
             <Link
               href="/services/dental"
               onClick={() => setIsMobileMenuOpen(false)}
               className="block px-3 py-2 rounded-lg text-sm font-medium text-brand-text hover:bg-brand-surface-low pl-6"
             >
-              05 Dental Treatments & Aligners
+              Dental Treatments & Implants
             </Link>
             <Link
               href="/services/skin"
               onClick={() => setIsMobileMenuOpen(false)}
               className="block px-3 py-2 rounded-lg text-sm font-medium text-brand-text hover:bg-brand-surface-low pl-6"
             >
-              06 Skin Treatments & Dermatology
+              Skin Treatments & Laser
             </Link>
             <Link
               href="/services/hair"
               onClick={() => setIsMobileMenuOpen(false)}
               className="block px-3 py-2 rounded-lg text-sm font-medium text-brand-text hover:bg-brand-surface-low pl-6"
             >
-              07 Hair Treatments & Restoration
+              Hair Restoration & Trichology
             </Link>
-            <div className="pt-2 border-t border-brand-border/60">
+            <div className="pt-3 mt-2 border-t border-brand-border/60 space-y-1">
               <Link
                 href="/booking"
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="block px-3 py-2.5 rounded-lg text-sm font-semibold text-brand-secondary bg-brand-surface-low"
               >
-                08 Appointment Booking Engine
+                Book Appointment
               </Link>
               <Link
                 href="/blog"
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="block px-3 py-2.5 rounded-lg text-sm font-semibold text-brand-text hover:bg-brand-surface-low"
               >
-                09 Blog & Patient Education
+                Blog & Patient Education
               </Link>
               <Link
                 href="/contact"
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="block px-3 py-2.5 rounded-lg text-sm font-semibold text-brand-text hover:bg-brand-surface-low"
               >
-                10 Contact Us & Emergency
+                Contact & Emergency
               </Link>
             </div>
           </nav>
