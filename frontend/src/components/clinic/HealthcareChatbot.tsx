@@ -21,13 +21,13 @@ export const HealthcareChatbot: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [showWelcomeBubble, setShowWelcomeBubble] = useState(true);
+  const [showWelcomeBubble, setShowWelcomeBubble] = useState(false);
 
   const initialGreeting: ChatMessage = {
     id: 'msg-welcome',
     sender: 'bot',
     text: `Hello! 👋 Welcome to **${CLINIC_INFO.name}** in Kalyan Nagar, Bengaluru.\n\nI am your AI Healthcare Concierge. How can I assist you today?\n\n• Browse our **Dental, Skin & Hair** treatments\n• Check **clinic timings & location**\n• Learn about our **doctors & fees**\n• Or **book an appointment** in under 2 minutes!`,
-    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    timestamp: 'Just now',
     quickReplies: [
       'Clinic Timings & Location',
       'Our Doctors & Fees',
@@ -194,8 +194,14 @@ export const HealthcareChatbot: React.FC = () => {
           <div className="bg-brand-primary text-white p-4 flex items-center justify-between border-b border-white/10 shrink-0">
             <div className="flex items-center gap-3">
               <div className="relative">
-                <div className="w-10 h-10 rounded-2xl bg-brand-secondary text-white flex items-center justify-center font-bold text-base shadow-inner">
-                  P
+                <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center p-0.5 shadow-sm overflow-hidden border border-white/20">
+                  <Image
+                    src="/favicon.jpg"
+                    alt="PRALASH"
+                    width={40}
+                    height={40}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-400 border-2 border-brand-primary rounded-full animate-pulse" />
               </div>
