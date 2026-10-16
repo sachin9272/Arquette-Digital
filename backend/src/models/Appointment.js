@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const appointmentSchema = new mongoose.Schema(
   {
@@ -89,6 +89,13 @@ const appointmentSchema = new mongoose.Schema(
       trim: true,
       maxlength: 1000,
     },
+    confirmationEmailSent: {
+      type: Boolean,
+      default: false,
+    },
+    confirmationEmailSentAt: {
+      type: Date,
+    },
   },
   {
     timestamps: true,
@@ -104,4 +111,4 @@ appointmentSchema.statics.generateReference = function () {
 
 const Appointment = mongoose.model('Appointment', appointmentSchema);
 
-module.exports = Appointment;
+export default Appointment;

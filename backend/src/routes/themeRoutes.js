@@ -1,10 +1,11 @@
-const express = require('express');
+import express from 'express';
+import { getActiveTheme, updateTheme } from '../controllers/themeController.js';
+
 const router = express.Router();
-const { getActiveTheme, updateTheme } = require('../controllers/themeController');
 
 router.route('/')
   .get(getActiveTheme)
   .post(updateTheme)
   .put(updateTheme);
 
-module.exports = router;
+export default router;

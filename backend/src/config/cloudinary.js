@@ -1,5 +1,5 @@
-require('dotenv').config();
-const cloudinary = require('cloudinary').v2;
+import 'dotenv/config';
+import { v2 as cloudinary } from 'cloudinary';
 
 const cloudName = (process.env.CLOUDINARY_CLOUD_NAME || '').replace(/['"\s]/g, '');
 const apiKey = (process.env.CLOUDINARY_API_KEY || '').replace(/['"\s]/g, '');
@@ -18,7 +18,7 @@ cloudinary.config({
  * @param {Object} options
  * @returns {Promise<string>} Secure Cloudinary image URL
  */
-const uploadBufferToCloudinary = (buffer, options = {}) => {
+export const uploadBufferToCloudinary = (buffer, options = {}) => {
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
       {
@@ -44,7 +44,7 @@ const uploadBufferToCloudinary = (buffer, options = {}) => {
  * @param {Object} options
  * @returns {Promise<string>} Secure Cloudinary image URL
  */
-const uploadUrlToCloudinary = async (sourceUrl, options = {}) => {
+export const uploadUrlToCloudinary = async (sourceUrl, options = {}) => {
   // If already hosted on cloudinary, return as is
   if (typeof sourceUrl === 'string' && sourceUrl.includes('res.cloudinary.com')) {
     return sourceUrl;
@@ -62,8 +62,5 @@ const uploadUrlToCloudinary = async (sourceUrl, options = {}) => {
   return result.secure_url;
 };
 
-module.exports = {
-  cloudinary,
-  uploadBufferToCloudinary,
-  uploadUrlToCloudinary,
-};
+export { cloudinary };
+export default cloudinary;

@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const ThemeSettingSchema = new mongoose.Schema(
   {
@@ -23,4 +23,5 @@ const ThemeSettingSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model('ThemeSetting', ThemeSettingSchema);
+const ThemeSetting = mongoose.model('ThemeSetting', ThemeSettingSchema);
+export default ThemeSetting;

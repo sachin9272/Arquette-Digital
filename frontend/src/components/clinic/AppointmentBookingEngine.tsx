@@ -191,6 +191,7 @@ export const AppointmentBookingEngine: React.FC<AppointmentBookingEngineProps> =
               timeSlot: formData.timeSlot,
               symptomsOrNotes: formData.medicalNotes || '',
               consultationFee: selectedDoctor ? selectedDoctor.fee : 1200,
+              status: 'confirmed',
             }),
           });
         } catch (err) {

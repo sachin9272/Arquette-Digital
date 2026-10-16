@@ -1,7 +1,6 @@
-const express = require('express');
-const router = express.Router();
-const upload = require('../middleware/upload');
-const {
+import express from 'express';
+import upload from '../middleware/upload.js';
+import {
   getAllDoctors,
   getDoctorById,
   createDoctor,
@@ -9,7 +8,9 @@ const {
   deleteDoctor,
   seedDoctors,
   uploadDoctorImage,
-} = require('../controllers/doctorController');
+} from '../controllers/doctorController.js';
+
+const router = express.Router();
 
 // Seed doctors endpoint
 router.post('/seed', seedDoctors);
@@ -28,4 +29,4 @@ router.route('/:id')
   .patch(upload.single('image'), updateDoctor)
   .delete(deleteDoctor);
 
-module.exports = router;
+export default router;

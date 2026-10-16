@@ -1,7 +1,7 @@
-const ThemeSetting = require('../models/ThemeSetting');
+import ThemeSetting from '../models/ThemeSetting.js';
 
 // Get active theme
-exports.getActiveTheme = async (req, res, next) => {
+export const getActiveTheme = async (req, res, next) => {
   try {
     let setting = await ThemeSetting.findOne().sort({ updatedAt: -1 });
 
@@ -22,7 +22,7 @@ exports.getActiveTheme = async (req, res, next) => {
 };
 
 // Update active theme (Admin only)
-exports.updateTheme = async (req, res, next) => {
+export const updateTheme = async (req, res, next) => {
   try {
     const { theme, customColors, updatedBy } = req.body;
 

@@ -1,9 +1,10 @@
-const Appointment = require('../models/Appointment');
+import Appointment from '../models/Appointment.js';
+import { sendBookingConfirmationEmail } from '../services/emailService.js';
 
 // @desc    Create a new appointment booking
 // @route   POST /api/appointments
 // @access  Public
-exports.createAppointment = async (req, res) => {
+export const createAppointment = async (req, res) => {
   try {
     const {
       patientName,
@@ -18,6 +19,8 @@ exports.createAppointment = async (req, res) => {
       timeSlot,
       symptomsOrNotes,
       consultationFee,
+      status,
+      paymentStatus,
     } = req.body;
 
     // Validate required fields
@@ -30,6 +33,7 @@ exports.createAppointment = async (req, res) => {
 
     // Generate unique booking reference
     const bookingReference = req.body.bookingReference || Appointment.generateReference();
+    const resolvedStatus = status || 'confirmed';
 
     const appointment = new Appointment({
       bookingReference,
@@ -49,16 +53,32 @@ exports.createAppointment = async (req, res) => {
       timeSlot,
       symptomsOrNotes: symptomsOrNotes || '',
       consultationFee: consultationFee || (doctor && doctor.fee) || 1200,
-      status: 'pending',
-      paymentStatus: 'pay_at_clinic',
+      status: resolvedStatus,
+      paymentStatus: paymentStatus || 'pay_at_clinic',
     });
 
     const saved = await appointment.save();
+
+    // If booking is confirmed, dispatch confirmation email to the customer
+    let emailResult = null;
+    if (saved.status === 'confirmed') {
+      try {
+        emailResult = await sendBookingConfirmationEmail(saved);
+        if (emailResult && emailResult.success) {
+          saved.confirmationEmailSent = true;
+          saved.confirmationEmailSentAt = new Date();
+          await saved.save();
+        }
+      } catch (mailErr) {
+        console.error('Failed to dispatch confirmation email on creation:', mailErr);
+      }
+    }
 
     return res.status(201).json({
       success: true,
       message: 'Appointment booking successfully registered.',
       data: saved,
+      emailSent: emailResult ? emailResult.success : false,
     });
   } catch (error) {
     console.error('Error creating appointment:', error);
@@ -73,7 +93,7 @@ exports.createAppointment = async (req, res) => {
 // @desc    Get all appointments with filters & search (For Admin)
 // @route   GET /api/appointments
 // @access  Admin / Protected
-exports.getAllAppointments = async (req, res) => {
+export const getAllAppointments = async (req, res) => {
   try {
     const { status, department, date, search, limit = 100, page = 1 } = req.query;
 
@@ -132,7 +152,7 @@ exports.getAllAppointments = async (req, res) => {
 // @desc    Get single appointment by ID or reference
 // @route   GET /api/appointments/:id
 // @access  Public / Admin
-exports.getAppointmentById = async (req, res) => {
+export const getAppointmentById = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -163,10 +183,20 @@ exports.getAppointmentById = async (req, res) => {
 // @desc    Update appointment status or admin notes (Admin Action)
 // @route   PATCH /api/appointments/:id
 // @access  Admin
-exports.updateAppointmentStatus = async (req, res) => {
+export const updateAppointmentStatus = async (req, res) => {
   try {
     const { id } = req.params;
-    const { status, adminNotes, paymentStatus, appointmentDate, timeSlot } = req.body;
+    const { status, adminNotes, paymentStatus, appointmentDate, timeSlot, forceEmail } = req.body;
+
+    const existing = await Appointment.findById(id);
+    if (!existing) {
+      return res.status(404).json({
+        success: false,
+        message: 'Appointment not found.',
+      });
+    }
+
+    const previousStatus = existing.status;
 
     const updateFields = {};
     if (status) updateFields.status = status;
@@ -180,17 +210,26 @@ exports.updateAppointmentStatus = async (req, res) => {
       runValidators: true,
     });
 
-    if (!updated) {
-      return res.status(404).json({
-        success: false,
-        message: 'Appointment not found.',
-      });
+    // If status changed to 'confirmed' (or forceEmail is requested), send email to customer
+    let emailResult = null;
+    if (status === 'confirmed' && (previousStatus !== 'confirmed' || forceEmail)) {
+      try {
+        emailResult = await sendBookingConfirmationEmail(updated);
+        if (emailResult && emailResult.success) {
+          updated.confirmationEmailSent = true;
+          updated.confirmationEmailSentAt = new Date();
+          await updated.save();
+        }
+      } catch (mailErr) {
+        console.error('Failed to dispatch confirmation email during status update:', mailErr);
+      }
     }
 
     return res.status(200).json({
       success: true,
       message: `Appointment updated to status: ${updated.status}`,
       data: updated,
+      emailSent: emailResult ? emailResult.success : undefined,
     });
   } catch (error) {
     return res.status(500).json({
@@ -201,10 +240,53 @@ exports.updateAppointmentStatus = async (req, res) => {
   }
 };
 
+// @desc    Resend booking confirmation email manually
+// @route   POST /api/appointments/:id/send-confirmation
+// @access  Admin
+export const resendConfirmationEmail = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const appointment = id.startsWith('PRL-')
+      ? await Appointment.findOne({ bookingReference: id })
+      : await Appointment.findById(id);
+
+    if (!appointment) {
+      return res.status(404).json({
+        success: false,
+        message: 'Appointment not found.',
+      });
+    }
+
+    const emailResult = await sendBookingConfirmationEmail(appointment);
+    if (emailResult.success) {
+      appointment.confirmationEmailSent = true;
+      appointment.confirmationEmailSentAt = new Date();
+      await appointment.save();
+
+      return res.status(200).json({
+        success: true,
+        message: `Booking confirmation email dispatched successfully to ${appointment.email}`,
+        data: appointment,
+      });
+    } else {
+      return res.status(500).json({
+        success: false,
+        message: `Failed to dispatch email: ${emailResult.error}`,
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to process confirmation email request.',
+      error: error.message,
+    });
+  }
+};
+
 // @desc    Delete appointment
 // @route   DELETE /api/appointments/:id
 // @access  Admin
-exports.deleteAppointment = async (req, res) => {
+export const deleteAppointment = async (req, res) => {
   try {
     const { id } = req.params;
     const deleted = await Appointment.findByIdAndDelete(id);
@@ -233,7 +315,7 @@ exports.deleteAppointment = async (req, res) => {
 // @desc    Aggregated analytics & overview stats for Admin Dashboard
 // @route   GET /api/appointments/stats/overview
 // @access  Admin
-exports.getAppointmentStats = async (req, res) => {
+export const getAppointmentStats = async (req, res) => {
   try {
     const today = new Date().toISOString().split('T')[0];
 
@@ -295,7 +377,7 @@ exports.getAppointmentStats = async (req, res) => {
 // @desc    Seed realistic dummy appointments into MongoDB
 // @route   POST /api/appointments/seed
 // @access  Admin
-exports.seedAppointments = async (req, res) => {
+export const seedAppointments = async (req, res) => {
   try {
     const dummyData = [
       {

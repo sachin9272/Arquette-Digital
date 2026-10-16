@@ -1,6 +1,5 @@
-const express = require('express');
-const router = express.Router();
-const {
+import express from 'express';
+import {
   createAppointment,
   getAllAppointments,
   getAppointmentById,
@@ -8,13 +7,19 @@ const {
   deleteAppointment,
   getAppointmentStats,
   seedAppointments,
-} = require('../controllers/appointmentController');
+  resendConfirmationEmail,
+} from '../controllers/appointmentController.js';
+
+const router = express.Router();
 
 // Seed dummy data
 router.post('/seed', seedAppointments);
 
 // Admin Analytics Overview
 router.get('/stats/overview', getAppointmentStats);
+
+// Manual trigger to send/resend booking confirmation email
+router.post('/:id/send-confirmation', resendConfirmationEmail);
 
 // List all appointments (Admin) / Create appointment (Public)
 router.route('/')
@@ -27,4 +32,4 @@ router.route('/:id')
   .patch(updateAppointmentStatus)
   .delete(deleteAppointment);
 
-module.exports = router;
+export default router;

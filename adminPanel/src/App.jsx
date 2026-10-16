@@ -96,6 +96,7 @@ export default function App() {
   const [backendConnected, setBackendConnected] = useState(false);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('appointments'); // 'appointments' | 'doctors' | 'analytics' | 'theme'
+  const [sendingEmailId, setSendingEmailId] = useState(null);
 
   // Appointment Filters & Search
   const [searchQuery, setSearchQuery] = useState('');
@@ -322,13 +323,40 @@ export default function App() {
     );
 
     try {
-      await fetch(`${API_BASE}/${id}`, {
+      const res = await fetch(`${API_BASE}/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),
       });
+      if (res.ok) {
+        await fetchAppointments();
+      }
     } catch (err) {
       console.error('Failed to update status on server:', err);
+    }
+  };
+
+  // Manual Trigger to Send / Resend Booking Confirmation Email
+  const handleResendEmail = async (id) => {
+    setSendingEmailId(id);
+    try {
+      const res = await fetch(`${API_BASE}/${id}/send-confirmation`, {
+        method: 'POST',
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(`Booking confirmation email sent successfully to ${data.data?.email}!`);
+        await fetchAppointments();
+        if (selectedAppointment && selectedAppointment._id === id) {
+          setSelectedAppointment(data.data);
+        }
+      } else {
+        alert(`Failed to send email: ${data.message || 'Check SMTP configuration in backend/.env'}`);
+      }
+    } catch (err) {
+      alert(`Error sending email: ${err.message}`);
+    } finally {
+      setSendingEmailId(null);
     }
   };
 
@@ -1294,6 +1322,25 @@ export default function App() {
                   ₹{(selectedAppointment.consultationFee || 1200).toLocaleString('en-IN')}
                 </div>
               </div>
+              <div style={{ gridColumn: 'span 2' }}>
+                <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 700 }}>CONFIRMATION EMAIL STATUS</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '2px', fontSize: '0.85rem' }}>
+                  {selectedAppointment.confirmationEmailSent ? (
+                    <span style={{ color: '#16a34a', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                      <CheckCircle2 size={14} /> Sent to {selectedAppointment.email}
+                      {selectedAppointment.confirmationEmailSentAt && (
+                        <span style={{ color: 'var(--text-muted)', fontWeight: 400, fontSize: '0.75rem' }}>
+                          ({new Date(selectedAppointment.confirmationEmailSentAt).toLocaleTimeString()})
+                        </span>
+                      )}
+                    </span>
+                  ) : (
+                    <span style={{ color: '#b45309', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                      <Clock3 size={14} /> Not Dispatched / Pending
+                    </span>
+                  )}
+                </div>
+              </div>
             </div>
 
             <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
@@ -1306,6 +1353,23 @@ export default function App() {
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '10px', paddingTop: '10px' }}>
+              <button
+                onClick={() => handleResendEmail(selectedAppointment._id)}
+                disabled={sendingEmailId === selectedAppointment._id}
+                className="btn btn-outline"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                title="Send confirmation email to patient"
+              >
+                <Mail size={15} />
+                <span>
+                  {sendingEmailId === selectedAppointment._id
+                    ? 'Dispatching Mail...'
+                    : selectedAppointment.confirmationEmailSent
+                    ? 'Resend Email'
+                    : 'Send Confirmation Email'}
+                </span>
+              </button>
+
               {selectedAppointment.status === 'pending' && (
                 <button
                   onClick={() => {

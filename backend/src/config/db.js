@@ -1,10 +1,9 @@
-const mongoose = require('mongoose');
-require('dotenv').config();
+import mongoose from 'mongoose';
+import 'dotenv/config';
 
 const connectDB = async () => {
   try {
-    const connUri = process.env.MONGODB_URI;
-    console.log(connUri);
+    const connUri = process.env.MONGODB_URI || "mongodb+srv://sachinsingh9272:8JSFr7d6qvjNUwnV@databases.0nr1tnl.mongodb.net/arquette-digital?retryWrites=true&w=majority&appName=Databases";
     const conn = await mongoose.connect(connUri, {
       serverSelectionTimeoutMS: 5000,
     });
@@ -16,4 +15,4 @@ const connectDB = async () => {
   }
 };
 
-module.exports = connectDB;
+export default connectDB;

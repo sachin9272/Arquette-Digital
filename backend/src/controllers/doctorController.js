@@ -1,10 +1,14 @@
-const path = require('path');
-const fs = require('fs');
-const Doctor = require('../models/Doctor');
-const {
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+import Doctor from '../models/Doctor.js';
+import {
   uploadBufferToCloudinary,
   uploadUrlToCloudinary,
-} = require('../config/cloudinary');
+} from '../config/cloudinary.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const SEED_DOCTORS = [
   {
@@ -171,7 +175,7 @@ const ensureCloudinaryImage = async (imageInput, file) => {
 // @desc    Get all doctors with optional department filter & search
 // @route   GET /api/doctors
 // @access  Public
-exports.getAllDoctors = async (req, res) => {
+export const getAllDoctors = async (req, res) => {
   try {
     const { department, search } = req.query;
     const query = {};
@@ -208,7 +212,7 @@ exports.getAllDoctors = async (req, res) => {
 // @desc    Get single doctor by doctorId or _id
 // @route   GET /api/doctors/:id
 // @access  Public
-exports.getDoctorById = async (req, res) => {
+export const getDoctorById = async (req, res) => {
   try {
     const { id } = req.params;
     const doctor = id.startsWith('dr-')
@@ -238,7 +242,7 @@ exports.getDoctorById = async (req, res) => {
 // @desc    Upload doctor photo directly to Cloudinary
 // @route   POST /api/doctors/upload-image
 // @access  Admin
-exports.uploadDoctorImage = async (req, res) => {
+export const uploadDoctorImage = async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({
@@ -269,7 +273,7 @@ exports.uploadDoctorImage = async (req, res) => {
 // @desc    Add a new doctor (stores image in Cloudinary only)
 // @route   POST /api/doctors
 // @access  Admin
-exports.createDoctor = async (req, res) => {
+export const createDoctor = async (req, res) => {
   try {
     const {
       name,
@@ -357,7 +361,7 @@ exports.createDoctor = async (req, res) => {
 // @desc    Update doctor details (stores image in Cloudinary only)
 // @route   PATCH /api/doctors/:id
 // @access  Admin
-exports.updateDoctor = async (req, res) => {
+export const updateDoctor = async (req, res) => {
   try {
     const { id } = req.params;
     const updateFields = { ...req.body };
@@ -396,7 +400,7 @@ exports.updateDoctor = async (req, res) => {
 // @desc    Delete doctor
 // @route   DELETE /api/doctors/:id
 // @access  Admin
-exports.deleteDoctor = async (req, res) => {
+export const deleteDoctor = async (req, res) => {
   try {
     const { id } = req.params;
     const deleted = await Doctor.findOneAndDelete(
@@ -427,7 +431,7 @@ exports.deleteDoctor = async (req, res) => {
 // @desc    Seed all available doctors into MongoDB with Cloudinary image storage
 // @route   POST /api/doctors/seed
 // @access  Admin
-exports.seedDoctors = async (req, res) => {
+export const seedDoctors = async (req, res) => {
   try {
     console.log('Seeding doctors and uploading all images to Cloudinary...');
 

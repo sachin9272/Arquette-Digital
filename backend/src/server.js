@@ -1,11 +1,12 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const morgan = require('morgan');
-const connectDB = require('./config/db');
-const appointmentRoutes = require('./routes/appointmentRoutes');
-const doctorRoutes = require('./routes/doctorRoutes');
-const themeRoutes = require('./routes/themeRoutes');
+import 'dotenv/config';
+import express from 'express';
+import cors from 'cors';
+import morgan from 'morgan';
+import connectDB from './config/db.js';
+import { verifySmtpConnection } from './services/emailService.js';
+import appointmentRoutes from './routes/appointmentRoutes.js';
+import doctorRoutes from './routes/doctorRoutes.js';
+import themeRoutes from './routes/themeRoutes.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -75,4 +76,7 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`🚀 PRALASH Healthcare Backend Server listening on http://localhost:${PORT}`);
   console.log(`📋 Admin Appointments API ready at: http://localhost:${PORT}/api/appointments`);
+  verifySmtpConnection();
 });
+
+export default app;

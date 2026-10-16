@@ -1,6 +1,6 @@
-require('dotenv').config();
-const mongoose = require('mongoose');
-const Appointment = require('./models/Appointment');
+import 'dotenv/config';
+import mongoose from 'mongoose';
+import Appointment from './models/Appointment.js';
 
 const DUMMY_APPOINTMENTS = [
   {
