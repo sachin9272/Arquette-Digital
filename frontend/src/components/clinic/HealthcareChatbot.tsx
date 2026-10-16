@@ -1,18 +1,29 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
-  MessageSquare,
   X,
   Send,
   Sparkles,
   ExternalLink,
   RotateCcw,
-  ShieldAlert,
-  ChevronDown,
   Calendar,
+  Volume2,
+  VolumeX,
+  Copy,
+  Check,
+  Bot,
+  User,
+  Star,
+  ArrowRight,
+  Clock,
+  MapPin,
+  ShieldCheck,
+  ChevronDown,
+  Sparkle,
+  Stethoscope,
 } from 'lucide-react';
 import { CLINIC_INFO } from '@/data/clinicData';
 import { ChatMessage } from '@/lib/chatEngine';
@@ -21,26 +32,63 @@ export const HealthcareChatbot: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [showWelcomeBubble, setShowWelcomeBubble] = useState(false);
+  const [showWelcomeBubble, setShowWelcomeBubble] = useState(true);
+  const [soundEnabled, setSoundEnabled] = useState(false);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const initialGreeting: ChatMessage = {
     id: 'msg-welcome',
     sender: 'bot',
-    text: `Hello! 👋 Welcome to **${CLINIC_INFO.name}** in Kalyan Nagar, Bengaluru.\n\nI am your AI Healthcare Concierge. How can I assist you today?\n\n• Browse our **Dental, Skin & Hair** treatments\n• Check **clinic timings & location**\n• Learn about our **doctors & fees**\n• Or **book an appointment** in under 2 minutes!`,
+    text: `Hello! 👋 Welcome to **${CLINIC_INFO.name}** in Kalyan Nagar, Bengaluru.\n\nI am **Aria**, your AI Healthcare Concierge. How can I assist your health journey today?\n\n• Browse **Dental, Skin & Hair** treatments\n• Check **clinic timings & location**\n• Inquire about our **specialists & consultation fees**\n• Or **book an appointment** in under 60 seconds!`,
     timestamp: 'Just now',
     quickReplies: [
-      'Clinic Timings & Location',
-      'Our Doctors & Fees',
-      'Hair Transplant & GFC',
-      'HydraFacial & Skin Care',
-      'Dental Implants & Aligners',
-      'Book an Appointment',
+      '🕒 Timings & Location',
+      '👨‍⚕️ Doctors & Fees',
+      '💇 Hair Transplant & GFC',
+      '✨ HydraFacial & Skin Care',
+      '🦷 Dental Implants & Braces',
+      '📅 Book an Appointment',
     ],
   };
 
   const [messages, setMessages] = useState<ChatMessage[]>([initialGreeting]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Synthesized Futuristic Web Audio Chimes
+  const playSound = useCallback((type: 'send' | 'receive') => {
+    if (!soundEnabled || typeof window === 'undefined') return;
+    try {
+      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      if (type === 'send') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(520, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.08);
+        gain.gain.setValueAtTime(0.04, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.08);
+      } else {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(700, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1050, ctx.currentTime + 0.12);
+        gain.gain.setValueAtTime(0.05, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.12);
+      }
+    } catch {
+      // AudioContext policy suppression gracefully handled
+    }
+  }, [soundEnabled]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -52,23 +100,33 @@ export const HealthcareChatbot: React.FC = () => {
       setShowWelcomeBubble(false);
       setTimeout(() => {
         inputRef.current?.focus();
-      }, 200);
+      }, 250);
     }
   }, [isOpen, messages]);
 
-  // Hide welcome bubble after 12 seconds if not clicked
+  // Auto-dismiss floating teaser after 14s if unclicked
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowWelcomeBubble(false);
-    }, 12000);
+    }, 14000);
     return () => clearTimeout(timer);
   }, []);
+
+  const handleCopyMessage = (id: string, text: string) => {
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      const cleanText = text.replace(/\*\*/g, '');
+      navigator.clipboard.writeText(cleanText);
+      setCopiedId(id);
+      setTimeout(() => setCopiedId(null), 2000);
+    }
+  };
 
   const handleSend = async (textToSend?: string) => {
     const text = (textToSend || inputMessage).trim();
     if (!text || isTyping) return;
 
     setInputMessage('');
+    playSound('send');
 
     // Append User Message
     const userMsg: ChatMessage = {
@@ -97,6 +155,7 @@ export const HealthcareChatbot: React.FC = () => {
       setTimeout(() => {
         setMessages((prev) => [...prev, botReply]);
         setIsTyping(false);
+        playSound('receive');
       }, 450);
     } catch {
       setTimeout(() => {
@@ -114,6 +173,7 @@ export const HealthcareChatbot: React.FC = () => {
           },
         ]);
         setIsTyping(false);
+        playSound('receive');
       }, 400);
     }
   };
@@ -134,22 +194,41 @@ export const HealthcareChatbot: React.FC = () => {
     ]);
   };
 
-  // Helper to format bold markdown and linebreaks
+  // Helper to format bold markdown, bullet points and linebreaks
   const renderFormattedText = (text: string) => {
     return text.split('\n').map((line, lineIdx) => {
-      const parts = line.split(/(\*\*.*?\*\*)/g);
+      const trimmed = line.trim();
+      const isBullet = trimmed.startsWith('•') || trimmed.startsWith('-');
+      const lineContent = isBullet ? trimmed.replace(/^[•-]\s*/, '') : line;
+
+      const parts = lineContent.split(/(\*\*.*?\*\*)/g);
+      const parsedSpans = parts.map((part, pIdx) => {
+        if (part.startsWith('**') && part.endsWith('**')) {
+          return (
+            <strong key={pIdx} className="font-semibold text-brand-text">
+              {part.slice(2, -2)}
+            </strong>
+          );
+        }
+        return part;
+      });
+
+      if (isBullet) {
+        return (
+          <div key={lineIdx} className="flex items-start gap-2 mt-1.5 first:mt-0">
+            <span className="w-1.5 h-1.5 rounded-full bg-brand-secondary shrink-0 mt-1.5" />
+            <span className="flex-1 leading-relaxed text-brand-text/90">{parsedSpans}</span>
+          </div>
+        );
+      }
+
+      if (trimmed === '') {
+        return <div key={lineIdx} className="h-2" />;
+      }
+
       return (
-        <span key={lineIdx} className="block leading-relaxed">
-          {parts.map((part, pIdx) => {
-            if (part.startsWith('**') && part.endsWith('**')) {
-              return (
-                <strong key={pIdx} className="font-bold text-brand-text">
-                  {part.slice(2, -2)}
-                </strong>
-              );
-            }
-            return part;
-          })}
+        <span key={lineIdx} className="block leading-relaxed text-brand-text/90">
+          {parsedSpans}
         </span>
       );
     });
@@ -157,30 +236,40 @@ export const HealthcareChatbot: React.FC = () => {
 
   return (
     <div className="fixed bottom-6 right-6 z-[999] flex flex-col items-end pointer-events-none">
-      {/* Welcome Callout Bubble (Visible before first click) */}
+      {/* FLOATING TEASER / WELCOME CALLOUT */}
       {showWelcomeBubble && !isOpen && (
-        <div className="pointer-events-auto mb-3 max-w-xs bg-brand-surface border border-brand-border rounded-2xl p-4 shadow-2xl text-xs text-brand-text animate-in fade-in slide-in-from-bottom-2 duration-300 relative">
+        <div className="pointer-events-auto mb-3 max-w-[320px] bg-brand-surface/95 backdrop-blur-xl border border-brand-border/80 rounded-3xl p-4 shadow-[0_20px_50px_rgba(0,0,0,0.18)] text-xs text-brand-text animate-in fade-in slide-in-from-bottom-3 duration-300 relative group">
           <button
             onClick={() => setShowWelcomeBubble(false)}
             aria-label="Close welcome bubble"
-            className="absolute top-2 right-2 text-brand-muted hover:text-brand-text p-1"
+            className="absolute top-2.5 right-2.5 text-brand-muted hover:text-brand-text p-1 rounded-full hover:bg-brand-surface-container transition-colors"
           >
             <X className="w-3.5 h-3.5" />
           </button>
-          <div className="flex items-start gap-2.5">
-            <div className="w-8 h-8 rounded-full bg-brand-secondary text-white flex items-center justify-center shrink-0 shadow-xs font-bold text-xs">
-              P
+          <div className="flex items-start gap-3">
+            <div className="relative shrink-0">
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-primary via-brand-secondary to-teal-400 text-white flex items-center justify-center shadow-md p-0.5">
+                <Bot className="w-5 h-5 text-white" />
+              </div>
+              <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-brand-surface rounded-full animate-ping" />
+              <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-brand-surface rounded-full" />
             </div>
-            <div>
-              <p className="font-bold text-brand-primary">Need help? Ask Aria!</p>
-              <p className="text-brand-muted mt-0.5">
-                Our AI Care Assistant can answer questions about doctor fees, hair & dental treatments, and clinic timings.
+            <div className="flex-1 pr-3">
+              <div className="flex items-center gap-1.5">
+                <p className="font-bold text-brand-primary text-xs tracking-tight">Need Help? Ask Aria</p>
+                <span className="px-1.5 py-0.2 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[9px] font-bold rounded-full">
+                  24/7 AI
+                </span>
+              </div>
+              <p className="text-brand-muted mt-1 leading-snug text-[11px]">
+                Instant answers on doctor consultation fees, hair & skin packages, or book visits in 60s!
               </p>
               <button
                 onClick={() => setIsOpen(true)}
-                className="mt-2 text-brand-secondary font-bold hover:underline inline-flex items-center gap-1"
+                className="mt-2 text-brand-secondary font-bold text-xs hover:text-brand-primary inline-flex items-center gap-1.5 group-hover:translate-x-0.5 transition-transform"
               >
-                <span>Start conversation</span> &rarr;
+                <span>Chat with Concierge</span>
+                <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
@@ -189,138 +278,203 @@ export const HealthcareChatbot: React.FC = () => {
 
       {/* CHAT WINDOW MODAL */}
       {isOpen && (
-        <div className="pointer-events-auto w-[92vw] sm:w-[410px] h-[580px] max-h-[85vh] bg-brand-surface border border-brand-border rounded-3xl shadow-2xl flex flex-col overflow-hidden mb-3 animate-in zoom-in-95 duration-200">
+        <div className="pointer-events-auto w-[94vw] sm:w-[420px] h-[610px] max-h-[85vh] bg-brand-surface/95 backdrop-blur-2xl border border-brand-border/80 rounded-[2rem] shadow-[0_25px_70px_-15px_rgba(0,0,0,0.35)] flex flex-col overflow-hidden mb-3 animate-in zoom-in-95 duration-200">
           {/* Header */}
-          <div className="bg-brand-primary text-white p-4 flex items-center justify-between border-b border-white/10 shrink-0">
-            <div className="flex items-center gap-3">
+          <div className="relative bg-gradient-to-r from-brand-primary via-[#0f2b48] to-brand-secondary text-white p-4 flex items-center justify-between border-b border-white/10 shrink-0 shadow-sm overflow-hidden">
+            {/* Subtle ambient light glow on header */}
+            <div className="absolute -top-12 -right-12 w-32 h-32 bg-teal-400/20 rounded-full blur-2xl pointer-events-none" />
+
+            <div className="flex items-center gap-3 relative z-10">
               <div className="relative">
-                <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center p-0.5 shadow-sm overflow-hidden border border-white/20">
+                <div className="w-11 h-11 rounded-2xl bg-white/10 p-0.5 backdrop-blur-md shadow-md border border-white/20 overflow-hidden flex items-center justify-center">
                   <Image
                     src="/favicon.jpg"
                     alt="PRALASH"
-                    width={40}
-                    height={40}
-                    className="w-full h-full object-cover"
+                    width={44}
+                    height={44}
+                    className="w-full h-full object-cover rounded-xl"
                   />
                 </div>
-                <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-400 border-2 border-brand-primary rounded-full animate-pulse" />
+                {/* Active pulse aura */}
+                <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-400 border-2 border-brand-primary rounded-full animate-ping" />
+                <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-400 border-2 border-brand-primary rounded-full" />
               </div>
+
               <div>
                 <div className="flex items-center gap-1.5">
-                  <h3 className="font-bold text-sm leading-tight text-white">PRALASH Care Assistant</h3>
-                  <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                  <h3 className="font-bold text-sm tracking-tight text-white leading-tight">Aria Concierge</h3>
+                  <span className="px-1.5 py-0.5 rounded-full bg-white/15 backdrop-blur-xs text-[10px] font-semibold text-teal-200 flex items-center gap-1 border border-white/10">
+                    <Sparkles className="w-2.5 h-2.5 text-amber-300 animate-pulse" />
+                    AI
+                  </span>
                 </div>
-                <p className="text-[11px] text-slate-300 flex items-center gap-1">
-                  <span>AI Clinical Concierge</span> &bull; <span className="text-emerald-300">Online</span>
-                </p>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                  <p className="text-[11px] text-slate-200 font-medium tracking-wide">
+                    Online &bull; <span>PRALASH Clinic Bengaluru</span>
+                  </p>
+                </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-1">
+            {/* Header Actions */}
+            <div className="flex items-center gap-1 relative z-10">
+              <button
+                onClick={() => setSoundEnabled((prev) => !prev)}
+                title={soundEnabled ? 'Mute chimes' : 'Enable sound chimes'}
+                aria-label="Toggle sound"
+                className="p-2 text-slate-300 hover:text-white hover:bg-white/10 rounded-xl transition-all"
+              >
+                {soundEnabled ? <Volume2 className="w-4 h-4 text-teal-300" /> : <VolumeX className="w-4 h-4" />}
+              </button>
               <button
                 onClick={handleResetChat}
                 title="Restart conversation"
                 aria-label="Restart conversation"
-                className="p-2 text-slate-300 hover:text-white hover:bg-white/10 rounded-xl transition-colors"
+                className="p-2 text-slate-300 hover:text-white hover:bg-white/10 rounded-xl transition-all"
               >
                 <RotateCcw className="w-4 h-4" />
               </button>
               <button
                 onClick={() => setIsOpen(false)}
-                title="Close chat"
-                aria-label="Close chat"
-                className="p-2 text-slate-300 hover:text-white hover:bg-white/10 rounded-xl transition-colors"
+                title="Minimize chat"
+                aria-label="Minimize chat"
+                className="p-2 text-slate-300 hover:text-white hover:bg-white/10 rounded-xl transition-all"
               >
                 <ChevronDown className="w-5 h-5" />
               </button>
             </div>
           </div>
 
-          {/* Strict Medical Disclaimer Notice */}
-          <div className="bg-amber-50 dark:bg-amber-950/40 border-b border-amber-200/60 dark:border-amber-800/40 px-3.5 py-1.5 flex items-center gap-2 text-[11px] text-amber-800 dark:text-amber-200 shrink-0">
-            <ShieldAlert className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-            <span className="leading-snug truncate">
-              Informational only &bull; Non-diagnostic &bull; Not for acute emergencies
-            </span>
+          {/* Clinical Non-diagnostic Guardrail Bar */}
+          <div className="bg-emerald-500/10 dark:bg-emerald-500/15 border-b border-emerald-500/20 px-4 py-1.5 flex items-center justify-between text-[11px] text-emerald-800 dark:text-emerald-300 shrink-0">
+            <div className="flex items-center gap-1.5 truncate">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              <span className="truncate font-medium">Verified Clinical Guide &bull; Non-diagnostic</span>
+            </div>
+            <span className="text-[10px] opacity-75 font-mono shrink-0">v2.4</span>
           </div>
 
           {/* Messages Scroll Area */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-brand-background/50">
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-brand-background/60">
             {messages.map((msg) => {
               const isBot = msg.sender === 'bot';
+              const isCopied = copiedId === msg.id;
+
               return (
                 <div
                   key={msg.id}
-                  className={`flex flex-col ${isBot ? 'items-start' : 'items-end'} space-y-1.5`}
+                  className={`flex flex-col ${isBot ? 'items-start' : 'items-end'} space-y-1 group`}
                 >
-                  <div className="flex items-end gap-2 max-w-[85%]">
+                  <div className="flex items-end gap-2 max-w-[88%]">
                     {isBot && (
-                      <div className="w-7 h-7 rounded-xl bg-brand-secondary text-white flex items-center justify-center shrink-0 mb-1 text-xs font-bold shadow-xs">
-                        P
+                      <div className="w-7 h-7 rounded-xl bg-gradient-to-tr from-brand-primary to-brand-secondary text-white flex items-center justify-center shrink-0 mb-1 text-xs font-bold shadow-xs">
+                        <Sparkle className="w-3.5 h-3.5" />
                       </div>
                     )}
+
                     <div
-                      className={`p-3.5 rounded-2xl text-xs sm:text-[13px] shadow-xs ${
+                      className={`relative p-3.5 rounded-2xl text-xs sm:text-[13px] shadow-sm transition-all ${
                         isBot
                           ? 'bg-brand-surface border border-brand-border text-brand-text rounded-bl-xs'
-                          : 'bg-brand-primary text-white rounded-br-xs'
+                          : 'bg-gradient-to-br from-brand-primary to-brand-secondary text-white rounded-br-xs shadow-brand-primary/20'
                       }`}
                     >
-                      {renderFormattedText(msg.text)}
+                      {/* Message Content */}
+                      <div>{renderFormattedText(msg.text)}</div>
 
                       {/* Doctor Highlight Card if matched */}
                       {msg.doctorCard && (
-                        <div className="mt-3 p-3 bg-brand-surface-low border border-brand-border rounded-xl flex items-center gap-3">
-                          <div className="relative w-12 h-12 rounded-xl overflow-hidden shrink-0 border border-brand-border">
+                        <div className="mt-3 p-3 bg-brand-surface-low border border-brand-border rounded-2xl flex items-center gap-3 shadow-xs hover:border-brand-secondary/50 transition-colors">
+                          <div className="relative w-14 h-14 rounded-xl overflow-hidden shrink-0 border-2 border-brand-secondary/40">
                             <Image
                               src={msg.doctorCard.image}
                               alt={msg.doctorCard.name}
                               fill
                               className="object-cover"
                             />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-bold text-xs text-brand-text truncate">
-                              {msg.doctorCard.name}
-                            </h4>
+                            <div className="flex items-center gap-1">
+                              <h4 className="font-bold text-xs text-brand-text truncate">
+                                {msg.doctorCard.name}
+                              </h4>
+                              <span className="text-[10px] text-amber-500 flex items-center">
+                                <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                                <span className="ml-0.5 font-bold">4.9</span>
+                              </span>
+                            </div>
                             <p className="text-[11px] text-brand-muted truncate">
                               {msg.doctorCard.title}
                             </p>
-                            <p className="text-[11px] font-semibold text-brand-secondary mt-0.5">
-                              Fee: ₹{msg.doctorCard.fee.toLocaleString('en-IN')}
-                            </p>
+                            <div className="flex items-center justify-between mt-1 pt-1 border-t border-brand-border/60">
+                              <span className="text-[10px] font-semibold text-brand-secondary bg-brand-secondary/10 px-2 py-0.5 rounded-full">
+                                Consultation: ₹{msg.doctorCard.fee.toLocaleString('en-IN')}
+                              </span>
+                              <Link
+                                href="/booking"
+                                onClick={() => setIsOpen(false)}
+                                className="text-[10px] font-bold text-brand-primary hover:text-brand-secondary flex items-center gap-0.5 underline"
+                              >
+                                Book now &rarr;
+                              </Link>
+                            </div>
                           </div>
                         </div>
                       )}
 
                       {/* Action CTA Button */}
                       {msg.actionLink && (
-                        <div className="mt-3 pt-2 border-t border-brand-border/60">
+                        <div className="mt-3 pt-2.5 border-t border-brand-border/60">
                           <Link
                             href={msg.actionLink.url}
                             onClick={() => setIsOpen(false)}
-                            className="inline-flex items-center justify-center gap-1.5 w-full px-3 py-2 rounded-xl bg-brand-secondary text-white font-bold text-xs hover:bg-brand-secondary/90 transition-colors shadow-xs"
+                            className="group/cta inline-flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-brand-secondary to-teal-600 text-white font-bold text-xs hover:shadow-md transition-all shadow-xs"
                           >
-                            <span>{msg.actionLink.label}</span>
-                            <ExternalLink className="w-3.5 h-3.5" />
+                            <span className="flex items-center gap-1.5">
+                              <Calendar className="w-3.5 h-3.5" />
+                              <span>{msg.actionLink.label}</span>
+                            </span>
+                            <ArrowRight className="w-3.5 h-3.5 group-hover/cta:translate-x-1 transition-transform" />
                           </Link>
                         </div>
                       )}
                     </div>
                   </div>
 
-                  <span className="text-[10px] text-brand-muted px-1">
-                    {msg.timestamp}
-                  </span>
+                  {/* Message Bottom Metadata */}
+                  <div className="flex items-center gap-2 px-1 text-[10px] text-brand-muted">
+                    <span>{msg.timestamp}</span>
+                    {isBot && (
+                      <button
+                        onClick={() => handleCopyMessage(msg.id, msg.text)}
+                        title="Copy message"
+                        className="opacity-0 group-hover:opacity-100 transition-opacity hover:text-brand-text flex items-center gap-0.5"
+                      >
+                        {isCopied ? (
+                          <>
+                            <Check className="w-3 h-3 text-emerald-500" />
+                            <span className="text-emerald-500 text-[9px]">Copied</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-3 h-3" />
+                            <span className="text-[9px]">Copy</span>
+                          </>
+                        )}
+                      </button>
+                    )}
+                  </div>
 
-                  {/* Quick Reply Suggestions */}
+                  {/* Dynamic Quick Reply Pills */}
                   {isBot && msg.quickReplies && msg.quickReplies.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 pt-1 pl-9 max-w-[95%]">
+                    <div className="flex flex-wrap gap-1.5 pt-1.5 pl-9 max-w-[95%]">
                       {msg.quickReplies.map((qr, qrIdx) => (
                         <button
                           key={qrIdx}
                           onClick={() => handleSend(qr)}
-                          className="px-2.5 py-1 rounded-full bg-brand-surface border border-brand-border hover:border-brand-secondary hover:text-brand-secondary text-[11px] font-medium text-brand-text transition-all duration-150 shadow-xs hover:scale-102"
+                          className="px-3 py-1 rounded-full bg-brand-surface border border-brand-border hover:border-brand-secondary hover:text-brand-secondary hover:bg-brand-secondary/5 text-[11px] font-medium text-brand-text transition-all duration-150 shadow-xs hover:-translate-y-0.5 cursor-pointer active:scale-95"
                         >
                           {qr}
                         </button>
@@ -331,17 +485,21 @@ export const HealthcareChatbot: React.FC = () => {
               );
             })}
 
-            {/* Typing Indicator */}
+            {/* Futuristic Typing Indicator */}
             {isTyping && (
-              <div className="flex items-end gap-2 max-w-[80%]">
-                <div className="w-7 h-7 rounded-xl bg-brand-secondary text-white flex items-center justify-center shrink-0 mb-1 text-xs font-bold">
-                  P
+              <div className="flex items-end gap-2 max-w-[80%] animate-in fade-in duration-200">
+                <div className="w-7 h-7 rounded-xl bg-gradient-to-tr from-brand-primary to-brand-secondary text-white flex items-center justify-center shrink-0 mb-1 text-xs font-bold">
+                  <Sparkle className="w-3.5 h-3.5" />
                 </div>
-                <div className="bg-brand-surface border border-brand-border p-3 rounded-2xl rounded-bl-xs text-xs flex items-center gap-1.5 text-brand-muted shadow-xs">
-                  <span className="w-2 h-2 rounded-full bg-brand-secondary/60 animate-bounce" />
-                  <span className="w-2 h-2 rounded-full bg-brand-secondary/60 animate-bounce [animation-delay:0.2s]" />
-                  <span className="w-2 h-2 rounded-full bg-brand-secondary/60 animate-bounce [animation-delay:0.4s]" />
-                  <span className="text-[11px] ml-1">Reviewing clinical catalog...</span>
+                <div className="bg-brand-surface border border-brand-border px-3.5 py-2.5 rounded-2xl rounded-bl-xs text-xs flex items-center gap-2 text-brand-muted shadow-xs">
+                  <div className="flex items-center gap-1">
+                    <span className="w-2 h-2 rounded-full bg-brand-secondary animate-bounce" />
+                    <span className="w-2 h-2 rounded-full bg-brand-secondary animate-bounce [animation-delay:0.15s]" />
+                    <span className="w-2 h-2 rounded-full bg-brand-secondary animate-bounce [animation-delay:0.3s]" />
+                  </div>
+                  <span className="text-[11px] text-brand-muted tracking-tight font-medium">
+                    Aria is reviewing clinic catalog...
+                  </span>
                 </div>
               </div>
             )}
@@ -349,101 +507,121 @@ export const HealthcareChatbot: React.FC = () => {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Quick Shortcuts Bar (Visible if only welcome message exists) */}
+          {/* Quick Shortcuts Bar (when conversation has only initial greeting) */}
           {messages.length === 1 && (
-            <div className="px-4 py-2 border-t border-brand-border/60 bg-brand-surface flex items-center gap-1.5 overflow-x-auto text-[11px] shrink-0 no-scrollbar">
-              <span className="text-brand-muted shrink-0 text-[10px] uppercase font-bold tracking-wider">Suggested:</span>
+            <div className="px-3.5 py-2 border-t border-brand-border/60 bg-brand-surface/80 flex items-center gap-1.5 overflow-x-auto text-[11px] shrink-0 no-scrollbar">
+              <span className="text-brand-muted shrink-0 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
+                <Sparkles className="w-3 h-3 text-amber-500" />
+                Quick:
+              </span>
               <button
                 onClick={() => handleSend('Clinic timings and location')}
-                className="px-2 py-0.5 rounded-md bg-brand-surface-low border border-brand-border text-brand-text hover:bg-brand-surface-card shrink-0 transition-colors"
+                className="px-2.5 py-1 rounded-full bg-brand-surface-low border border-brand-border text-brand-text hover:border-brand-secondary hover:text-brand-secondary shrink-0 transition-all font-medium text-[11px]"
               >
                 🕒 Timings
               </button>
               <button
                 onClick={() => handleSend('How much is HydraFacial?')}
-                className="px-2 py-0.5 rounded-md bg-brand-surface-low border border-brand-border text-brand-text hover:bg-brand-surface-card shrink-0 transition-colors"
+                className="px-2.5 py-1 rounded-full bg-brand-surface-low border border-brand-border text-brand-text hover:border-brand-secondary hover:text-brand-secondary shrink-0 transition-all font-medium text-[11px]"
               >
                 ✨ HydraFacial
               </button>
               <button
                 onClick={() => handleSend('Tell me about Hair Transplant and GFC')}
-                className="px-2 py-0.5 rounded-md bg-brand-surface-low border border-brand-border text-brand-text hover:bg-brand-surface-card shrink-0 transition-colors"
+                className="px-2.5 py-1 rounded-full bg-brand-surface-low border border-brand-border text-brand-text hover:border-brand-secondary hover:text-brand-secondary shrink-0 transition-all font-medium text-[11px]"
               >
                 💇 Hair GFC
               </button>
               <button
                 onClick={() => handleSend('Dental implants and aligners')}
-                className="px-2 py-0.5 rounded-md bg-brand-surface-low border border-brand-border text-brand-text hover:bg-brand-surface-card shrink-0 transition-colors"
+                className="px-2.5 py-1 rounded-full bg-brand-surface-low border border-brand-border text-brand-text hover:border-brand-secondary hover:text-brand-secondary shrink-0 transition-all font-medium text-[11px]"
               >
                 🦷 Dental
+              </button>
+              <button
+                onClick={() => handleSend('Who are your doctors and what are the fees?')}
+                className="px-2.5 py-1 rounded-full bg-brand-surface-low border border-brand-border text-brand-text hover:border-brand-secondary hover:text-brand-secondary shrink-0 transition-all font-medium text-[11px]"
+              >
+                👨‍⚕️ Doctors
               </button>
             </div>
           )}
 
-          {/* Input & Send Bar */}
+          {/* Frosted Input & Send Dock */}
           <div className="p-3 bg-brand-surface border-t border-brand-border shrink-0">
-            <div className="flex items-center gap-2">
+            <div className="relative flex items-center">
               <input
                 ref={inputRef}
                 type="text"
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Ask about treatments, doctors, fees..."
-                className="flex-1 px-4 py-2.5 rounded-2xl bg-brand-background border border-brand-border text-xs sm:text-sm text-brand-text focus:outline-none focus:ring-2 focus:ring-brand-accent placeholder:text-brand-muted"
+                placeholder="Ask Aria about doctors, fees, treatments..."
+                className="w-full pl-4 pr-12 py-3 rounded-2xl bg-brand-background border border-brand-border/80 text-xs sm:text-sm text-brand-text focus:outline-none focus:ring-2 focus:ring-brand-secondary focus:border-brand-secondary placeholder:text-brand-muted/70 transition-all shadow-inner"
               />
               <button
                 onClick={() => handleSend()}
                 disabled={!inputMessage.trim() || isTyping}
                 aria-label="Send message"
-                className="w-10 h-10 rounded-2xl bg-brand-primary text-white flex items-center justify-center disabled:opacity-40 hover:bg-brand-secondary transition-all shrink-0 shadow-xs"
+                className="absolute right-1.5 w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-primary via-brand-primary to-brand-secondary text-white flex items-center justify-center disabled:opacity-40 hover:scale-105 active:scale-95 transition-all shadow-sm cursor-pointer disabled:cursor-not-allowed"
               >
                 <Send className="w-4 h-4" />
               </button>
             </div>
+
             <div className="flex items-center justify-between text-[10px] text-brand-muted mt-2 px-1">
-              <span>Powered by PRALASH Clinical Knowledge</span>
+              <span className="flex items-center gap-1 font-medium">
+                <Sparkles className="w-3 h-3 text-amber-500" />
+                <span>PRALASH AI Clinical Concierge</span>
+              </span>
               <Link
                 href="/booking"
                 onClick={() => setIsOpen(false)}
-                className="text-brand-secondary font-semibold hover:underline inline-flex items-center gap-1"
+                className="text-brand-secondary font-bold hover:underline inline-flex items-center gap-1"
               >
                 <Calendar className="w-3 h-3" />
-                <span>Book Direct</span>
+                <span>Instant Booking</span>
               </Link>
             </div>
           </div>
         </div>
       )}
 
-      {/* FLOATING ROUNDED / CIRCULAR LAUNCHER BUTTON */}
+      {/* FLOATING LAUNCHER BUTTON WITH GLOWING AMBIENT AURA */}
       <div className="pointer-events-auto relative flex items-center group">
+        {/* Pulsing Ambient Glow Halo */}
+        <div className="absolute -inset-2 rounded-full bg-gradient-to-r from-teal-500/30 via-sky-500/30 to-emerald-500/30 blur-lg animate-pulse pointer-events-none group-hover:scale-115 transition-transform duration-500" />
+
         {/* Hover Tooltip (visible when closed) */}
         {!isOpen && (
-          <div className="absolute right-full mr-3.5 px-3.5 py-1.5 rounded-full bg-brand-primary text-white text-xs font-semibold whitespace-nowrap shadow-xl opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none translate-x-1 group-hover:translate-x-0 border border-white/10 hidden sm:flex items-center gap-1.5">
+          <div className="absolute right-full mr-4 px-3.5 py-2 rounded-2xl bg-brand-primary/95 text-white text-xs font-semibold whitespace-nowrap shadow-xl opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none translate-x-1 group-hover:translate-x-0 border border-white/10 hidden sm:flex items-center gap-2 backdrop-blur-md">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-            <span>Chat with PRALASH Care Assistant</span>
-            <div className="absolute left-full top-1/2 -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-l-4 border-l-brand-primary" />
+            <span>Chat with Aria AI Assistant</span>
+            <div className="absolute left-full top-1/2 -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-l-4 border-l-brand-primary/95" />
           </div>
         )}
 
         <button
           onClick={() => setIsOpen((prev) => !prev)}
           aria-label={isOpen ? 'Close chat assistant' : 'Open AI Healthcare Chatbot'}
-          className={`relative w-14 h-14 sm:w-16 sm:h-16 rounded-full text-white shadow-[0_10px_35px_rgba(0,0,0,0.3)] flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 border-2 border-white/25 focus:outline-none focus:ring-4 focus:ring-brand-secondary/40 ${
+          className={`relative w-14 h-14 sm:w-16 sm:h-16 rounded-full text-white shadow-[0_12px_40px_rgba(0,0,0,0.35)] flex items-center justify-center transition-all duration-300 hover:scale-108 active:scale-95 border-2 border-white/25 focus:outline-none focus:ring-4 focus:ring-brand-secondary/40 cursor-pointer overflow-hidden ${
             isOpen
-              ? 'bg-brand-primary hover:bg-brand-secondary rotate-90'
-              : 'bg-brand-primary hover:bg-brand-secondary hover:shadow-[0_12px_40px_rgba(0,0,0,0.4)]'
+              ? 'bg-gradient-to-br from-brand-primary to-slate-900 rotate-90'
+              : 'bg-gradient-to-br from-brand-primary via-[#0f2b48] to-brand-secondary hover:shadow-[0_15px_45px_rgba(13,148,136,0.4)]'
           }`}
         >
+          {/* Glass shine reflection overlay */}
+          <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-transparent to-black/10 pointer-events-none" />
+
           {isOpen ? (
-            <X className="w-6 h-6 text-white transition-transform duration-300 -rotate-90" />
+            <X className="w-6 h-6 text-white transition-transform duration-300 -rotate-90 relative z-10" />
           ) : (
-            <div className="relative flex items-center justify-center">
-              <MessageSquare className="w-7 h-7 text-white transition-transform group-hover:scale-110" />
-              {/* Pulsing online status indicator ring */}
-              <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-emerald-400 rounded-full border-2 border-brand-primary animate-ping" />
-              <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-emerald-400 rounded-full border-2 border-brand-primary" />
+            <div className="relative flex items-center justify-center z-10">
+              <Bot className="w-7 h-7 text-white transition-transform group-hover:scale-110 drop-shadow-sm" />
+              {/* Online beacon indicator ring */}
+              <span className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 bg-emerald-400 rounded-full border-2 border-brand-primary animate-ping" />
+              <span className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 bg-emerald-400 rounded-full border-2 border-brand-primary shadow-xs" />
             </div>
           )}
         </button>
