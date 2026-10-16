@@ -223,9 +223,9 @@ export const AppointmentBookingEngine: React.FC<AppointmentBookingEngineProps> =
     const docName = selectedDoctor ? selectedDoctor.name : 'Attending Specialist';
     const icsContent = `BEGIN:VCALENDAR
 VERSION:2.0
-PRODID:-//Arquette Clinic//Medical Appointments//EN
+PRODID:-//PRALASH Dermystique & Dentique//Medical Appointments//EN
 BEGIN:VEVENT
-SUMMARY:Medical Consultation with ${docName} - Arquette Clinic
+SUMMARY:Medical Consultation with ${docName} - PRALASH Clinic
 DESCRIPTION:Specialty: ${confirmedBooking.department}\\nBooking ID: ${confirmedBooking.bookingId}\\nPatient: ${confirmedBooking.patientName}\\nLocation: ${CLINIC_INFO.address.street}, ${CLINIC_INFO.address.city}
 LOCATION:${CLINIC_INFO.address.street}, ${CLINIC_INFO.address.city} ${CLINIC_INFO.address.postcode}
 STATUS:CONFIRMED
@@ -235,7 +235,7 @@ END:VCALENDAR`;
     const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
     const link = document.createElement('a');
     link.href = window.URL.createObjectURL(blob);
-    link.setAttribute('download', `Arquette_Appointment_${confirmedBooking.bookingId}.ics`);
+    link.setAttribute('download', `PRALASH_Appointment_${confirmedBooking.bookingId}.ics`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -614,7 +614,7 @@ END:VCALENDAR`;
                 className="w-4 h-4 rounded-sm border-brand-border text-brand-secondary focus:ring-brand-accent"
               />
               <label htmlFor="firstVisit" className="text-xs text-brand-muted cursor-pointer">
-                This is my first time visiting Arquette Multi-Speciality Clinic.
+                This is my first time visiting PRALASH Dermystique &amp; Dentique.
               </label>
             </div>
           </div>
@@ -624,8 +624,8 @@ END:VCALENDAR`;
       {/* STEP 5: Instant Confirmed Pass */}
       {currentStep === 5 && confirmedBooking && (
         <div className="space-y-6 animate-in zoom-in-95" id="printable-booking-pass">
-          <div className="p-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-center">
-            <div className="w-14 h-14 rounded-full bg-emerald-500 text-white flex items-center justify-center mx-auto mb-3 shadow-md">
+          <div className="p-6 rounded-3xl bg-brand-badge-bg/40 border border-brand-secondary/30 text-center">
+            <div className="w-14 h-14 rounded-full bg-brand-secondary text-white flex items-center justify-center mx-auto mb-3 shadow-md">
               <CheckCircle2 className="w-8 h-8" />
             </div>
             <Badge variant="success" size="md">
