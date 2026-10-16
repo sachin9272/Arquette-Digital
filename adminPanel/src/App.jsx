@@ -1,136 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Calendar,
-  Clock,
-  Search,
-  CheckCircle2,
-  Clock3,
-  XCircle,
-  RefreshCw,
-  Phone,
-  Mail,
-  Plus,
-  Stethoscope,
-  ExternalLink,
-  Download,
-  Trash2,
-  Eye,
-  Check,
-  X,
-  Database,
-  TrendingUp,
-  Palette,
-  CloudUpload
-} from 'lucide-react';
-
-const SERVER_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/$/, '');
-const FRONTEND_URL = (import.meta.env.VITE_FRONTEND_URL || 'http://localhost:3000').replace(/\/$/, '');
-
-const API_BASE = `${SERVER_BASE}/api/appointments`;
-const DOCTOR_API = `${SERVER_BASE}/api/doctors`;
-const THEME_API = `${SERVER_BASE}/api/theme`;
-
-const CLINIC_THEMES = [
-  {
-    id: 'clinical',
-    name: 'Clinical Teal (Official Pralash Default)',
-    tagline: 'Modern clinical precision with restorative surgical teal and soothing cyan.',
-    primaryColor: '#0D5C75',
-    secondaryColor: '#14B8A6',
-    accentColor: '#0284C7',
-    badge: 'Standard Clinic Theme',
-    previewBg: '#F8FAFC',
-    textColor: '#0F172A',
-  },
-  {
-    id: 'emerald',
-    name: 'Nordic Emerald',
-    tagline: 'Soothing organic eucalyptus tone, tailored for holistic wellness and trichology.',
-    primaryColor: '#064E3B',
-    secondaryColor: '#10B981',
-    accentColor: '#34D399',
-    badge: 'Holistic & Scalp',
-    previewBg: '#F0FDF4',
-    textColor: '#064E3B',
-  },
-  {
-    id: 'sapphire',
-    name: 'Royal Sapphire',
-    tagline: 'Authoritative deep navy and vibrant azure for high-precision surgical excellence.',
-    primaryColor: '#1E3A8A',
-    secondaryColor: '#3B82F6',
-    accentColor: '#60A5FA',
-    badge: 'High-Tech Surgery',
-    previewBg: '#EFF6FF',
-    textColor: '#1E3A8A',
-  },
-  {
-    id: 'rose',
-    name: 'Aesthetic Rose Gold',
-    tagline: 'Luxury aesthetic dermatology, anti-aging cosmetology, and gentle skin rejuvenation.',
-    primaryColor: '#831843',
-    secondaryColor: '#F43F5E',
-    accentColor: '#FB7185',
-    badge: 'Cosmetic & Skin Care',
-    previewBg: '#FFF1F2',
-    textColor: '#831843',
-  },
-  {
-    id: 'dark',
-    name: 'Midnight Obsidian',
-    tagline: 'Sleek nocturnal contrast with glowing surgical cyan and restorative teal.',
-    primaryColor: '#090D16',
-    secondaryColor: '#06B6D4',
-    accentColor: '#38BDF8',
-    badge: 'Dark Mode UI',
-    previewBg: '#090D16',
-    textColor: '#F8FAFC',
-  },
-];
-
-const formatTableDate = (dateStr) => {
-  if (!dateStr) return '—';
-  try {
-    const parts = dateStr.split('-');
-    if (parts.length === 3) {
-      const year = Number(parts[0]);
-      const month = Number(parts[1]) - 1;
-      const day = Number(parts[2]);
-      const d = new Date(year, month, day);
-      return d.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-      });
-    }
-    return dateStr;
-  } catch {
-    return dateStr;
-  }
-};
-
-const getInitials = (name) => {
-  if (!name) return 'PT';
-  return name
-    .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((p) => p[0]?.toUpperCase() || '')
-    .join('');
-};
+  API_BASE,
+  DOCTOR_API,
+  THEME_API,
+  BLOG_API,
+  CLINIC_THEMES,
+} from './constants/theme';
+import Sidebar from './components/layout/Sidebar';
+import Header from './components/layout/Header';
+import AppointmentsTab from './components/appointments/AppointmentsTab';
+import DoctorsTab from './components/doctors/DoctorsTab';
+import BlogsTab from './components/blogs/BlogsTab';
+import AnalyticsTab from './components/analytics/AnalyticsTab';
+import ThemeTab from './components/theme/ThemeTab';
+import AppointmentDetailModal from './components/modals/AppointmentDetailModal';
+import NewAppointmentModal from './components/modals/NewAppointmentModal';
+import NewDoctorModal from './components/modals/NewDoctorModal';
+import NewBlogModal from './components/modals/NewBlogModal';
+import ConfirmModal from './components/common/ConfirmModal';
+import Toast from './components/common/Toast';
 
 export default function App() {
   const [appointments, setAppointments] = useState([]);
   const [doctors, setDoctors] = useState([]);
+  const [blogs, setBlogs] = useState([]);
   const [currentTheme, setCurrentTheme] = useState('clinical');
-  const [updatingTheme, setUpdatingTheme] = useState(false);
-  const [themeNotification, setThemeNotification] = useState('');
-  const [uploadingDoctorPhoto, setUploadingDoctorPhoto] = useState(false);
-  const [photoUploadSuccess, setPhotoUploadSuccess] = useState(false);
   const [backendConnected, setBackendConnected] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('appointments'); // 'appointments' | 'doctors' | 'analytics' | 'theme'
-  const [sendingEmailId, setSendingEmailId] = useState(null);
+  const [activeTab, setActiveTab] = useState('appointments'); // 'appointments' | 'doctors' | 'blogs' | 'analytics' | 'theme'
 
   // Appointment Filters & Search
   const [searchQuery, setSearchQuery] = useState('');
@@ -140,13 +37,39 @@ export default function App() {
   // Doctor Filters & Search
   const [doctorSearchQuery, setDoctorSearchQuery] = useState('');
   const [doctorDeptFilter, setDoctorDeptFilter] = useState('all');
+  const [doctorStatusFilter, setDoctorStatusFilter] = useState('all');
 
-  // Modals
+  // Blog Filters & Search
+  const [blogSearchQuery, setBlogSearchQuery] = useState('');
+  const [blogDeptFilter, setBlogDeptFilter] = useState('all');
+  const [blogStatusFilter, setBlogStatusFilter] = useState('all');
+
+  // Modals & UI States
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showAddDoctorModal, setShowAddDoctorModal] = useState(false);
+  const [showAddBlogModal, setShowAddBlogModal] = useState(false);
+  const [confirmModal, setConfirmModal] = useState(null);
+  const [toast, setToast] = useState(null);
 
-  // New Booking State
+  // Theme & Async Action States
+  const [updatingTheme, setUpdatingTheme] = useState(false);
+  const [themeNotification, setThemeNotification] = useState('');
+  const [uploadingDoctorPhoto, setUploadingDoctorPhoto] = useState(false);
+  const [photoUploadSuccess, setPhotoUploadSuccess] = useState(false);
+  const [uploadingBlogCover, setUploadingBlogCover] = useState(false);
+  const [blogCoverSuccess, setBlogCoverSuccess] = useState(false);
+  const [sendingEmailId, setSendingEmailId] = useState(null);
+
+  const showToast = (message, type = 'success') => {
+    const id = Date.now();
+    setToast({ id, message, type });
+    setTimeout(() => {
+      setToast((prev) => (prev?.id === id ? null : prev));
+    }, 4500);
+  };
+
+  // Form State: New Booking
   const [newBooking, setNewBooking] = useState({
     patientName: '',
     email: '',
@@ -157,10 +80,10 @@ export default function App() {
     timeSlot: '10:00 AM',
     doctorName: 'Dr. Marcus Thornton',
     consultationFee: 1400,
-    symptomsOrNotes: ''
+    symptomsOrNotes: '',
   });
 
-  // New Doctor State
+  // Form State: New Doctor
   const [newDoctor, setNewDoctor] = useState({
     name: '',
     title: '',
@@ -171,10 +94,26 @@ export default function App() {
     bio: '',
     image: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=600',
     availability: 'Mon - Fri (9:30 AM - 5:30 PM)',
-    specializations: ''
+    specializations: '',
+    isActive: true,
   });
 
-  // Fetch appointments from MongoDB backend
+  // Form State: New Blog
+  const [newBlog, setNewBlog] = useState({
+    title: '',
+    department: 'Dental',
+    authorName: 'Dr. Marcus Thornton',
+    authorRole: 'Senior Consultant Orthodontist',
+    authorImage: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&q=80&w=600',
+    readTime: '5 min read',
+    excerpt: '',
+    content: '',
+    tags: '',
+    coverImage: 'https://images.unsplash.com/photo-1598256989800-fe5f95da9787?auto=format&fit=crop&q=80&w=1000',
+    isActive: true,
+  });
+
+  // Fetch functions
   const fetchAppointments = async () => {
     try {
       const res = await fetch(API_BASE);
@@ -192,10 +131,9 @@ export default function App() {
     }
   };
 
-  // Fetch doctors from MongoDB backend
   const fetchDoctors = async () => {
     try {
-      const res = await fetch(DOCTOR_API);
+      const res = await fetch(`${DOCTOR_API}?includeInactive=true`);
       if (res.ok) {
         const json = await res.json();
         if (json.success && Array.isArray(json.data)) {
@@ -207,13 +145,26 @@ export default function App() {
     }
   };
 
-  // Fetch active theme from MongoDB backend
+  const fetchBlogs = async () => {
+    try {
+      const res = await fetch(`${BLOG_API}?includeInactive=true`);
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && Array.isArray(json.data)) {
+          setBlogs(json.data);
+        }
+      }
+    } catch (err) {
+      console.warn('Error fetching blogs from API:', err);
+    }
+  };
+
   const fetchTheme = async () => {
     try {
       const res = await fetch(THEME_API);
       if (res.ok) {
         const json = await res.json();
-        if (json.success && json.data && json.data.theme) {
+        if (json.success && json.data?.theme) {
           setCurrentTheme(json.data.theme);
         }
       }
@@ -222,7 +173,74 @@ export default function App() {
     }
   };
 
-  // Update website theme (Admin only)
+  const refreshAll = async () => {
+    setLoading(true);
+    await Promise.all([fetchAppointments(), fetchDoctors(), fetchTheme(), fetchBlogs()]);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    refreshAll();
+  }, []);
+
+  // Filtered Appointments
+  const filteredAppointments = appointments.filter((apt) => {
+    const query = searchQuery.toLowerCase().trim();
+    const matchesSearch =
+      !query ||
+      apt.patientName.toLowerCase().includes(query) ||
+      apt.email.toLowerCase().includes(query) ||
+      apt.phone.includes(query) ||
+      apt.bookingReference.toLowerCase().includes(query) ||
+      apt.doctor?.name.toLowerCase().includes(query);
+
+    const matchesStatus = statusFilter === 'all' || apt.status === statusFilter;
+    const matchesDept = departmentFilter === 'all' || apt.department === departmentFilter;
+
+    return matchesSearch && matchesStatus && matchesDept;
+  });
+
+  // Filtered Doctors
+  const filteredDoctors = doctors.filter((doc) => {
+    const query = doctorSearchQuery.toLowerCase().trim();
+    const matchesSearch =
+      !query ||
+      doc.name.toLowerCase().includes(query) ||
+      doc.title.toLowerCase().includes(query) ||
+      doc.qualifications.toLowerCase().includes(query) ||
+      doc.specializations?.some((s) => s.toLowerCase().includes(query));
+
+    const matchesDept = doctorDeptFilter === 'all' || doc.department === doctorDeptFilter;
+    const isDocActive = doc.isActive !== false;
+    const matchesStatus =
+      doctorStatusFilter === 'all' ||
+      (doctorStatusFilter === 'active' && isDocActive) ||
+      (doctorStatusFilter === 'inactive' && !isDocActive);
+
+    return matchesSearch && matchesDept && matchesStatus;
+  });
+
+  // Filtered Blogs
+  const filteredBlogs = blogs.filter((blog) => {
+    const query = blogSearchQuery.toLowerCase().trim();
+    const matchesSearch =
+      !query ||
+      blog.title.toLowerCase().includes(query) ||
+      blog.excerpt?.toLowerCase().includes(query) ||
+      blog.authorName?.toLowerCase().includes(query) ||
+      blog.tags?.some((t) => t.toLowerCase().includes(query));
+
+    const matchesDept = blogDeptFilter === 'all' || blog.department === blogDeptFilter;
+    const isBlogActive = blog.isActive !== false;
+    const matchesStatus =
+      blogStatusFilter === 'all' ||
+      (blogStatusFilter === 'active' && isBlogActive) ||
+      (blogStatusFilter === 'inactive' && !isBlogActive);
+
+    return matchesSearch && matchesDept && matchesStatus;
+  });
+
+  // Theme update handler
   const handleSelectTheme = async (themeId) => {
     setUpdatingTheme(true);
     setThemeNotification('');
@@ -246,7 +264,7 @@ export default function App() {
     }
   };
 
-  // Upload doctor photo to Cloudinary
+  // Upload Doctor Photo
   const handleDoctorPhotoFileSelect = async (e) => {
     const file = e.target.files && e.target.files[0];
     if (!file) return;
@@ -276,81 +294,124 @@ export default function App() {
     }
   };
 
-  const refreshAll = async () => {
-    setLoading(true);
-    await Promise.all([fetchAppointments(), fetchDoctors(), fetchTheme()]);
-    setLoading(false);
-  };
+  // Upload Blog Cover Photo
+  const handleBlogCoverFileSelect = async (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
 
-  useEffect(() => {
-    refreshAll();
-  }, []);
+    setUploadingBlogCover(true);
+    setBlogCoverSuccess(false);
 
-  // Filtered Appointments
-  const filteredAppointments = appointments.filter((apt) => {
-    const query = searchQuery.toLowerCase().trim();
-    const matchesSearch =
-      !query ||
-      apt.patientName.toLowerCase().includes(query) ||
-      apt.email.toLowerCase().includes(query) ||
-      apt.phone.includes(query) ||
-      apt.bookingReference.toLowerCase().includes(query) ||
-      (apt.doctor && apt.doctor.name.toLowerCase().includes(query));
+    const formData = new FormData();
+    formData.append('image', file);
 
-    const matchesStatus = statusFilter === 'all' || apt.status === statusFilter;
-    const matchesDept = departmentFilter === 'all' || apt.department === departmentFilter;
-
-    return matchesSearch && matchesStatus && matchesDept;
-  });
-
-  // Filtered Doctors
-  const filteredDoctors = doctors.filter((doc) => {
-    const query = doctorSearchQuery.toLowerCase().trim();
-    const matchesSearch =
-      !query ||
-      doc.name.toLowerCase().includes(query) ||
-      doc.title.toLowerCase().includes(query) ||
-      doc.qualifications.toLowerCase().includes(query) ||
-      doc.specializations?.some((s) => s.toLowerCase().includes(query));
-
-    const matchesDept = doctorDeptFilter === 'all' || doc.department === doctorDeptFilter;
-    return matchesSearch && matchesDept;
-  });
-
-  // Re-seed Appointments in DB
-  const handleSeedAppointments = async () => {
-    if (!window.confirm('Reset and seed 8 realistic dummy appointments into MongoDB?')) return;
-    setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/seed`, { method: 'POST' });
-      if (res.ok) {
-        await fetchAppointments();
+      const res = await fetch(`${BLOG_API}/upload-image`, {
+        method: 'POST',
+        body: formData,
+      });
+      const json = await res.json();
+      if (json.success && json.imageUrl) {
+        setNewBlog((prev) => ({ ...prev, coverImage: json.imageUrl }));
+        setBlogCoverSuccess(true);
+      } else {
+        alert(json.message || 'Failed to upload photo to Cloudinary');
       }
     } catch (err) {
-      console.error('Failed to seed appointments:', err);
+      alert('Error connecting to Cloudinary service: ' + err.message);
     } finally {
-      setLoading(false);
+      setUploadingBlogCover(false);
     }
   };
 
-  // Re-seed Doctors in DB
-  const handleSeedDoctors = async () => {
-    if (!window.confirm('Seed all 7 clinical specialist doctors into MongoDB?')) return;
-    setLoading(true);
-    try {
-      const res = await fetch(`${DOCTOR_API}/seed`, { method: 'POST' });
-      if (res.ok) {
-        await fetchDoctors();
-        alert('All available doctors seeded successfully into MongoDB!');
-      }
-    } catch (err) {
-      console.error('Failed to seed doctors:', err);
-    } finally {
-      setLoading(false);
-    }
+  // Seed Appointments
+  const handleSeedAppointments = () => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Reset & Seed MongoDB Appointments',
+      message: 'This will reset the appointment registry and populate 8 realistic clinic bookings with verified patient records.',
+      confirmLabel: 'Seed Appointments',
+      cancelLabel: 'Cancel',
+      type: 'warning',
+      onConfirm: async () => {
+        setConfirmModal(null);
+        setLoading(true);
+        try {
+          const res = await fetch(`${API_BASE}/seed`, { method: 'POST' });
+          if (res.ok) {
+            await fetchAppointments();
+            showToast('8 clinical appointments seeded into MongoDB!', 'success');
+          } else {
+            showToast('Failed to seed appointments.', 'error');
+          }
+        } catch {
+          showToast('Network error while seeding appointments.', 'error');
+        } finally {
+          setLoading(false);
+        }
+      },
+    });
   };
 
-  // Quick Status Updater for Appointments
+  // Seed Doctors
+  const handleSeedDoctors = () => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Seed Specialist Doctors',
+      message: 'This will seed all 7 clinical specialist doctors across Dental, Skin, and Hair departments into MongoDB.',
+      confirmLabel: 'Seed 7 Specialists',
+      cancelLabel: 'Cancel',
+      type: 'warning',
+      onConfirm: async () => {
+        setConfirmModal(null);
+        setLoading(true);
+        try {
+          const res = await fetch(`${DOCTOR_API}/seed`, { method: 'POST' });
+          if (res.ok) {
+            await fetchDoctors();
+            showToast('All 7 specialist doctors seeded successfully into MongoDB!', 'success');
+          } else {
+            showToast('Failed to seed doctors.', 'error');
+          }
+        } catch {
+          showToast('Network error while seeding doctors.', 'error');
+        } finally {
+          setLoading(false);
+        }
+      },
+    });
+  };
+
+  // Seed Blogs
+  const handleSeedBlogs = () => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Seed & Restore Clinical Health Guides',
+      message: 'This will seed and sync the 6 verified clinical articles into MongoDB, ensuring all departments have live guides with active visibility.',
+      confirmLabel: 'Seed Articles',
+      cancelLabel: 'Cancel',
+      type: 'warning',
+      onConfirm: async () => {
+        setConfirmModal(null);
+        setLoading(true);
+        try {
+          const res = await fetch(`${BLOG_API}/seed`, { method: 'POST' });
+          if (res.ok) {
+            await fetchBlogs();
+            showToast('Successfully seeded 6 clinical articles into MongoDB!', 'success');
+          } else {
+            showToast('Failed to seed blogs on server.', 'error');
+          }
+        } catch {
+          showToast('Network error while seeding articles.', 'error');
+        } finally {
+          setLoading(false);
+        }
+      },
+    });
+  };
+
+  // Update Appointment Status
   const handleUpdateStatus = async (id, newStatus) => {
     setAppointments((prev) =>
       prev.map((a) => (a._id === id ? { ...a, status: newStatus } : a))
@@ -364,13 +425,14 @@ export default function App() {
       });
       if (res.ok) {
         await fetchAppointments();
+        showToast(`Appointment status updated to ${newStatus.toUpperCase()}`, 'info');
       }
-    } catch (err) {
-      console.error('Failed to update status on server:', err);
+    } catch {
+      showToast('Failed to update appointment status.', 'error');
     }
   };
 
-  // Manual Trigger to Send / Resend Booking Confirmation Email
+  // Resend Confirmation Email
   const handleResendEmail = async (id) => {
     setSendingEmailId(id);
     try {
@@ -379,34 +441,217 @@ export default function App() {
       });
       const data = await res.json();
       if (data.success) {
-        alert(`Booking confirmation email sent successfully to ${data.data?.email}!`);
+        showToast(`Booking confirmation email sent to ${data.data?.email}!`, 'success');
         await fetchAppointments();
         if (selectedAppointment && selectedAppointment._id === id) {
           setSelectedAppointment(data.data);
         }
       } else {
-        alert(`Failed to send email: ${data.message || 'Check SMTP configuration in backend/.env'}`);
+        showToast(`Failed to send email: ${data.message || 'Check SMTP configuration'}`, 'error');
       }
     } catch (err) {
-      alert(`Error sending email: ${err.message}`);
+      showToast(`Error sending email: ${err.message}`, 'error');
     } finally {
       setSendingEmailId(null);
     }
   };
 
   // Delete Appointment
-  const handleDeleteAppointment = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this appointment record?')) return;
+  const handleDeleteAppointment = (aptOrId) => {
+    const apt = typeof aptOrId === 'object' ? aptOrId : appointments.find((a) => a._id === aptOrId) || { _id: aptOrId };
 
-    setAppointments((prev) => prev.filter((a) => a._id !== id));
+    setConfirmModal({
+      isOpen: true,
+      title: 'Delete Appointment Record',
+      message: 'Are you sure you want to permanently delete this appointment record from the database? This action is irreversible.',
+      itemDetails: {
+        name: apt.patientName || 'Appointment Record',
+        ref: apt.bookingReference || apt._id,
+        dept: apt.department ? `${apt.department} Department` : null,
+        date: apt.appointmentDate ? `${apt.appointmentDate} ${apt.timeSlot ? `• ${apt.timeSlot}` : ''}` : null,
+      },
+      confirmLabel: 'Delete Record',
+      cancelLabel: 'Keep Appointment',
+      type: 'danger',
+      onConfirm: async () => {
+        setConfirmModal(null);
+        setAppointments((prev) => prev.filter((a) => a._id !== apt._id));
+        if (selectedAppointment && selectedAppointment._id === apt._id) {
+          setSelectedAppointment(null);
+        }
+        try {
+          const res = await fetch(`${API_BASE}/${apt._id}`, { method: 'DELETE' });
+          if (res.ok) {
+            showToast(`Appointment for ${apt.patientName || 'patient'} deleted successfully.`, 'success');
+          } else {
+            showToast('Failed to delete on server.', 'error');
+          }
+        } catch {
+          showToast('Network error while deleting appointment.', 'error');
+        }
+      },
+    });
+  };
+
+  // Toggle Doctor Active / Inactive Status
+  const handleToggleDoctorStatus = async (doc) => {
+    const doctorId = doc._id || doc.doctorId;
+    const currentStatus = doc.isActive !== false;
+    const newStatus = !currentStatus;
+
+    setDoctors((prev) =>
+      prev.map((d) =>
+        (d._id === doc._id || d.doctorId === doc.doctorId)
+          ? { ...d, isActive: newStatus }
+          : d
+      )
+    );
+
     try {
-      await fetch(`${API_BASE}/${id}`, { method: 'DELETE' });
-    } catch (err) {
-      console.error('Failed to delete on server:', err);
+      const res = await fetch(`${DOCTOR_API}/${doctorId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isActive: newStatus }),
+      });
+
+      if (res.ok) {
+        showToast(
+          `${doc.name} is now ${newStatus ? 'ACTIVE (visible on frontend)' : 'INACTIVE (hidden from frontend)'}`,
+          newStatus ? 'success' : 'info'
+        );
+      } else {
+        setDoctors((prev) =>
+          prev.map((d) =>
+            (d._id === doc._id || d.doctorId === doc.doctorId)
+              ? { ...d, isActive: currentStatus }
+              : d
+          )
+        );
+        showToast('Failed to update doctor visibility status on server.', 'error');
+      }
+    } catch {
+      setDoctors((prev) =>
+        prev.map((d) =>
+          (d._id === doc._id || d.doctorId === doc.doctorId)
+            ? { ...d, isActive: currentStatus }
+            : d
+        )
+      );
+      showToast('Network error while updating doctor visibility.', 'error');
     }
   };
 
-  // Create new appointment handler
+  // Delete Doctor
+  const handleDeleteDoctor = (id, name) => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Remove Specialist Doctor',
+      message: `Are you sure you want to remove Dr. ${name} from the active clinic specialist directory?`,
+      itemDetails: {
+        name: `Dr. ${name}`,
+        ref: 'Doctor Registry Entry',
+        dept: 'Clinic Specialists',
+      },
+      confirmLabel: 'Remove Doctor',
+      cancelLabel: 'Keep Doctor',
+      type: 'danger',
+      onConfirm: async () => {
+        setConfirmModal(null);
+        try {
+          const res = await fetch(`${DOCTOR_API}/${id}`, { method: 'DELETE' });
+          if (res.ok) {
+            await fetchDoctors();
+            showToast(`Dr. ${name} removed from clinic directory.`, 'success');
+          } else {
+            showToast('Failed to delete doctor on server.', 'error');
+          }
+        } catch {
+          showToast('Network error while deleting doctor.', 'error');
+        }
+      },
+    });
+  };
+
+  // Toggle Blog Active / Deactive Status
+  const handleToggleBlogStatus = async (blog) => {
+    const blogId = blog._id || blog.blogId || blog.slug;
+    const currentStatus = blog.isActive !== false;
+    const newStatus = !currentStatus;
+
+    setBlogs((prev) =>
+      prev.map((b) =>
+        (b._id === blog._id || b.blogId === blog.blogId || b.slug === blog.slug)
+          ? { ...b, isActive: newStatus }
+          : b
+      )
+    );
+
+    try {
+      const res = await fetch(`${BLOG_API}/${blogId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isActive: newStatus }),
+      });
+
+      if (res.ok) {
+        showToast(
+          `"${blog.title.slice(0, 30)}..." is now ${newStatus ? 'ACTIVE (visible on website)' : 'DEACTIVE (hidden from website)'}`,
+          newStatus ? 'success' : 'info'
+        );
+      } else {
+        setBlogs((prev) =>
+          prev.map((b) =>
+            (b._id === blog._id || b.blogId === blog.blogId || b.slug === blog.slug)
+              ? { ...b, isActive: currentStatus }
+              : b
+          )
+        );
+        showToast('Failed to update blog visibility status on server.', 'error');
+      }
+    } catch {
+      setBlogs((prev) =>
+        prev.map((b) =>
+          (b._id === blog._id || b.blogId === blog.blogId || b.slug === blog.slug)
+            ? { ...b, isActive: currentStatus }
+            : b
+        )
+      );
+      showToast('Network error while updating blog visibility.', 'error');
+    }
+  };
+
+  // Delete Blog
+  const handleDeleteBlog = (idOrSlug, title) => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Remove Health Guide Article',
+      message: `Are you sure you want to permanently delete "${title}" from the clinic blog database?`,
+      itemDetails: {
+        name: title,
+        ref: 'Health Guide Entry',
+        dept: 'Patient Education Repository',
+      },
+      confirmLabel: 'Delete Article',
+      cancelLabel: 'Keep Article',
+      type: 'danger',
+      onConfirm: async () => {
+        setConfirmModal(null);
+        try {
+          const res = await fetch(`${BLOG_API}/${idOrSlug}`, { method: 'DELETE' });
+          if (res.ok) {
+            await fetchBlogs();
+            showToast('Health guide article removed successfully.', 'success');
+          } else {
+            showToast('Failed to delete blog article on server.', 'error');
+          }
+        } catch {
+          showToast('Network error while deleting article.', 'error');
+        }
+      },
+    });
+  };
+
+  // Submit New Booking
   const handleCreateAppointmentSubmit = async (e) => {
     e.preventDefault();
     const reference = `PRL-2026-${Math.floor(100000 + Math.random() * 900000)}`;
@@ -421,7 +666,7 @@ export default function App() {
       doctor: {
         id: 'assigned-doc',
         name: newBooking.doctorName,
-        fee: Number(newBooking.consultationFee) || 1200
+        fee: Number(newBooking.consultationFee) || 1200,
       },
       appointmentDate: newBooking.appointmentDate,
       timeSlot: newBooking.timeSlot,
@@ -436,10 +681,11 @@ export default function App() {
       const res = await fetch(API_BASE, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(record)
+        body: JSON.stringify(record),
       });
       if (res.ok) {
         await fetchAppointments();
+        showToast(`Appointment confirmed for ${newBooking.patientName}!`, 'success');
       }
     } catch (err) {
       console.warn('Backend save failed:', err);
@@ -455,11 +701,11 @@ export default function App() {
       timeSlot: '10:00 AM',
       doctorName: 'Dr. Marcus Thornton',
       consultationFee: 1400,
-      symptomsOrNotes: ''
+      symptomsOrNotes: '',
     });
   };
 
-  // Create new doctor handler
+  // Submit New Doctor
   const handleAddDoctorSubmit = async (e) => {
     e.preventDefault();
 
@@ -476,6 +722,7 @@ export default function App() {
       specializations: newDoctor.specializations
         ? newDoctor.specializations.split(',').map((s) => s.trim())
         : [newDoctor.department],
+      isActive: newDoctor.isActive !== undefined ? newDoctor.isActive : true,
     };
 
     try {
@@ -498,28 +745,65 @@ export default function App() {
           bio: '',
           image: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=600',
           availability: 'Mon - Fri (9:30 AM - 5:30 PM)',
-          specializations: ''
+          specializations: '',
+          isActive: true,
         });
-        alert(`Doctor ${payload.name} successfully added to database!`);
+        showToast(`Dr. ${payload.name} successfully added to database!`, 'success');
       } else {
-        alert('Failed to save doctor to database.');
+        showToast('Failed to save doctor to database.', 'error');
       }
-    } catch (err) {
-      console.error('Failed to add doctor:', err);
+    } catch {
+      showToast('Error saving doctor to database.', 'error');
     }
   };
 
-  // Delete doctor handler
-  const handleDeleteDoctor = async (id, name) => {
-    if (!window.confirm(`Are you sure you want to remove ${name} from the clinic database?`)) return;
+  // Submit New Blog
+  const handleAddBlogSubmit = async (e) => {
+    e.preventDefault();
+
+    const payload = {
+      title: newBlog.title,
+      department: newBlog.department,
+      authorName: newBlog.authorName,
+      authorRole: newBlog.authorRole || 'Consultant Specialist',
+      authorImage: newBlog.authorImage || 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=600',
+      readTime: newBlog.readTime || '5 min read',
+      excerpt: newBlog.excerpt,
+      content: newBlog.content,
+      tags: newBlog.tags,
+      coverImage: newBlog.coverImage || 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&q=80&w=1000',
+      isActive: newBlog.isActive !== undefined ? newBlog.isActive : true,
+    };
 
     try {
-      const res = await fetch(`${DOCTOR_API}/${id}`, { method: 'DELETE' });
+      const res = await fetch(BLOG_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
       if (res.ok) {
-        await fetchDoctors();
+        await fetchBlogs();
+        setShowAddBlogModal(false);
+        setNewBlog({
+          title: '',
+          department: 'Dental',
+          authorName: 'Dr. Marcus Thornton',
+          authorRole: 'Senior Consultant Orthodontist',
+          authorImage: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&q=80&w=600',
+          readTime: '5 min read',
+          excerpt: '',
+          content: '',
+          tags: '',
+          coverImage: 'https://images.unsplash.com/photo-1598256989800-fe5f95da9787?auto=format&fit=crop&q=80&w=1000',
+          isActive: true,
+        });
+        showToast(`Article "${payload.title}" created successfully!`, 'success');
+      } else {
+        showToast('Failed to save article to database.', 'error');
       }
-    } catch (err) {
-      console.error('Failed to delete doctor:', err);
+    } catch {
+      showToast('Error saving article to database.', 'error');
     }
   };
 
@@ -539,1328 +823,172 @@ export default function App() {
     document.body.removeChild(link);
   };
 
-  // Computed KPI Metrics
-  const totalCount = appointments.length;
-  const pendingCount = appointments.filter((a) => a.status === 'pending').length;
-  const confirmedCount = appointments.filter((a) => a.status === 'confirmed').length;
-  const totalRevenue = appointments
-    .filter((a) => a.status === 'confirmed' || a.status === 'completed')
-    .reduce((sum, a) => sum + (a.consultationFee || 1200), 0);
+  // Quick Book Doctor
+  const handleQuickBookDoctor = (doc) => {
+    setNewBooking((prev) => ({
+      ...prev,
+      doctorName: doc.name,
+      department: doc.department,
+      consultationFee: doc.fee,
+    }));
+    setShowCreateModal(true);
+  };
 
   return (
-    <div className="admin-layout">
-      {/* SIDEBAR */}
-      <aside className="admin-sidebar">
-        <div className="sidebar-brand">
-          <div className="brand-icon">P</div>
-          <div>
-            <div className="brand-title">PRALASH Clinic</div>
-            <div className="brand-subtitle">Management Console</div>
-          </div>
-        </div>
-
-        <nav className="sidebar-nav">
-          <button
-            className={`nav-item ${activeTab === 'appointments' ? 'active' : ''}`}
-            onClick={() => setActiveTab('appointments')}
-          >
-            <Calendar size={18} />
-            <span>All Appointments ({appointments.length})</span>
-          </button>
-
-          <button
-            className={`nav-item ${activeTab === 'doctors' ? 'active' : ''}`}
-            onClick={() => setActiveTab('doctors')}
-          >
-            <Stethoscope size={18} />
-            <span>Consultant Doctors ({doctors.length})</span>
-          </button>
-
-          <button
-            className={`nav-item ${activeTab === 'analytics' ? 'active' : ''}`}
-            onClick={() => setActiveTab('analytics')}
-          >
-            <TrendingUp size={18} />
-            <span>Department Analytics</span>
-          </button>
-
-          <button
-            className={`nav-item ${activeTab === 'theme' ? 'active' : ''}`}
-            onClick={() => setActiveTab('theme')}
-          >
-            <Palette size={18} />
-            <span>Theme & Appearance</span>
-            <span style={{
-              marginLeft: 'auto',
-              fontSize: '0.65rem',
-              padding: '2px 7px',
-              borderRadius: '6px',
-              background: 'rgba(255,255,255,0.12)',
-              color: '#38bdf8',
-              fontWeight: 800,
-              textTransform: 'capitalize'
-            }}>
-              {currentTheme}
-            </span>
-          </button>
-        </nav>
-
-        <div className="sidebar-footer">
-          {/* Connection status pill */}
-          <div style={{
-            fontSize: '0.72rem',
-            padding: '8px 12px',
-            borderRadius: '10px',
-            background: backendConnected ? 'rgba(16, 185, 129, 0.15)' : 'rgba(245, 158, 11, 0.15)',
-            color: backendConnected ? '#6ee7b7' : '#fcd34d',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            border: `1px solid ${backendConnected ? 'rgba(16, 185, 129, 0.3)' : 'rgba(245, 158, 11, 0.3)'}`
-          }}>
-            <Database size={14} />
-            <span>{backendConnected ? 'MongoDB Live • Real Database Data' : 'Backend Offline (Port 5000)'}</span>
-          </div>
-
-          <a
-            href={FRONTEND_URL}
-            target="_blank"
-            rel="noreferrer"
-            className="btn btn-outline"
-            style={{ color: '#fff', borderColor: 'rgba(255,255,255,0.2)', width: '100%', fontSize: '0.78rem' }}
-          >
-            <span>Open Public Website</span>
-            <ExternalLink size={14} />
-          </a>
-        </div>
-      </aside>
+    <div className="flex h-screen w-screen overflow-hidden bg-[#f8fafc] font-sans text-slate-800 antialiased select-none">
+      {/* SIDEBAR COMPONENT */}
+      <Sidebar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        appointmentsCount={appointments.length}
+        doctorsCount={doctors.length}
+        blogsCount={blogs.length}
+        currentTheme={currentTheme}
+        backendConnected={backendConnected}
+      />
 
       {/* MAIN CONTENT AREA */}
-      <div className="admin-main">
-        {/* Topbar */}
-        <header className="admin-topbar">
-          <div>
-            <h2 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-main)' }}>
-              {activeTab === 'appointments' && 'Appointments & Patient Triage'}
-              {activeTab === 'doctors' && 'Consultant Specialists Directory'}
-              {activeTab === 'analytics' && 'Clinical Department Analytics'}
-              {activeTab === 'theme' && 'Website Theme & Aesthetic Configuration'}
-            </h2>
-            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-              HRBR Layout, Kalyan Nagar Clinic &bull; Mon–Sun 9:30 AM – 8:00 PM
-            </p>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            {activeTab === 'appointments' && (
-              <>
-                <button
-                  onClick={handleSeedAppointments}
-                  className="btn btn-outline"
-                  title="Reset & seed realistic clinical dummy appointments into MongoDB"
-                >
-                  <Database size={15} />
-                  <span>Re-Seed DB</span>
-                </button>
-
-                <button
-                  onClick={handleExportCSV}
-                  className="btn btn-outline"
-                  title="Export appointments to CSV spreadsheet"
-                >
-                  <Download size={15} />
-                  <span>Export CSV</span>
-                </button>
-
-                <button
-                  onClick={() => setShowCreateModal(true)}
-                  className="btn btn-secondary"
-                >
-                  <Plus size={16} />
-                  <span>New Appointment</span>
-                </button>
-              </>
-            )}
-
-            {activeTab === 'doctors' && (
-              <>
-                <button
-                  onClick={handleSeedDoctors}
-                  className="btn btn-outline"
-                  title="Seed all 7 clinical specialists into MongoDB"
-                >
-                  <Database size={15} />
-                  <span>Seed Doctors to DB</span>
-                </button>
-
-                <button
-                  onClick={() => setShowAddDoctorModal(true)}
-                  className="btn btn-secondary"
-                >
-                  <Plus size={16} />
-                  <span>Add New Doctor</span>
-                </button>
-              </>
-            )}
-          </div>
-        </header>
+      <div className="flex-1 h-screen overflow-y-auto flex flex-col min-w-0 bg-[#f8fafc]">
+        {/* HEADER COMPONENT */}
+        <Header
+          activeTab={activeTab}
+          loading={loading}
+          onSeedAppointments={handleSeedAppointments}
+          onExportCSV={handleExportCSV}
+          onOpenCreateAppointment={() => setShowCreateModal(true)}
+          onSeedDoctors={handleSeedDoctors}
+          onOpenAddDoctor={() => setShowAddDoctorModal(true)}
+          onSeedBlogs={handleSeedBlogs}
+          onOpenAddBlog={() => setShowAddBlogModal(true)}
+        />
 
         {/* TAB 1: APPOINTMENTS */}
         {activeTab === 'appointments' && (
-          <main className="admin-content">
-            {/* STATS OVERVIEW CARDS */}
-            <div className="stats-grid">
-              <div className="stat-card">
-                <div className="stat-header">
-                  <span>Total Bookings</span>
-                  <div className="stat-icon" style={{ background: '#e0f2fe', color: '#0284c7' }}>
-                    <Calendar size={18} />
-                  </div>
-                </div>
-                <div className="stat-value">{totalCount}</div>
-                <div className="stat-footer">Stored live in MongoDB</div>
-              </div>
-
-              <div className="stat-card">
-                <div className="stat-header">
-                  <span>Pending Review</span>
-                  <div className="stat-icon" style={{ background: '#fef3c7', color: '#b45309' }}>
-                    <Clock3 size={18} />
-                  </div>
-                </div>
-                <div className="stat-value" style={{ color: '#b45309' }}>{pendingCount}</div>
-                <div className="stat-footer">Needs clinical coordinator action</div>
-              </div>
-
-              <div className="stat-card">
-                <div className="stat-header">
-                  <span>Confirmed Visits</span>
-                  <div className="stat-icon" style={{ background: '#d1fae5', color: '#065f46' }}>
-                    <CheckCircle2 size={18} />
-                  </div>
-                </div>
-                <div className="stat-value" style={{ color: '#065f46' }}>{confirmedCount}</div>
-                <div className="stat-footer">Doctor slot locked</div>
-              </div>
-
-              <div className="stat-card">
-                <div className="stat-header">
-                  <span>Est. Consultation Revenue</span>
-                  <div className="stat-icon" style={{ background: '#ecfdf5', color: '#006a61' }}>
-                    <span style={{ fontWeight: 800, fontSize: '1rem' }}>₹</span>
-                  </div>
-                </div>
-                <div className="stat-value">₹{totalRevenue.toLocaleString('en-IN')}</div>
-                <div className="stat-footer">From confirmed & completed visits</div>
-              </div>
-            </div>
-
-            {/* CONTROLS & SEARCH BAR */}
-            <div className="controls-bar">
-              <div className="search-box">
-                <Search size={16} color="#94a3b8" />
-                <input
-                  type="text"
-                  placeholder="Search patient name, phone, email, or PRL ref..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-                {searchQuery && (
-                  <button
-                    onClick={() => setSearchQuery('')}
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8' }}
-                  >
-                    <X size={14} />
-                  </button>
-                )}
-              </div>
-
-              <div className="filter-group">
-                {/* Department Filter */}
-                <select
-                  className="filter-select"
-                  value={departmentFilter}
-                  onChange={(e) => setDepartmentFilter(e.target.value)}
-                >
-                  <option value="all">All Specialties</option>
-                  <option value="Dental">🦷 Dental</option>
-                  <option value="Skin">✨ Skin</option>
-                  <option value="Hair">💇 Hair</option>
-                </select>
-
-                {/* Status Filter */}
-                <select
-                  className="filter-select"
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                >
-                  <option value="all">All Statuses</option>
-                  <option value="pending">Pending</option>
-                  <option value="confirmed">Confirmed</option>
-                  <option value="completed">Completed</option>
-                  <option value="cancelled">Cancelled</option>
-                </select>
-
-                <button
-                  onClick={fetchAppointments}
-                  className="btn btn-outline"
-                  style={{ padding: '8px 12px' }}
-                  title="Refresh from MongoDB backend"
-                >
-                  <RefreshCw size={15} className={loading ? 'animate-spin' : ''} />
-                </button>
-              </div>
-            </div>
-
-            {/* APPOINTMENTS TABLE */}
-            <div className="table-card">
-              <div className="table-header">
-                <div>
-                  <span className="table-title">Appointment Registry</span>
-                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginLeft: '8px' }}>
-                    ({filteredAppointments.length} record{filteredAppointments.length === 1 ? '' : 's'})
-                  </span>
-                </div>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                  Showing verified MongoDB records
-                </span>
-              </div>
-
-              <div className="table-responsive">
-                <table className="appointments-table">
-                  <thead>
-                    <tr>
-                      <th>Ref & Patient</th>
-                      <th>Specialty</th>
-                      <th>Doctor & Treatment</th>
-                      <th>Date & Time</th>
-                      <th>Fee</th>
-                      <th>Status</th>
-                      <th style={{ textAlign: 'right' }}>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredAppointments.length === 0 ? (
-                      <tr>
-                        <td colSpan="7" style={{ textAlign: 'center', padding: '48px 16px', color: 'var(--text-muted)' }}>
-                          <Calendar size={36} color="#cbd5e1" style={{ margin: '0 auto 12px auto' }} />
-                          <div style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--text-main)' }}>
-                            No appointments match current filters
-                          </div>
-                          <p style={{ fontSize: '0.8rem', marginTop: '4px' }}>
-                            Try clearing your search query or click &quot;Re-Seed DB&quot; to restore sample records.
-                          </p>
-                        </td>
-                      </tr>
-                    ) : (
-                      filteredAppointments.map((apt) => {
-                        const deptGradient =
-                          apt.department === 'Dental'
-                            ? 'linear-gradient(135deg, #0284c7 0%, #38bdf8 100%)'
-                            : apt.department === 'Skin'
-                            ? 'linear-gradient(135deg, #d97706 0%, #fbbf24 100%)'
-                            : apt.department === 'Hair'
-                            ? 'linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)'
-                            : 'linear-gradient(135deg, #0d5c75 0%, #14b8a6 100%)';
-
-                        return (
-                          <tr key={apt._id}>
-                            {/* 1. PATIENT & BOOKING REF */}
-                            <td>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                <div
-                                  style={{
-                                    width: '38px',
-                                    height: '38px',
-                                    borderRadius: '10px',
-                                    background: deptGradient,
-                                    color: '#ffffff',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    fontWeight: 800,
-                                    fontSize: '0.82rem',
-                                    flexShrink: 0,
-                                    letterSpacing: '0.02em',
-                                    boxShadow: '0 2px 4px rgba(0,0,0,0.06)',
-                                  }}
-                                  title={`${apt.patientName} (${apt.department})`}
-                                >
-                                  {getInitials(apt.patientName)}
-                                </div>
-
-                                <div>
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <span style={{ fontWeight: 800, color: 'var(--text-main)', fontSize: '0.92rem' }}>
-                                      {apt.patientName}
-                                    </span>
-                                    <span
-                                      style={{
-                                        fontFamily: 'monospace',
-                                        fontWeight: 700,
-                                        fontSize: '0.7rem',
-                                        padding: '1px 7px',
-                                        borderRadius: '5px',
-                                        background: '#f1f5f9',
-                                        color: 'var(--secondary)',
-                                        border: '1px solid #e2e8f0',
-                                        letterSpacing: '0.02em',
-                                      }}
-                                    >
-                                      {apt.bookingReference}
-                                    </span>
-                                  </div>
-
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.74rem', color: 'var(--text-muted)', marginTop: '3px' }}>
-                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
-                                      <Phone size={11} style={{ color: 'var(--secondary)' }} />
-                                      <span>{apt.phone}</span>
-                                    </span>
-                                    <span>•</span>
-                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap', maxWidth: '220px', overflow: 'hidden', textOverflow: 'ellipsis' }} title={apt.email}>
-                                      <Mail size={11} />
-                                      <span>{apt.email}</span>
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-                            </td>
-
-                            {/* 2. SPECIALTY DEPT */}
-                            <td>
-                              <span className={`badge badge-${apt.department ? apt.department.toLowerCase() : 'dept'}`}>
-                                {apt.department === 'Dental' ? '🦷 Dental' : apt.department === 'Skin' ? '✨ Skin' : '💇 Hair'}
-                              </span>
-                            </td>
-
-                            {/* 3. DOCTOR & PROCEDURE */}
-                            <td>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontWeight: 700, color: 'var(--text-main)', fontSize: '0.84rem' }}>
-                                <Stethoscope size={13} style={{ color: 'var(--secondary)', flexShrink: 0 }} />
-                                <span style={{ whiteSpace: 'nowrap' }}>{apt.doctor?.name || 'Duty Specialist'}</span>
-                              </div>
-                              <div
-                                style={{
-                                  fontSize: '0.75rem',
-                                  color: 'var(--text-muted)',
-                                  marginTop: '2px',
-                                  maxWidth: '240px',
-                                  whiteSpace: 'nowrap',
-                                  overflow: 'hidden',
-                                  textOverflow: 'ellipsis',
-                                }}
-                                title={apt.treatment}
-                              >
-                                {apt.treatment}
-                              </div>
-                            </td>
-
-                            {/* 4. DATE & TIME (NOWRAP) */}
-                            <td>
-                              <div style={{ whiteSpace: 'nowrap' }}>
-                                <div style={{ fontWeight: 700, color: 'var(--text-main)', fontSize: '0.86rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                  <Calendar size={13} style={{ color: 'var(--secondary)' }} />
-                                  <span>{formatTableDate(apt.appointmentDate)}</span>
-                                </div>
-                                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '5px', marginTop: '3px' }}>
-                                  <Clock size={12} />
-                                  <span>{apt.timeSlot}</span>
-                                </div>
-                              </div>
-                            </td>
-
-                            {/* 5. CONSULTATION FEE */}
-                            <td>
-                              <div style={{ whiteSpace: 'nowrap' }}>
-                                <div style={{ fontWeight: 800, color: 'var(--text-main)', fontSize: '0.92rem' }}>
-                                  ₹{(apt.consultationFee || 1200).toLocaleString('en-IN')}
-                                </div>
-                                <div
-                                  style={{
-                                    fontSize: '0.68rem',
-                                    fontWeight: 700,
-                                    textTransform: 'uppercase',
-                                    letterSpacing: '0.04em',
-                                    color: apt.paymentStatus === 'paid' ? '#16a34a' : '#64748b',
-                                    marginTop: '2px',
-                                  }}
-                                >
-                                  {apt.paymentStatus === 'paid' ? '● Paid' : '○ Pay at Clinic'}
-                                </div>
-                              </div>
-                            </td>
-
-                            {/* 6. STATUS & EMAIL BADGE */}
-                            <td>
-                              <div style={{ whiteSpace: 'nowrap' }}>
-                                <span className={`badge badge-${apt.status}`}>
-                                  {apt.status === 'confirmed' && <CheckCircle2 size={12} />}
-                                  {apt.status === 'pending' && <Clock3 size={12} />}
-                                  {apt.status === 'completed' && <Check size={12} />}
-                                  {apt.status === 'cancelled' && <XCircle size={12} />}
-                                  <span>{apt.status?.toUpperCase()}</span>
-                                </span>
-                                {apt.confirmationEmailSent && (
-                                  <div style={{ fontSize: '0.68rem', color: '#16a34a', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '3px', marginTop: '3px' }}>
-                                    <Mail size={10} /> Email Sent
-                                  </div>
-                                )}
-                              </div>
-                            </td>
-
-                            {/* 7. ACTIONS (ALWAYS VISIBLE & UNCLIPPED) */}
-                            <td style={{ textAlign: 'right' }}>
-                              <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px', whiteSpace: 'nowrap' }}>
-                                <button
-                                  onClick={() => setSelectedAppointment(apt)}
-                                  className="btn btn-outline btn-sm"
-                                  title="View Full Details & Medical Notes"
-                                  style={{ padding: '5px 9px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
-                                >
-                                  <Eye size={13} />
-                                  <span>View</span>
-                                </button>
-
-                                {apt.status === 'pending' && (
-                                  <button
-                                    onClick={() => handleUpdateStatus(apt._id, 'confirmed')}
-                                    className="btn btn-action-confirm btn-sm"
-                                    title="Confirm Appointment & Send Email"
-                                  >
-                                    <Check size={12} />
-                                    <span>Confirm</span>
-                                  </button>
-                                )}
-
-                                {apt.status === 'confirmed' && (
-                                  <button
-                                    onClick={() => handleUpdateStatus(apt._id, 'completed')}
-                                    className="btn btn-action-complete btn-sm"
-                                    title="Mark Completed"
-                                  >
-                                    <Check size={12} />
-                                    <span>Complete</span>
-                                  </button>
-                                )}
-
-                                {apt.status !== 'cancelled' && apt.status !== 'completed' && (
-                                  <button
-                                    onClick={() => handleUpdateStatus(apt._id, 'cancelled')}
-                                    className="btn btn-action-cancel btn-sm"
-                                    title="Cancel Appointment"
-                                  >
-                                    <span>Cancel</span>
-                                  </button>
-                                )}
-
-                                <button
-                                  onClick={() => handleDeleteAppointment(apt._id)}
-                                  className="btn btn-outline btn-sm"
-                                  style={{ color: '#ef4444', borderColor: '#fecaca', padding: '5px 7px' }}
-                                  title="Delete Record"
-                                >
-                                  <Trash2 size={13} />
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </main>
+          <AppointmentsTab
+            appointments={appointments}
+            filteredAppointments={filteredAppointments}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            statusFilter={statusFilter}
+            setStatusFilter={setStatusFilter}
+            departmentFilter={departmentFilter}
+            setDepartmentFilter={setDepartmentFilter}
+            onRefresh={refreshAll}
+            onViewAppointment={setSelectedAppointment}
+            onUpdateStatus={handleUpdateStatus}
+            onDeleteAppointment={handleDeleteAppointment}
+            onResendEmail={handleResendEmail}
+            sendingEmailId={sendingEmailId}
+          />
         )}
 
-        {/* TAB 2: CONSULTANT DOCTORS */}
+        {/* TAB 2: DOCTORS */}
         {activeTab === 'doctors' && (
-          <main className="admin-content">
-            <div className="controls-bar">
-              <div className="search-box">
-                <Search size={16} color="#94a3b8" />
-                <input
-                  type="text"
-                  placeholder="Search doctor by name, qualifications, or specialty..."
-                  value={doctorSearchQuery}
-                  onChange={(e) => setDoctorSearchQuery(e.target.value)}
-                />
-              </div>
-
-              <div className="filter-group">
-                <select
-                  className="filter-select"
-                  value={doctorDeptFilter}
-                  onChange={(e) => setDoctorDeptFilter(e.target.value)}
-                >
-                  <option value="all">All Departments</option>
-                  <option value="Dental">🦷 Dental</option>
-                  <option value="Skin">✨ Skin</option>
-                  <option value="Hair">💇 Hair</option>
-                </select>
-
-                <button
-                  onClick={fetchDoctors}
-                  className="btn btn-outline"
-                  style={{ padding: '8px 12px' }}
-                  title="Refresh Doctors"
-                >
-                  <RefreshCw size={15} className={loading ? 'animate-spin' : ''} />
-                </button>
-              </div>
-            </div>
-
-            {/* Doctors Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
-              {filteredDoctors.map((doc) => (
-                <div key={doc._id || doc.doctorId} className="stat-card" style={{ gap: '14px' }}>
-                  <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
-                    <div style={{ position: 'relative', width: '64px', height: '64px', borderRadius: '14px', overflow: 'hidden', flexShrink: 0, border: '1px solid var(--border-color)' }}>
-                      <img
-                        src={doc.image}
-                        alt={doc.name}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                      />
-                    </div>
-                    <div>
-                      <span className={`badge badge-${doc.department ? doc.department.toLowerCase() : 'dept'}`} style={{ fontSize: '0.65rem' }}>
-                        {doc.department}
-                      </span>
-                      <h4 style={{ fontSize: '0.95rem', fontWeight: 800, marginTop: '2px', color: 'var(--text-main)' }}>
-                        {doc.name}
-                      </h4>
-                      <p style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
-                        {doc.title}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', lineHeight: 1.5, background: 'var(--bg-main)', padding: '10px 12px', borderRadius: '10px' }}>
-                    <div><strong>Credentials:</strong> {doc.qualifications}</div>
-                    <div style={{ marginTop: '2px' }}><strong>Experience:</strong> {doc.experienceYears}+ Years</div>
-                    <div style={{ marginTop: '2px' }}><strong>Availability:</strong> {doc.availability}</div>
-                  </div>
-
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid var(--border-subtle)', paddingTop: '10px' }}>
-                    <div style={{ fontSize: '0.9rem', fontWeight: 800, color: 'var(--secondary)' }}>
-                      Fee: ₹{doc.fee?.toLocaleString('en-IN') || '1,500'}
-                    </div>
-
-                    <button
-                      onClick={() => handleDeleteDoctor(doc._id || doc.doctorId, doc.name)}
-                      className="btn btn-outline btn-sm"
-                      style={{ color: '#ef4444', borderColor: '#fecaca' }}
-                      title="Remove Doctor"
-                    >
-                      <Trash2 size={13} />
-                      <span>Remove</span>
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </main>
+          <DoctorsTab
+            doctors={doctors}
+            filteredDoctors={filteredDoctors}
+            doctorSearchQuery={doctorSearchQuery}
+            setDoctorSearchQuery={setDoctorSearchQuery}
+            doctorDeptFilter={doctorDeptFilter}
+            setDoctorDeptFilter={setDoctorDeptFilter}
+            doctorStatusFilter={doctorStatusFilter}
+            setDoctorStatusFilter={setDoctorStatusFilter}
+            onToggleDoctorStatus={handleToggleDoctorStatus}
+            onDeleteDoctor={handleDeleteDoctor}
+            onQuickBookDoctor={handleQuickBookDoctor}
+          />
         )}
 
-        {/* TAB 3: ANALYTICS */}
+        {/* TAB 3: HEALTH GUIDES & BLOGS */}
+        {activeTab === 'blogs' && (
+          <BlogsTab
+            blogs={blogs}
+            filteredBlogs={filteredBlogs}
+            blogSearchQuery={blogSearchQuery}
+            setBlogSearchQuery={setBlogSearchQuery}
+            blogDeptFilter={blogDeptFilter}
+            setBlogDeptFilter={setBlogDeptFilter}
+            blogStatusFilter={blogStatusFilter}
+            setBlogStatusFilter={setBlogStatusFilter}
+            onToggleBlogStatus={handleToggleBlogStatus}
+            onDeleteBlog={handleDeleteBlog}
+          />
+        )}
+
+        {/* TAB 4: CLINICAL ANALYTICS */}
         {activeTab === 'analytics' && (
-          <main className="admin-content">
-            <div className="table-card" style={{ padding: '24px' }}>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '16px' }}>
-                Department Distribution & Performance
-              </h3>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
-                <div style={{ padding: '20px', borderRadius: '14px', background: '#f0f9ff', border: '1px solid #bae6fd' }}>
-                  <h4 style={{ fontWeight: 800, color: '#0369a1', fontSize: '1rem' }}>🦷 Dental Treatments</h4>
-                  <p style={{ fontSize: '0.8rem', color: '#0284c7', marginTop: '4px' }}>
-                    Implants, Clear Aligners, Laser RCT & Veneers
-                  </p>
-                  <div style={{ fontSize: '2rem', fontWeight: 900, color: '#0c4a6e', marginTop: '12px' }}>
-                    {appointments.filter((a) => a.department === 'Dental').length} Bookings
-                  </div>
-                </div>
-
-                <div style={{ padding: '20px', borderRadius: '14px', background: '#fefce8', border: '1px solid #fef08a' }}>
-                  <h4 style={{ fontWeight: 800, color: '#a16207', fontSize: '1rem' }}>✨ Dermatology & Skin</h4>
-                  <p style={{ fontSize: '0.8rem', color: '#ca8a04', marginTop: '4px' }}>
-                    HydraFacial, Acne Scar Revision, Melasma Peels
-                  </p>
-                  <div style={{ fontSize: '2rem', fontWeight: 900, color: '#713f12', marginTop: '12px' }}>
-                    {appointments.filter((a) => a.department === 'Skin').length} Bookings
-                  </div>
-                </div>
-
-                <div style={{ padding: '20px', borderRadius: '14px', background: '#faf5ff', border: '1px solid #e9d5ff' }}>
-                  <h4 style={{ fontWeight: 800, color: '#7e22ce', fontSize: '1rem' }}>💇 Hair & Trichology</h4>
-                  <p style={{ fontSize: '0.8rem', color: '#9333ea', marginTop: '4px' }}>
-                    Bio-Sapphire FUE, GFC & PRP Scalp Therapies
-                  </p>
-                  <div style={{ fontSize: '2rem', fontWeight: 900, color: '#581c87', marginTop: '12px' }}>
-                    {appointments.filter((a) => a.department === 'Hair').length} Bookings
-                  </div>
-                </div>
-              </div>
-            </div>
-          </main>
+          <AnalyticsTab
+            appointments={appointments}
+            doctors={doctors}
+            blogs={blogs}
+          />
         )}
 
-        {/* TAB 4: THEME & APPEARANCE (ADMIN-ONLY THEME CONTROL) */}
+        {/* TAB 5: THEME & APPEARANCE */}
         {activeTab === 'theme' && (
-          <main className="admin-content">
-            <div className="table-card" style={{ padding: '28px', maxWidth: '1200px' }}>
-              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px', marginBottom: '24px' }}>
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                    <Palette size={20} color="var(--secondary)" />
-                    <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-main)' }}>
-                      Global Website Theme & Color Palette
-                    </h3>
-                    <span style={{ fontSize: '0.72rem', padding: '3px 8px', borderRadius: '6px', background: '#e0f2fe', color: '#0284c7', fontWeight: 700 }}>
-                      Admin-Only Control
-                    </span>
-                  </div>
-                  <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', maxWidth: '680px' }}>
-                    The public website theme can only be updated from this administrator panel. When you apply a new theme below, it instantly saves to MongoDB and updates the entire live public website across all 10 pages in real time.
-                  </p>
-                </div>
-
-                <a
-                  href={FRONTEND_URL}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="btn btn-outline"
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
-                >
-                  <span>Preview Live Website</span>
-                  <ExternalLink size={14} />
-                </a>
-              </div>
-
-              {themeNotification && (
-                <div style={{
-                  padding: '12px 16px',
-                  borderRadius: '10px',
-                  background: '#d1fae5',
-                  border: '1px solid #6ee7b7',
-                  color: '#065f46',
-                  fontSize: '0.85rem',
-                  fontWeight: 600,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  marginBottom: '20px'
-                }}>
-                  <CheckCircle2 size={18} />
-                  <span>{themeNotification}</span>
-                </div>
-              )}
-
-              {/* THEME PREVIEWS GRID */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '20px' }}>
-                {CLINIC_THEMES.map((th) => {
-                  const isActive = currentTheme === th.id;
-                  return (
-                    <div
-                      key={th.id}
-                      style={{
-                        padding: '22px',
-                        borderRadius: '16px',
-                        background: '#ffffff',
-                        border: isActive ? '2px solid #006a61' : '1px solid var(--border-color)',
-                        boxShadow: isActive ? '0 10px 25px -5px rgba(0, 106, 97, 0.2)' : 'var(--shadow-sm)',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'space-between',
-                        gap: '16px',
-                        position: 'relative',
-                        transition: 'all 0.2s ease',
-                      }}
-                    >
-                      {isActive && (
-                        <div style={{
-                          position: 'absolute',
-                          top: '14px',
-                          right: '14px',
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '5px',
-                          padding: '4px 10px',
-                          borderRadius: '9999px',
-                          background: '#d1fae5',
-                          color: '#065f46',
-                          fontSize: '0.72rem',
-                          fontWeight: 800,
-                          border: '1px solid #a7f3d0'
-                        }}>
-                          <Check size={12} />
-                          <span>ACTIVE LIVE THEME</span>
-                        </div>
-                      )}
-
-                      <div>
-                        <div style={{ fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)', fontWeight: 700 }}>
-                          {th.badge}
-                        </div>
-                        <h4 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-main)', marginTop: '4px' }}>
-                          {th.name}
-                        </h4>
-                        <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '4px', lineHeight: 1.4 }}>
-                          {th.tagline}
-                        </p>
-
-                        {/* Color Swatches */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '16px' }}>
-                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
-                            <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: th.primaryColor, border: '1px solid rgba(0,0,0,0.1)' }} />
-                            <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>Primary</span>
-                          </div>
-                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
-                            <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: th.secondaryColor, border: '1px solid rgba(0,0,0,0.1)' }} />
-                            <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>Secondary</span>
-                          </div>
-                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
-                            <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: th.accentColor, border: '1px solid rgba(0,0,0,0.1)' }} />
-                            <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>Accent</span>
-                          </div>
-                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', marginLeft: 'auto' }}>
-                            <div style={{ width: '56px', height: '28px', borderRadius: '6px', background: th.previewBg, border: '1px solid rgba(0,0,0,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 700, color: th.textColor }}>
-                              Aa
-                            </div>
-                            <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>Canvas</span>
-                          </div>
-                        </div>
-
-                        {/* Live UI Mock Preview */}
-                        <div style={{
-                          marginTop: '16px',
-                          padding: '12px',
-                          borderRadius: '10px',
-                          background: th.previewBg,
-                          border: '1px solid rgba(0,0,0,0.08)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          gap: '10px'
-                        }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <div style={{ width: '22px', height: '22px', borderRadius: '6px', background: th.primaryColor, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '0.65rem', fontWeight: 900 }}>
-                              A
-                            </div>
-                            <span style={{ fontSize: '0.75rem', fontWeight: 800, color: th.textColor }}>
-                              PRALASH
-                            </span>
-                          </div>
-                          <button
-                            type="button"
-                            style={{
-                              padding: '5px 10px',
-                              borderRadius: '6px',
-                              background: th.secondaryColor,
-                              color: '#ffffff',
-                              border: 'none',
-                              fontSize: '0.7rem',
-                              fontWeight: 700,
-                              cursor: 'default'
-                            }}
-                          >
-                            Book Visit
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Action Button */}
-                      <div>
-                        {isActive ? (
-                          <div style={{
-                            padding: '10px',
-                            borderRadius: '10px',
-                            background: '#f0fdf4',
-                            border: '1px solid #bbf7d0',
-                            textAlign: 'center',
-                            color: '#166534',
-                            fontWeight: 700,
-                            fontSize: '0.82rem'
-                          }}>
-                            ✓ Currently Active on Public Site
-                          </div>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={() => handleSelectTheme(th.id)}
-                            disabled={updatingTheme}
-                            className="btn btn-secondary"
-                            style={{ width: '100%', justifyContent: 'center', fontSize: '0.82rem' }}
-                          >
-                            <Palette size={14} />
-                            <span>{updatingTheme ? 'Switching Theme...' : `Set "${th.name.split(' (')[0]}" as Active Theme`}</span>
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </main>
+          <ThemeTab
+            currentTheme={currentTheme}
+            updatingTheme={updatingTheme}
+            themeNotification={themeNotification}
+            onSelectTheme={handleSelectTheme}
+          />
         )}
       </div>
 
-      {/* APPOINTMENT DETAIL MODAL */}
-      {selectedAppointment && (
-        <div className="modal-overlay" onClick={() => setSelectedAppointment(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', borderBottom: '1px solid var(--border-color)', paddingBottom: '16px' }}>
-              <div>
-                <span style={{ fontFamily: 'monospace', fontWeight: 800, color: 'var(--secondary)', fontSize: '0.85rem' }}>
-                  {selectedAppointment.bookingReference}
-                </span>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginTop: '2px' }}>
-                  {selectedAppointment.patientName}
-                </h3>
-              </div>
-              <button
-                onClick={() => setSelectedAppointment(null)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8' }}
-              >
-                <X size={20} />
-              </button>
-            </div>
+      {/* MODAL 1: APPOINTMENT DETAILS */}
+      <AppointmentDetailModal
+        appointment={selectedAppointment}
+        onClose={() => setSelectedAppointment(null)}
+        onUpdateStatus={handleUpdateStatus}
+        onResendEmail={handleResendEmail}
+        sendingEmailId={sendingEmailId}
+      />
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', fontSize: '0.85rem' }}>
-              <div>
-                <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 700 }}>PHONE</div>
-                <div style={{ fontWeight: 600 }}>{selectedAppointment.phone}</div>
-              </div>
-              <div>
-                <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 700 }}>EMAIL</div>
-                <div style={{ fontWeight: 600 }}>{selectedAppointment.email}</div>
-              </div>
-              <div>
-                <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 700 }}>DEPARTMENT</div>
-                <div style={{ fontWeight: 600 }}>{selectedAppointment.department} Suite</div>
-              </div>
-              <div>
-                <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 700 }}>ATTENDING DOCTOR</div>
-                <div style={{ fontWeight: 600 }}>{selectedAppointment.doctor?.name || 'Duty Specialist'}</div>
-              </div>
-              <div>
-                <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 700 }}>DATE & TIME</div>
-                <div style={{ fontWeight: 600 }}>{selectedAppointment.appointmentDate} at {selectedAppointment.timeSlot}</div>
-              </div>
-              <div>
-                <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 700 }}>CONSULTATION FEE</div>
-                <div style={{ fontWeight: 800, color: 'var(--secondary)' }}>
-                  ₹{(selectedAppointment.consultationFee || 1200).toLocaleString('en-IN')}
-                </div>
-              </div>
-              <div style={{ gridColumn: 'span 2' }}>
-                <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 700 }}>CONFIRMATION EMAIL STATUS</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '2px', fontSize: '0.85rem' }}>
-                  {selectedAppointment.confirmationEmailSent ? (
-                    <span style={{ color: '#16a34a', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                      <CheckCircle2 size={14} /> Sent to {selectedAppointment.email}
-                      {selectedAppointment.confirmationEmailSentAt && (
-                        <span style={{ color: 'var(--text-muted)', fontWeight: 400, fontSize: '0.75rem' }}>
-                          ({new Date(selectedAppointment.confirmationEmailSentAt).toLocaleTimeString()})
-                        </span>
-                      )}
-                    </span>
-                  ) : (
-                    <span style={{ color: '#b45309', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                      <Clock3 size={14} /> Not Dispatched / Pending
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
+      {/* MODAL 2: NEW WALK-IN APPOINTMENT */}
+      <NewAppointmentModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSubmit={handleCreateAppointmentSubmit}
+        newBooking={newBooking}
+        setNewBooking={setNewBooking}
+        doctors={doctors}
+      />
 
-            <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-              <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 700, marginBottom: '4px' }}>
-                PATIENT MEDICAL NOTES / PRIMARY COMPLAINT
-              </div>
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-main)', lineHeight: 1.6 }}>
-                {selectedAppointment.symptomsOrNotes || 'No specific clinical symptoms or advance notes provided.'}
-              </p>
-            </div>
+      {/* MODAL 3: ADD NEW DOCTOR */}
+      <NewDoctorModal
+        isOpen={showAddDoctorModal}
+        onClose={() => setShowAddDoctorModal(false)}
+        onSubmit={handleAddDoctorSubmit}
+        newDoctor={newDoctor}
+        setNewDoctor={setNewDoctor}
+        uploadingDoctorPhoto={uploadingDoctorPhoto}
+        photoUploadSuccess={photoUploadSuccess}
+        onDoctorPhotoFileSelect={handleDoctorPhotoFileSelect}
+      />
 
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '10px', paddingTop: '10px' }}>
-              <button
-                onClick={() => handleResendEmail(selectedAppointment._id)}
-                disabled={sendingEmailId === selectedAppointment._id}
-                className="btn btn-outline"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
-                title="Send confirmation email to patient"
-              >
-                <Mail size={15} />
-                <span>
-                  {sendingEmailId === selectedAppointment._id
-                    ? 'Dispatching Mail...'
-                    : selectedAppointment.confirmationEmailSent
-                    ? 'Resend Email'
-                    : 'Send Confirmation Email'}
-                </span>
-              </button>
+      {/* MODAL 4: ADD NEW HEALTH GUIDE BLOG */}
+      <NewBlogModal
+        isOpen={showAddBlogModal}
+        onClose={() => setShowAddBlogModal(false)}
+        onSubmit={handleAddBlogSubmit}
+        newBlog={newBlog}
+        setNewBlog={setNewBlog}
+        uploadingBlogCover={uploadingBlogCover}
+        blogCoverSuccess={blogCoverSuccess}
+        onBlogCoverFileSelect={handleBlogCoverFileSelect}
+      />
 
-              {selectedAppointment.status === 'pending' && (
-                <button
-                  onClick={() => {
-                    handleUpdateStatus(selectedAppointment._id, 'confirmed');
-                    setSelectedAppointment(null);
-                  }}
-                  className="btn btn-secondary"
-                >
-                  <Check size={16} />
-                  <span>Confirm Appointment</span>
-                </button>
-              )}
-              <button onClick={() => setSelectedAppointment(null)} className="btn btn-outline">
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* CONFIRMATION DIALOG MODAL */}
+      <ConfirmModal
+        modal={confirmModal}
+        onClose={() => setConfirmModal(null)}
+      />
 
-      {/* CREATE NEW APPOINTMENT MODAL */}
-      {showCreateModal && (
-        <div className="modal-overlay" onClick={() => setShowCreateModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border-color)', paddingBottom: '16px' }}>
-              <div>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 800 }}>Create Walk-In Appointment</h3>
-                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                  Register patient appointment and save directly to MongoDB
-                </p>
-              </div>
-              <button
-                onClick={() => setShowCreateModal(false)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8' }}
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            <form onSubmit={handleCreateAppointmentSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                <div className="form-group">
-                  <label>Patient Full Name *</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Priya Sharma"
-                    value={newBooking.patientName}
-                    onChange={(e) => setNewBooking({ ...newBooking, patientName: e.target.value })}
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Phone Number *</label>
-                  <input
-                    type="tel"
-                    required
-                    placeholder="+91 98765 43210"
-                    value={newBooking.phone}
-                    onChange={(e) => setNewBooking({ ...newBooking, phone: e.target.value })}
-                  />
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label>Email Address *</label>
-                <input
-                  type="email"
-                  required
-                  placeholder="patient@example.com"
-                  value={newBooking.email}
-                  onChange={(e) => setNewBooking({ ...newBooking, email: e.target.value })}
-                />
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                <div className="form-group">
-                  <label>Specialty Department</label>
-                  <select
-                    value={newBooking.department}
-                    onChange={(e) => setNewBooking({ ...newBooking, department: e.target.value })}
-                  >
-                    <option value="Dental">🦷 Dental Care</option>
-                    <option value="Skin">✨ Dermatology & Skin</option>
-                    <option value="Hair">💇 Hair & Trichology</option>
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label>Attending Consultant</label>
-                  <select
-                    value={newBooking.doctorName}
-                    onChange={(e) => setNewBooking({ ...newBooking, doctorName: e.target.value })}
-                  >
-                    {doctors.length > 0 ? (
-                      doctors.map((d) => (
-                        <option key={d._id || d.doctorId} value={d.name}>
-                          {d.name} ({d.department} - ₹{d.fee})
-                        </option>
-                      ))
-                    ) : (
-                      <>
-                        <option value="Dr. Marcus Thornton">Dr. Marcus Thornton (Dental - ₹1,400)</option>
-                        <option value="Dr. Priya Nair">Dr. Priya Nair (Hair - ₹1,500)</option>
-                        <option value="Dr. Kavita Sharma">Dr. Kavita Sharma (Skin - ₹1,500)</option>
-                      </>
-                    )}
-                  </select>
-                </div>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                <div className="form-group">
-                  <label>Appointment Date</label>
-                  <input
-                    type="date"
-                    required
-                    value={newBooking.appointmentDate}
-                    onChange={(e) => setNewBooking({ ...newBooking, appointmentDate: e.target.value })}
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Time Slot</label>
-                  <select
-                    value={newBooking.timeSlot}
-                    onChange={(e) => setNewBooking({ ...newBooking, timeSlot: e.target.value })}
-                  >
-                    <option value="10:00 AM">10:00 AM</option>
-                    <option value="11:30 AM">11:30 AM</option>
-                    <option value="01:00 PM">01:00 PM</option>
-                    <option value="02:30 PM">02:30 PM</option>
-                    <option value="04:00 PM">04:00 PM</option>
-                    <option value="05:30 PM">05:30 PM</option>
-                    <option value="07:00 PM">07:00 PM</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label>Procedure / Treatment</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Bio-Sapphire FUE Consultation or HydraFacial"
-                  value={newBooking.treatment}
-                  onChange={(e) => setNewBooking({ ...newBooking, treatment: e.target.value })}
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Medical Symptoms / Notes</label>
-                <textarea
-                  rows={2}
-                  placeholder="Optional patient notes or prior history..."
-                  value={newBooking.symptomsOrNotes}
-                  onChange={(e) => setNewBooking({ ...newBooking, symptomsOrNotes: e.target.value })}
-                />
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
-                <button type="button" onClick={() => setShowCreateModal(false)} className="btn btn-outline">
-                  Cancel
-                </button>
-                <button type="submit" className="btn btn-secondary">
-                  Save Appointment
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* ADD NEW DOCTOR MODAL */}
-      {showAddDoctorModal && (
-        <div className="modal-overlay" onClick={() => setShowAddDoctorModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border-color)', paddingBottom: '16px' }}>
-              <div>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 800 }}>Add New Specialist Doctor</h3>
-                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                  Save to MongoDB and dynamically render to website
-                </p>
-              </div>
-              <button
-                onClick={() => setShowAddDoctorModal(false)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8' }}
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            <form onSubmit={handleAddDoctorSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                <div className="form-group">
-                  <label>Doctor Full Name *</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Dr. Rajesh Khanna"
-                    value={newDoctor.name}
-                    onChange={(e) => setNewDoctor({ ...newDoctor, name: e.target.value })}
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Department *</label>
-                  <select
-                    value={newDoctor.department}
-                    onChange={(e) => setNewDoctor({ ...newDoctor, department: e.target.value })}
-                  >
-                    <option value="Dental">🦷 Dental Care</option>
-                    <option value="Skin">✨ Dermatology & Skin</option>
-                    <option value="Hair">💇 Hair & Trichology</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label>Professional Title *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Senior Consultant Periodontist & Implant Surgeon"
-                  value={newDoctor.title}
-                  onChange={(e) => setNewDoctor({ ...newDoctor, title: e.target.value })}
-                />
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                <div className="form-group">
-                  <label>Qualifications *</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="BDS, MDS, FDS RCS"
-                    value={newDoctor.qualifications}
-                    onChange={(e) => setNewDoctor({ ...newDoctor, qualifications: e.target.value })}
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Experience (Years) *</label>
-                  <input
-                    type="number"
-                    required
-                    min="1"
-                    max="50"
-                    value={newDoctor.experienceYears}
-                    onChange={(e) => setNewDoctor({ ...newDoctor, experienceYears: e.target.value })}
-                  />
-                </div>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                <div className="form-group">
-                  <label>Consultation Fee (INR ₹) *</label>
-                  <input
-                    type="number"
-                    required
-                    min="500"
-                    step="50"
-                    value={newDoctor.fee}
-                    onChange={(e) => setNewDoctor({ ...newDoctor, fee: e.target.value })}
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Availability Schedule</label>
-                  <input
-                    type="text"
-                    placeholder="Mon, Wed, Fri (9:00 AM - 4:00 PM)"
-                    value={newDoctor.availability}
-                    onChange={(e) => setNewDoctor({ ...newDoctor, availability: e.target.value })}
-                  />
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <CloudUpload size={16} color="var(--secondary)" />
-                    <strong>Doctor Photo (Cloudinary Storage Only) *</strong>
-                  </span>
-                  {uploadingDoctorPhoto && (
-                    <span style={{ fontSize: '0.75rem', color: '#0284c7', fontWeight: 700 }}>
-                      Uploading to Cloudinary...
-                    </span>
-                  )}
-                  {photoUploadSuccess && (
-                    <span style={{ fontSize: '0.75rem', color: '#059669', fontWeight: 700 }}>
-                      ✓ Stored on Cloudinary
-                    </span>
-                  )}
-                </label>
-
-                <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginTop: '4px' }}>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleDoctorPhotoFileSelect}
-                    style={{ fontSize: '0.82rem', padding: '6px', border: '1px dashed var(--border-color)', borderRadius: '8px', width: '100%' }}
-                  />
-                </div>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '8px' }}>
-                  {newDoctor.image && (
-                    <img
-                      src={newDoctor.image}
-                      alt="Doctor Preview"
-                      style={{
-                        width: '46px',
-                        height: '46px',
-                        borderRadius: '10px',
-                        objectFit: 'cover',
-                        border: '2px solid #006a61',
-                        flexShrink: 0,
-                      }}
-                    />
-                  )}
-                  <input
-                    type="text"
-                    placeholder="Direct Cloudinary URL or image source..."
-                    value={newDoctor.image}
-                    onChange={(e) => setNewDoctor({ ...newDoctor, image: e.target.value })}
-                    style={{ fontSize: '0.78rem', color: '#64748b' }}
-                  />
-                </div>
-                <span style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '3px', display: 'block' }}>
-                  ☁️ Automatically uploaded & permanently hosted on Cloudinary (cloud: dcahokqjx).
-                </span>
-              </div>
-
-              <div className="form-group">
-                <label>Specializations (comma separated)</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Dental Implants, Smile Design, Bone Grafting"
-                  value={newDoctor.specializations}
-                  onChange={(e) => setNewDoctor({ ...newDoctor, specializations: e.target.value })}
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Clinical Biography *</label>
-                <textarea
-                  rows={2}
-                  required
-                  placeholder="Brief doctor bio highlighting medical credentials and patient philosophy..."
-                  value={newDoctor.bio}
-                  onChange={(e) => setNewDoctor({ ...newDoctor, bio: e.target.value })}
-                />
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
-                <button type="button" onClick={() => setShowAddDoctorModal(false)} className="btn btn-outline">
-                  Cancel
-                </button>
-                <button type="submit" className="btn btn-secondary">
-                  Save Doctor to Database
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      {/* TOAST NOTIFICATIONS */}
+      <Toast
+        toast={toast}
+        onClose={() => setToast(null)}
+      />
     </div>
   );
 }
