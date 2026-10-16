@@ -88,6 +88,37 @@ const CLINIC_THEMES = [
   },
 ];
 
+const formatTableDate = (dateStr) => {
+  if (!dateStr) return '—';
+  try {
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+      const year = Number(parts[0]);
+      const month = Number(parts[1]) - 1;
+      const day = Number(parts[2]);
+      const d = new Date(year, month, day);
+      return d.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      });
+    }
+    return dateStr;
+  } catch {
+    return dateStr;
+  }
+};
+
+const getInitials = (name) => {
+  if (!name) return 'PT';
+  return name
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((p) => p[0]?.toUpperCase() || '')
+    .join('');
+};
+
 export default function App() {
   const [appointments, setAppointments] = useState([]);
   const [doctors, setDoctors] = useState([]);
@@ -822,121 +853,219 @@ export default function App() {
                         </td>
                       </tr>
                     ) : (
-                      filteredAppointments.map((apt) => (
-                        <tr key={apt._id}>
-                          <td>
-                            <div style={{ fontFamily: 'monospace', fontWeight: 800, color: 'var(--secondary)', fontSize: '0.78rem' }}>
-                              {apt.bookingReference}
-                            </div>
-                            <div style={{ fontWeight: 800, color: 'var(--text-main)', fontSize: '0.9rem', marginTop: '2px' }}>
-                              {apt.patientName}
-                            </div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '2px' }}>
-                              <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-                                <Phone size={11} />
-                                {apt.phone}
+                      filteredAppointments.map((apt) => {
+                        const deptGradient =
+                          apt.department === 'Dental'
+                            ? 'linear-gradient(135deg, #0284c7 0%, #38bdf8 100%)'
+                            : apt.department === 'Skin'
+                            ? 'linear-gradient(135deg, #d97706 0%, #fbbf24 100%)'
+                            : apt.department === 'Hair'
+                            ? 'linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)'
+                            : 'linear-gradient(135deg, #0d5c75 0%, #14b8a6 100%)';
+
+                        return (
+                          <tr key={apt._id}>
+                            {/* 1. PATIENT & BOOKING REF */}
+                            <td>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <div
+                                  style={{
+                                    width: '38px',
+                                    height: '38px',
+                                    borderRadius: '10px',
+                                    background: deptGradient,
+                                    color: '#ffffff',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontWeight: 800,
+                                    fontSize: '0.82rem',
+                                    flexShrink: 0,
+                                    letterSpacing: '0.02em',
+                                    boxShadow: '0 2px 4px rgba(0,0,0,0.06)',
+                                  }}
+                                  title={`${apt.patientName} (${apt.department})`}
+                                >
+                                  {getInitials(apt.patientName)}
+                                </div>
+
+                                <div>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <span style={{ fontWeight: 800, color: 'var(--text-main)', fontSize: '0.92rem' }}>
+                                      {apt.patientName}
+                                    </span>
+                                    <span
+                                      style={{
+                                        fontFamily: 'monospace',
+                                        fontWeight: 700,
+                                        fontSize: '0.7rem',
+                                        padding: '1px 7px',
+                                        borderRadius: '5px',
+                                        background: '#f1f5f9',
+                                        color: 'var(--secondary)',
+                                        border: '1px solid #e2e8f0',
+                                        letterSpacing: '0.02em',
+                                      }}
+                                    >
+                                      {apt.bookingReference}
+                                    </span>
+                                  </div>
+
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.74rem', color: 'var(--text-muted)', marginTop: '3px' }}>
+                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
+                                      <Phone size={11} style={{ color: 'var(--secondary)' }} />
+                                      <span>{apt.phone}</span>
+                                    </span>
+                                    <span>•</span>
+                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap', maxWidth: '220px', overflow: 'hidden', textOverflow: 'ellipsis' }} title={apt.email}>
+                                      <Mail size={11} />
+                                      <span>{apt.email}</span>
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+
+                            {/* 2. SPECIALTY DEPT */}
+                            <td>
+                              <span className={`badge badge-${apt.department ? apt.department.toLowerCase() : 'dept'}`}>
+                                {apt.department === 'Dental' ? '🦷 Dental' : apt.department === 'Skin' ? '✨ Skin' : '💇 Hair'}
                               </span>
-                              <span>&bull;</span>
-                              <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-                                <Mail size={11} />
-                                {apt.email}
-                              </span>
-                            </div>
-                          </td>
+                            </td>
 
-                          <td>
-                            <span className={`badge badge-${apt.department ? apt.department.toLowerCase() : 'dept'}`}>
-                              {apt.department === 'Dental' ? '🦷 Dental' : apt.department === 'Skin' ? '✨ Skin' : '💇 Hair'}
-                            </span>
-                          </td>
-
-                          <td>
-                            <div style={{ fontWeight: 700, color: 'var(--text-main)', fontSize: '0.82rem' }}>
-                              {apt.doctor?.name || 'Duty Specialist'}
-                            </div>
-                            <div style={{ fontSize: '0.76rem', color: 'var(--text-muted)', maxWidth: '240px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                              {apt.treatment}
-                            </div>
-                          </td>
-
-                          <td>
-                            <div style={{ fontWeight: 700, color: 'var(--text-main)' }}>
-                              {apt.appointmentDate}
-                            </div>
-                            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
-                              <Clock size={12} />
-                              <span>{apt.timeSlot}</span>
-                            </div>
-                          </td>
-
-                          <td>
-                            <div style={{ fontWeight: 800, color: 'var(--text-main)' }}>
-                              ₹{(apt.consultationFee || 1200).toLocaleString('en-IN')}
-                            </div>
-                          </td>
-
-                          <td>
-                            <span className={`badge badge-${apt.status}`}>
-                              {apt.status === 'confirmed' && <CheckCircle2 size={12} />}
-                              {apt.status === 'pending' && <Clock3 size={12} />}
-                              {apt.status === 'completed' && <Check size={12} />}
-                              {apt.status === 'cancelled' && <XCircle size={12} />}
-                              <span>{apt.status?.toUpperCase()}</span>
-                            </span>
-                          </td>
-
-                          <td style={{ textAlign: 'right' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px' }}>
-                              <button
-                                onClick={() => setSelectedAppointment(apt)}
-                                className="btn btn-outline btn-sm"
-                                title="View Details & Medical Notes"
+                            {/* 3. DOCTOR & PROCEDURE */}
+                            <td>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontWeight: 700, color: 'var(--text-main)', fontSize: '0.84rem' }}>
+                                <Stethoscope size={13} style={{ color: 'var(--secondary)', flexShrink: 0 }} />
+                                <span style={{ whiteSpace: 'nowrap' }}>{apt.doctor?.name || 'Duty Specialist'}</span>
+                              </div>
+                              <div
+                                style={{
+                                  fontSize: '0.75rem',
+                                  color: 'var(--text-muted)',
+                                  marginTop: '2px',
+                                  maxWidth: '240px',
+                                  whiteSpace: 'nowrap',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                }}
+                                title={apt.treatment}
                               >
-                                <Eye size={13} />
-                              </button>
+                                {apt.treatment}
+                              </div>
+                            </td>
 
-                              {apt.status === 'pending' && (
-                                <button
-                                  onClick={() => handleUpdateStatus(apt._id, 'confirmed')}
-                                  className="btn btn-action-confirm btn-sm"
-                                  title="Confirm Appointment"
+                            {/* 4. DATE & TIME (NOWRAP) */}
+                            <td>
+                              <div style={{ whiteSpace: 'nowrap' }}>
+                                <div style={{ fontWeight: 700, color: 'var(--text-main)', fontSize: '0.86rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                  <Calendar size={13} style={{ color: 'var(--secondary)' }} />
+                                  <span>{formatTableDate(apt.appointmentDate)}</span>
+                                </div>
+                                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '5px', marginTop: '3px' }}>
+                                  <Clock size={12} />
+                                  <span>{apt.timeSlot}</span>
+                                </div>
+                              </div>
+                            </td>
+
+                            {/* 5. CONSULTATION FEE */}
+                            <td>
+                              <div style={{ whiteSpace: 'nowrap' }}>
+                                <div style={{ fontWeight: 800, color: 'var(--text-main)', fontSize: '0.92rem' }}>
+                                  ₹{(apt.consultationFee || 1200).toLocaleString('en-IN')}
+                                </div>
+                                <div
+                                  style={{
+                                    fontSize: '0.68rem',
+                                    fontWeight: 700,
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.04em',
+                                    color: apt.paymentStatus === 'paid' ? '#16a34a' : '#64748b',
+                                    marginTop: '2px',
+                                  }}
                                 >
-                                  Confirm
-                                </button>
-                              )}
+                                  {apt.paymentStatus === 'paid' ? '● Paid' : '○ Pay at Clinic'}
+                                </div>
+                              </div>
+                            </td>
 
-                              {apt.status === 'confirmed' && (
+                            {/* 6. STATUS & EMAIL BADGE */}
+                            <td>
+                              <div style={{ whiteSpace: 'nowrap' }}>
+                                <span className={`badge badge-${apt.status}`}>
+                                  {apt.status === 'confirmed' && <CheckCircle2 size={12} />}
+                                  {apt.status === 'pending' && <Clock3 size={12} />}
+                                  {apt.status === 'completed' && <Check size={12} />}
+                                  {apt.status === 'cancelled' && <XCircle size={12} />}
+                                  <span>{apt.status?.toUpperCase()}</span>
+                                </span>
+                                {apt.confirmationEmailSent && (
+                                  <div style={{ fontSize: '0.68rem', color: '#16a34a', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '3px', marginTop: '3px' }}>
+                                    <Mail size={10} /> Email Sent
+                                  </div>
+                                )}
+                              </div>
+                            </td>
+
+                            {/* 7. ACTIONS (ALWAYS VISIBLE & UNCLIPPED) */}
+                            <td style={{ textAlign: 'right' }}>
+                              <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px', whiteSpace: 'nowrap' }}>
                                 <button
-                                  onClick={() => handleUpdateStatus(apt._id, 'completed')}
-                                  className="btn btn-action-complete btn-sm"
-                                  title="Mark Completed"
+                                  onClick={() => setSelectedAppointment(apt)}
+                                  className="btn btn-outline btn-sm"
+                                  title="View Full Details & Medical Notes"
+                                  style={{ padding: '5px 9px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                                 >
-                                  Complete
+                                  <Eye size={13} />
+                                  <span>View</span>
                                 </button>
-                              )}
 
-                              {apt.status !== 'cancelled' && apt.status !== 'completed' && (
+                                {apt.status === 'pending' && (
+                                  <button
+                                    onClick={() => handleUpdateStatus(apt._id, 'confirmed')}
+                                    className="btn btn-action-confirm btn-sm"
+                                    title="Confirm Appointment & Send Email"
+                                  >
+                                    <Check size={12} />
+                                    <span>Confirm</span>
+                                  </button>
+                                )}
+
+                                {apt.status === 'confirmed' && (
+                                  <button
+                                    onClick={() => handleUpdateStatus(apt._id, 'completed')}
+                                    className="btn btn-action-complete btn-sm"
+                                    title="Mark Completed"
+                                  >
+                                    <Check size={12} />
+                                    <span>Complete</span>
+                                  </button>
+                                )}
+
+                                {apt.status !== 'cancelled' && apt.status !== 'completed' && (
+                                  <button
+                                    onClick={() => handleUpdateStatus(apt._id, 'cancelled')}
+                                    className="btn btn-action-cancel btn-sm"
+                                    title="Cancel Appointment"
+                                  >
+                                    <span>Cancel</span>
+                                  </button>
+                                )}
+
                                 <button
-                                  onClick={() => handleUpdateStatus(apt._id, 'cancelled')}
-                                  className="btn btn-action-cancel btn-sm"
-                                  title="Cancel Appointment"
+                                  onClick={() => handleDeleteAppointment(apt._id)}
+                                  className="btn btn-outline btn-sm"
+                                  style={{ color: '#ef4444', borderColor: '#fecaca', padding: '5px 7px' }}
+                                  title="Delete Record"
                                 >
-                                  Cancel
+                                  <Trash2 size={13} />
                                 </button>
-                              )}
-
-                              <button
-                                onClick={() => handleDeleteAppointment(apt._id)}
-                                className="btn btn-outline btn-sm"
-                                style={{ color: '#ef4444', borderColor: '#fecaca' }}
-                                title="Delete Record"
-                              >
-                                <Trash2 size={13} />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })
                     )}
                   </tbody>
                 </table>

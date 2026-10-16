@@ -66,11 +66,16 @@ body {
 /* Layout */
 .admin-layout {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
 }
 
 .admin-sidebar {
   width: 260px;
+  min-width: 260px;
+  max-width: 260px;
+  height: 100vh;
   background-color: var(--bg-sidebar);
   color: #ffffff;
   padding: 24px 16px;
@@ -78,12 +83,31 @@ body {
   flex-direction: column;
   flex-shrink: 0;
   border-right: 1px solid rgba(255, 255, 255, 0.08);
+  position: sticky;
+  top: 0;
+  left: 0;
+  overflow-y: auto;
+  z-index: 50;
+}
+
+.admin-sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+.admin-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.admin-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
 }
 
 .admin-main {
   flex: 1;
   display: flex;
   flex-direction: column;
+  height: 100vh;
+  min-width: 0;
+  overflow-y: auto;
   overflow-x: hidden;
 }
 
@@ -98,6 +122,7 @@ body {
   position: sticky;
   top: 0;
   z-index: 30;
+  flex-shrink: 0;
 }
 
 .admin-content {
@@ -108,6 +133,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 24px;
+  flex: 1;
 }
 
 /* Brand */
@@ -335,10 +361,30 @@ body {
 .table-responsive {
   overflow-x: auto;
   width: 100%;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 0 0 20px 20px;
+}
+
+.table-responsive::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 .appointments-table {
   width: 100%;
+  min-width: 1100px;
   border-collapse: collapse;
   text-align: left;
   font-size: 0.85rem;
@@ -346,23 +392,29 @@ body {
 
 .appointments-table th {
   background: #f8fafc;
-  padding: 12px 18px;
+  padding: 14px 20px;
   font-size: 0.72rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   color: var(--text-muted);
   border-bottom: 1px solid var(--border-color);
+  white-space: nowrap;
 }
 
 .appointments-table td {
-  padding: 16px 18px;
+  padding: 14px 20px;
   border-bottom: 1px solid var(--border-subtle);
   vertical-align: middle;
+  transition: background-color 0.15s ease;
 }
 
 .appointments-table tr:hover td {
   background-color: #f8fafc;
+}
+
+.appointments-table tr:last-child td {
+  border-bottom: none;
 }
 
 /* Badges */
@@ -370,11 +422,13 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 3px 9px;
+  padding: 4px 10px;
   border-radius: 9999px;
   font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .badge-pending {
@@ -572,10 +626,20 @@ body {
 @media (max-width: 900px) {
   .admin-layout {
     flex-direction: column;
+    height: auto;
+    overflow: visible;
   }
   .admin-sidebar {
     width: 100%;
+    min-width: 100%;
+    max-width: 100%;
+    height: auto;
+    position: static;
     padding: 16px;
+  }
+  .admin-main {
+    height: auto;
+    overflow-y: visible;
   }
   .sidebar-nav {
     flex-direction: row;
