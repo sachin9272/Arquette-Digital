@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
@@ -22,6 +22,7 @@ import {
   Send,
 } from 'lucide-react';
 import { BLOG_POSTS, CLINIC_INFO } from '@/data/clinicData';
+import { BlogPost } from '@/types';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { SEOJsonLd } from '@/components/common/SEOJsonLd';
@@ -31,31 +32,66 @@ export default function BlogListingPage() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [newsletterEmail, setNewsletterEmail] = useState<string>('');
   const [isSubscribed, setIsSubscribed] = useState<boolean>(false);
+  const [postsList, setPostsList] = useState<BlogPost[]>(
+    BLOG_POSTS.filter((p) => p.isActive !== false)
+  );
+
+  useEffect(() => {
+    const apiBase = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000').replace(/\/$/, '');
+    fetch(`${apiBase}/api/blogs`)
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+          const mapped: BlogPost[] = json.data
+            .filter((p: any) => p.isActive !== false)
+            .map((p: any) => ({
+              id: p.blogId || p.id || p._id,
+              slug: p.slug,
+              title: p.title,
+              excerpt: p.excerpt,
+              content: p.content || [],
+              department: p.department,
+              authorName: p.authorName,
+              authorRole: p.authorRole,
+              authorImage: p.authorImage,
+              readTime: p.readTime || '5 min read',
+              publishedDate: p.publishedDate,
+              coverImage: p.coverImage,
+              tags: p.tags || [],
+              isActive: p.isActive ?? true,
+            }));
+          setPostsList(mapped);
+        }
+      })
+      .catch(() => {
+        // Fallback to static data
+      });
+  }, []);
 
   const filterTabs = [
-    { id: 'All', label: 'All Health Guides', icon: BookOpen, count: BLOG_POSTS.length },
+    { id: 'All', label: 'All Health Guides', icon: BookOpen, count: postsList.length },
     {
       id: 'Dental',
       label: 'Dental & Oral Surgery',
       icon: Stethoscope,
-      count: BLOG_POSTS.filter((p) => p.department === 'Dental').length,
+      count: postsList.filter((p) => p.department === 'Dental').length,
     },
     {
       id: 'Skin',
       label: 'Clinical Dermatology',
       icon: Sparkles,
-      count: BLOG_POSTS.filter((p) => p.department === 'Skin').length,
+      count: postsList.filter((p) => p.department === 'Skin').length,
     },
     {
       id: 'Hair',
       label: 'Trichology & Hair',
       icon: Shield,
-      count: BLOG_POSTS.filter((p) => p.department === 'Hair').length,
+      count: postsList.filter((p) => p.department === 'Hair').length,
     },
   ];
 
   const filteredPosts = useMemo(() => {
-    return BLOG_POSTS.filter((post) => {
+    return postsList.filter((post) => {
       const matchesDept = selectedDept === 'All' || post.department === selectedDept;
       const query = searchQuery.toLowerCase().trim();
       const matchesQuery =
@@ -66,7 +102,7 @@ export default function BlogListingPage() {
         post.authorName.toLowerCase().includes(query);
       return matchesDept && matchesQuery;
     });
-  }, [selectedDept, searchQuery]);
+  }, [selectedDept, searchQuery, postsList]);
 
   // The first post is featured in the top spotlight when no specific search is active
   const featuredPost = filteredPosts.length > 0 ? filteredPosts[0] : null;

@@ -39,7 +39,7 @@ export const metadata = {
 };
 
 export default function SkinTreatmentsPage() {
-  const skinDoctors = DOCTORS.filter((d) => d.department === 'Skin');
+  const skinDoctors = DOCTORS.filter((d) => d.department === 'Skin' && d.isActive !== false);
 
   const SKIN_PILLARS = [
     {

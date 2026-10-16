@@ -40,7 +40,7 @@ export const metadata = {
 };
 
 export default function DentalTreatmentsPage() {
-  const dentalDoctors = DOCTORS.filter((d) => d.department === 'Dental');
+  const dentalDoctors = DOCTORS.filter((d) => d.department === 'Dental' && d.isActive !== false);
 
   const DENTAL_PILLARS = [
     {

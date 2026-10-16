@@ -32,7 +32,7 @@ export default function DoctorsPage() {
   const [selectedDept, setSelectedDept] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [onlyAvailableToday, setOnlyAvailableToday] = useState<boolean>(false);
-  const [doctorsList, setDoctorsList] = useState<Doctor[]>(DOCTORS);
+  const [doctorsList, setDoctorsList] = useState<Doctor[]>(DOCTORS.filter((d) => d.isActive !== false));
 
   useEffect(() => {
     const apiBase = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000').replace(/\/$/, '');
@@ -40,23 +40,26 @@ export default function DoctorsPage() {
       .then((res) => res.json())
       .then((json) => {
         if (json.success && Array.isArray(json.data) && json.data.length > 0) {
-          const mapped: Doctor[] = json.data.map((d: any) => ({
-            id: d.doctorId || d.id || d._id,
-            name: d.name,
-            title: d.title,
-            department: d.department,
-            qualifications: d.qualifications,
-            experienceYears: d.experienceYears,
-            rating: d.rating || 4.9,
-            reviewCount: d.reviewCount || 100,
-            image: d.image,
-            availability: d.availability,
-            fee: d.fee,
-            bio: d.bio,
-            languages: d.languages || ['English'],
-            specializations: d.specializations || [],
-            isAvailableToday: d.isAvailableToday ?? true,
-          }));
+          const mapped: Doctor[] = json.data
+            .filter((d: any) => d.isActive !== false)
+            .map((d: any) => ({
+              id: d.doctorId || d.id || d._id,
+              name: d.name,
+              title: d.title,
+              department: d.department,
+              qualifications: d.qualifications,
+              experienceYears: d.experienceYears,
+              rating: d.rating || 4.9,
+              reviewCount: d.reviewCount || 100,
+              image: d.image,
+              availability: d.availability,
+              fee: d.fee,
+              bio: d.bio,
+              languages: d.languages || ['English'],
+              specializations: d.specializations || [],
+              isAvailableToday: d.isAvailableToday ?? true,
+              isActive: d.isActive ?? true,
+            }));
           setDoctorsList(mapped);
         }
       })

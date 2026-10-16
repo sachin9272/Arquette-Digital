@@ -13,12 +13,51 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { BLOG_POSTS, DOCTORS } from '@/data/clinicData';
+import { BlogPost } from '@/types';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { SEOJsonLd } from '@/components/common/SEOJsonLd';
 
 interface Props {
   params: Promise<{ slug: string }>;
+}
+
+async function getPostBySlug(slug: string): Promise<BlogPost | null> {
+  try {
+    const apiBase = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000').replace(/\/$/, '');
+    const res = await fetch(`${apiBase}/api/blogs/${slug}`, { cache: 'no-store' });
+    if (res.ok) {
+      const json = await res.json();
+      if (json.success && json.data) {
+        const d = json.data;
+        if (d.isActive === false) return null;
+        return {
+          id: d.blogId || d.id || d._id,
+          slug: d.slug,
+          title: d.title,
+          excerpt: d.excerpt,
+          content: d.content || [],
+          department: d.department,
+          authorName: d.authorName,
+          authorRole: d.authorRole,
+          authorImage: d.authorImage,
+          readTime: d.readTime || '5 min read',
+          publishedDate: d.publishedDate,
+          coverImage: d.coverImage,
+          tags: d.tags || [],
+          isActive: d.isActive ?? true,
+        };
+      }
+    }
+  } catch {
+    // fallback
+  }
+
+  const staticPost = BLOG_POSTS.find((p) => p.slug === slug);
+  if (staticPost && staticPost.isActive !== false) {
+    return staticPost;
+  }
+  return null;
 }
 
 export async function generateStaticParams() {
@@ -29,7 +68,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
-  const post = BLOG_POSTS.find((p) => p.slug === slug);
+  const post = await getPostBySlug(slug);
   if (!post) return { title: 'Article Not Found' };
 
   return {
@@ -45,13 +84,13 @@ export async function generateMetadata({ params }: Props) {
 
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
-  const post = BLOG_POSTS.find((p) => p.slug === slug);
+  const post = await getPostBySlug(slug);
 
   if (!post) {
     notFound();
   }
 
-  const relatedPosts = BLOG_POSTS.filter((p) => p.id !== post.id && p.department === post.department).slice(0, 2);
+  const relatedPosts = BLOG_POSTS.filter((p) => p.id !== post.id && p.department === post.department && p.isActive !== false).slice(0, 2);
   const authorDoctor = DOCTORS.find((d) => d.name === post.authorName);
 
   return (

@@ -32,9 +32,79 @@ export const metadata = {
   },
 };
 
-export default function HomePage() {
-  const featuredDoctors = DOCTORS.slice(0, 4);
-  const featuredArticles = BLOG_POSTS.slice(0, 3);
+async function getFeaturedDoctors() {
+  try {
+    const apiBase = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000').replace(/\/$/, '');
+    const res = await fetch(`${apiBase}/api/doctors`, { cache: 'no-store' });
+    if (res.ok) {
+      const json = await res.json();
+      if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+        return json.data
+          .filter((d: any) => d.isActive !== false)
+          .slice(0, 4)
+          .map((d: any) => ({
+            id: d.doctorId || d.id || d._id,
+            name: d.name,
+            title: d.title,
+            department: d.department,
+            qualifications: d.qualifications,
+            experienceYears: d.experienceYears,
+            rating: d.rating || 4.9,
+            reviewCount: d.reviewCount || 100,
+            image: d.image,
+            availability: d.availability,
+            fee: d.fee,
+            bio: d.bio,
+            languages: d.languages || ['English'],
+            specializations: d.specializations || [],
+            isAvailableToday: d.isAvailableToday ?? true,
+            isActive: d.isActive ?? true,
+          }));
+      }
+    }
+  } catch {
+    // fallback
+  }
+  return DOCTORS.filter((d) => d.isActive !== false).slice(0, 4);
+}
+
+async function getFeaturedBlogs() {
+  try {
+    const apiBase = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000').replace(/\/$/, '');
+    const res = await fetch(`${apiBase}/api/blogs`, { cache: 'no-store' });
+    if (res.ok) {
+      const json = await res.json();
+      if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+        return json.data
+          .filter((p: any) => p.isActive !== false)
+          .slice(0, 3)
+          .map((p: any) => ({
+            id: p.blogId || p.id || p._id,
+            slug: p.slug,
+            title: p.title,
+            excerpt: p.excerpt,
+            content: p.content || [],
+            department: p.department,
+            authorName: p.authorName,
+            authorRole: p.authorRole,
+            authorImage: p.authorImage,
+            readTime: p.readTime || '5 min read',
+            publishedDate: p.publishedDate,
+            coverImage: p.coverImage,
+            tags: p.tags || [],
+            isActive: p.isActive ?? true,
+          }));
+      }
+    }
+  } catch {
+    // fallback
+  }
+  return BLOG_POSTS.filter((p) => p.isActive !== false).slice(0, 3);
+}
+
+export default async function HomePage() {
+  const featuredDoctors = await getFeaturedDoctors();
+  const featuredArticles = await getFeaturedBlogs();
 
   return (
     <div className="w-full flex flex-col">
@@ -357,6 +427,16 @@ export default function HomePage() {
             <p className="text-sm text-brand-muted">
               Read verified testimonials from patients treated at our Bengaluru clinic.
             </p>
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-2 text-xs text-brand-muted">
+              <span className="flex items-center gap-1.5 font-bold text-brand-text bg-brand-surface-low px-3 py-1 rounded-full border border-brand-border/60">
+                <span className="text-amber-400">★★★★★</span>
+                <span>4.9 / 5.0 Rating</span>
+              </span>
+              <span className="flex items-center gap-1 font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>100% Verified Clinical Cases</span>
+              </span>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -366,9 +446,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* PATIENT FREQUENTLY ASKED QUESTIONS (FAQ SCHEMA ACCORDION) */}
-      <FAQAccordion />
 
       {/* PATIENT EDUCATION / BLOG HIGHLIGHTS */}
       <section className="w-full py-20 bg-brand-background">
@@ -494,6 +571,9 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* PATIENT FREQUENTLY ASKED QUESTIONS (FAQ SCHEMA ACCORDION - BEFORE FOOTER) */}
+      <FAQAccordion />
     </div>
   );
 }

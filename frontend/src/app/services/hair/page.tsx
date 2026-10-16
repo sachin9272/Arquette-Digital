@@ -38,7 +38,7 @@ export const metadata = {
 };
 
 export default function HairTreatmentsPage() {
-  const hairDoctors = DOCTORS.filter((d) => d.department === 'Hair');
+  const hairDoctors = DOCTORS.filter((d) => d.department === 'Hair' && d.isActive !== false);
 
   const HAIR_PILLARS = [
     {
