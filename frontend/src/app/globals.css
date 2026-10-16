@@ -1,25 +1,26 @@
 @import "tailwindcss";
 
 @layer base {
+
   :root,
   [data-theme="clinical"] {
     --brand-primary: #0A1E34;
     --brand-primary-hover: #102A45;
-    --brand-secondary: #006A61;
-    --brand-secondary-hover: #0D9488;
+    --brand-secondary: #0D9488;
+    --brand-secondary-hover: #0F766E;
     --brand-accent: #0284C7;
     --brand-accent-light: #E0F2FE;
     --brand-surface: #FFFFFF;
     --brand-surface-card: #FFFFFF;
     --brand-surface-low: #F8FAFC;
-    --brand-surface-container: #ECEEF0;
-    --brand-background: #F7F9FB;
+    --brand-surface-container: #F1F5F9;
+    --brand-background: #F8FAFC;
     --brand-border: #E2E8F0;
-    --brand-text: #191C1E;
-    --brand-muted: #44474D;
-    --brand-badge-bg: #86F2E4;
-    --brand-badge-text: #006F66;
-    --brand-tag-bg: #E6E8EA;
+    --brand-text: #0F172A;
+    --brand-muted: #64748B;
+    --brand-badge-bg: #E6F7F5;
+    --brand-badge-text: #0D746B;
+    --brand-tag-bg: #F1F5F9;
     --brand-emergency: #DC2626;
     --brand-emergency-bg: #FEF2F2;
   }
@@ -167,13 +168,16 @@ body {
   width: 8px;
   height: 8px;
 }
+
 ::-webkit-scrollbar-track {
   background: var(--brand-surface-low);
 }
+
 ::-webkit-scrollbar-thumb {
   background: #CBD5E1;
   border-radius: 4px;
 }
+
 [data-theme="dark"] ::-webkit-scrollbar-thumb {
   background: #334155;
 }

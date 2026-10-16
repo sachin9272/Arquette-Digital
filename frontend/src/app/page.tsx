@@ -10,16 +10,17 @@ import {
   Sparkles,
   Shield,
   Clock,
-  Award,
   ChevronRight,
   Building,
 } from 'lucide-react';
 import { CLINIC_INFO, DOCTORS, TESTIMONIALS, BLOG_POSTS, ALL_SERVICES_CATALOG } from '@/data/clinicData';
+import { HOMEPAGE_FAQS } from '@/data/seoData';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { DoctorCard } from '@/components/clinic/DoctorCard';
 import { TestimonialCard } from '@/components/clinic/TestimonialCard';
 import { BeforeAfterSlider } from '@/components/clinic/BeforeAfterSlider';
+import { FAQAccordion } from '@/components/clinic/FAQAccordion';
 import { SEOJsonLd } from '@/components/common/SEOJsonLd';
 
 export const metadata = {
@@ -37,18 +38,21 @@ export default function HomePage() {
 
   return (
     <div className="w-full flex flex-col">
+      {/* Search Engine Microdata Schemas */}
       <SEOJsonLd type="Clinic" />
+      <SEOJsonLd type="FAQPage" data={{ faqs: HOMEPAGE_FAQS }} />
 
       {/* HERO SECTION */}
-      <section className="relative w-full overflow-hidden bg-brand-surface-low border-b border-brand-border/60 py-16 lg:py-24">
-        {/* Subtle radial texture */}
-        <div className="absolute inset-0 opacity-25 pointer-events-none bg-[radial-gradient(var(--brand-secondary)_1px,transparent_1px)] [background-size:24px_24px]" />
+      <section className="relative w-full overflow-hidden bg-gradient-to-b from-brand-surface-low via-brand-background to-brand-surface border-b border-brand-border/60 py-16 lg:py-24">
+        {/* Soft Ambient Glows */}
+        <div className="absolute top-0 right-1/4 w-96 h-96 rounded-full bg-brand-secondary/10 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-10 w-96 h-96 rounded-full bg-brand-primary/10 blur-3xl pointer-events-none" />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             {/* Left Content Column */}
             <div className="lg:col-span-7 flex flex-col z-10 space-y-6">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-badge-bg/40 text-brand-badge-text border border-brand-badge-bg/60 w-fit shadow-xs">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-badge-bg text-brand-badge-text border border-brand-secondary/30 w-fit shadow-xs">
                 <ShieldCheck className="w-4 h-4 text-brand-secondary" />
                 <span className="text-xs uppercase tracking-wider font-extrabold">
                   Bangalore&apos;s Leading Multi-Speciality Center
@@ -57,7 +61,7 @@ export default function HomePage() {
 
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-brand-primary tracking-tight leading-[1.15]">
                 World-Class Multi-Speciality Care Grounded in{' '}
-                <span className="text-brand-secondary underline decoration-brand-badge-bg decoration-4 underline-offset-8">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-primary to-brand-secondary">
                   Clinical Excellence
                 </span>
               </h1>
@@ -72,7 +76,7 @@ export default function HomePage() {
                   <Button
                     variant="primary"
                     size="lg"
-                    leftIcon={<Calendar className="w-5 h-5 text-brand-badge-bg" />}
+                    leftIcon={<Calendar className="w-5 h-5 opacity-80" />}
                   >
                     Schedule a Consultation
                   </Button>
@@ -93,15 +97,15 @@ export default function HomePage() {
               <div className="pt-4 flex flex-wrap items-center gap-6 text-xs font-semibold text-brand-muted">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-brand-secondary" />
-                  <span>CQC Outstanding Rated</span>
+                  <span>NABH Accredited Standards</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-brand-secondary" />
-                  <span>ISO 15189 Certified Pathology</span>
+                  <span>25,000+ Treated Patients</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-brand-secondary" />
-                  <span>GMC & GDC Registered Consultants</span>
+                  <span>Certified Lead Specialists</span>
                 </div>
               </div>
             </div>
@@ -121,17 +125,17 @@ export default function HomePage() {
                 {/* Floating Metric Card */}
                 <div className="absolute bottom-6 left-6 right-6 p-4 sm:p-5 rounded-2xl bg-brand-surface/95 backdrop-blur-md shadow-xl border border-brand-border/60 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-xl bg-brand-badge-bg/40 flex items-center justify-center text-brand-secondary">
+                    <div className="w-11 h-11 rounded-xl bg-brand-badge-bg flex items-center justify-center text-brand-secondary">
                       <Clock className="w-6 h-6" />
                     </div>
                     <div>
                       <div className="text-base font-bold text-brand-text">Same-Day</div>
                       <div className="text-[11px] uppercase tracking-wider text-brand-muted font-bold">
-                        Diagnostic Pathology
+                        Diagnostic Care
                       </div>
                     </div>
                   </div>
-                  <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800">
+                  <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-brand-badge-bg text-brand-badge-text border border-brand-secondary/20">
                     Active Triage
                   </span>
                 </div>
@@ -143,10 +147,15 @@ export default function HomePage() {
 
       {/* KEY TRUST STATS COUNTER BAR */}
       <section className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 sm:-mt-10 w-full">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 p-6 sm:p-8 rounded-2xl bg-brand-surface shadow-xl border border-brand-border">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 p-6 sm:p-8 rounded-3xl bg-brand-surface shadow-xl border border-brand-border/80">
           {CLINIC_INFO.stats.map((stat, idx) => (
-            <div key={idx} className="p-4 rounded-xl bg-brand-surface-low border border-brand-border/40">
-              <div className="text-3xl sm:text-4xl font-black text-brand-primary leading-none mb-1">
+            <div
+              key={idx}
+              className={`flex flex-col justify-center px-4 py-2 ${
+                idx !== 0 ? 'lg:border-l lg:border-brand-border/60' : ''
+              }`}
+            >
+              <div className="text-3xl sm:text-4xl font-black text-brand-primary leading-none mb-1.5 tracking-tight">
                 {stat.value}
               </div>
               <div className="text-xs sm:text-sm font-semibold text-brand-muted">
@@ -174,52 +183,98 @@ export default function HomePage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {ALL_SERVICES_CATALOG.map((dept, index) => {
+              const tags = [
+                'Dental & Oral Surgery',
+                'Clinical Dermatology',
+                'Trichology & Hair',
+                'Diagnostic Medicine',
+              ];
+
               return (
-                <div
+                <Link
                   key={dept.slug}
-                  className="bg-brand-surface-card border border-brand-border rounded-2xl p-6 shadow-xs flex flex-col justify-between hover:shadow-lg hover:border-brand-secondary/50 transition-all duration-300 group hover:-translate-y-1"
+                  href={dept.link}
+                  className="relative bg-brand-surface border border-brand-border/80 rounded-2xl overflow-hidden shadow-xs hover:shadow-xl hover:border-brand-secondary/50 transition-all duration-300 flex flex-col justify-between group hover:-translate-y-1"
                 >
-                  <div className="space-y-4">
-                    <div className="w-12 h-12 rounded-xl bg-brand-surface-low flex items-center justify-center text-brand-secondary group-hover:bg-brand-secondary group-hover:text-white transition-colors">
-                      {index === 0 && <Stethoscope className="w-6 h-6" />}
-                      {index === 1 && <Sparkles className="w-6 h-6" />}
-                      {index === 2 && <Shield className="w-6 h-6" />}
-                      {index === 3 && <Building className="w-6 h-6" />}
-                    </div>
+                  <div>
+                    {/* High-Resolution Clinical Photography Header */}
+                    <div className="relative w-full aspect-[16/10] bg-brand-surface-low overflow-hidden">
+                      <Image
+                        src={dept.image}
+                        alt={dept.category}
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                        className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/10 pointer-events-none" />
 
-                    <h3 className="text-lg font-bold text-brand-text group-hover:text-brand-secondary transition-colors">
-                      {dept.category}
-                    </h3>
+                      {/* Floating Department Tag Pill */}
+                      <div className="absolute top-3 left-3">
+                        <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-brand-surface/95 backdrop-blur-md text-brand-primary shadow-xs border border-brand-border/60">
+                          {tags[index]}
+                        </span>
+                      </div>
 
-                    <p className="text-xs text-brand-muted leading-relaxed">
-                      {dept.description}
-                    </p>
-
-                    <div className="pt-2 space-y-1.5">
-                      {dept.highlights.map((h, i) => (
-                        <div key={i} className="flex items-center gap-1.5 text-xs text-brand-text">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-brand-secondary shrink-0" />
-                          <span>{h}</span>
+                      {/* Floating Monochromatic Brand Icon Emblem */}
+                      <div className="absolute top-3 right-3">
+                        <div className="w-8 h-8 rounded-full bg-brand-secondary text-white flex items-center justify-center shadow-md shadow-brand-secondary/30">
+                          {index === 0 && <Stethoscope className="w-4 h-4" />}
+                          {index === 1 && <Sparkles className="w-4 h-4" />}
+                          {index === 2 && <Shield className="w-4 h-4" />}
+                          {index === 3 && <Building className="w-4 h-4" />}
                         </div>
-                      ))}
+                      </div>
+                    </div>
+
+                    {/* Card Body Content */}
+                    <div className="p-5 sm:p-6 space-y-3.5">
+                      {/* Department Title (fixed height for strict row alignment) */}
+                      <div className="h-12 flex items-center">
+                        <h3 className="text-base sm:text-lg font-bold text-brand-primary group-hover:text-brand-secondary transition-colors leading-snug">
+                          {dept.category}
+                        </h3>
+                      </div>
+
+                      {/* Description */}
+                      <p className="text-xs text-brand-muted leading-relaxed min-h-[2.5rem] line-clamp-2">
+                        {dept.description}
+                      </p>
+
+                      {/* Treatment Highlights */}
+                      <div className="pt-1 space-y-1.5">
+                        {dept.highlights.map((h, i) => (
+                          <div
+                            key={i}
+                            className="flex items-center gap-2 text-xs text-brand-text font-medium group-hover:text-brand-primary transition-colors"
+                          >
+                            <div className="w-4 h-4 rounded-full bg-brand-badge-bg text-brand-badge-text flex items-center justify-center shrink-0 border border-brand-secondary/20 shadow-2xs">
+                              <CheckCircle2 className="w-3.5 h-3.5" />
+                            </div>
+                            <span className="truncate">{h}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
 
-                  <div className="pt-6 mt-6 border-t border-brand-border/60">
-                    <Link
-                      href={dept.link}
-                      className="inline-flex items-center gap-1.5 text-xs font-bold text-brand-secondary hover:text-brand-secondary-hover group-hover:translate-x-1 transition-all"
-                    >
-                      <span>Explore Department</span>
-                      <ChevronRight className="w-4 h-4" />
-                    </Link>
+                  {/* Action Footer */}
+                  <div className="p-5 sm:p-6 pt-0 mt-2">
+                    <div className="pt-4 border-t border-brand-border/60 flex items-center justify-between">
+                      <span className="text-xs font-bold text-brand-text group-hover:text-brand-secondary transition-colors">
+                        Explore Department
+                      </span>
+                      <div className="w-8 h-8 rounded-full bg-brand-surface-low text-brand-muted flex items-center justify-center transition-all duration-300 group-hover:bg-brand-secondary group-hover:text-white group-hover:translate-x-1 shadow-2xs">
+                        <ChevronRight className="w-4 h-4" />
+                      </div>
+                    </div>
                   </div>
-                </div>
+                </Link>
               );
             })}
           </div>
         </div>
       </section>
+
 
       {/* DOCTORS SPOTLIGHT */}
       <section className="w-full py-20 bg-brand-surface border-y border-brand-border/60">
@@ -230,15 +285,15 @@ export default function HomePage() {
                 Senior Medical Faculty
               </Badge>
               <h2 className="text-3xl sm:text-4xl font-black text-brand-primary tracking-tight">
-                Consult With Renowned Harley & Mayfair Specialists
+                Consult With Renowned Specialists &amp; Surgeons
               </h2>
               <p className="text-sm text-brand-muted">
-                Each of our lead clinicians is registered with the GMC or GDC, maintaining active surgical privileges and research chairmanships.
+                Consultant dermatologists, trichologists, and implant surgeons maintaining evidence-based clinical protocols and personalized care.
               </p>
             </div>
             <Link href="/doctors">
               <Button variant="outline" size="md" rightIcon={<ArrowRight className="w-4 h-4" />}>
-                View All 40+ Consultants
+                View All Specialists
               </Button>
             </Link>
           </div>
@@ -251,6 +306,7 @@ export default function HomePage() {
         </div>
       </section>
 
+
       {/* BEFORE & AFTER CLINICAL RESULTS PREVIEW */}
       <section className="w-full py-20 bg-brand-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -259,7 +315,7 @@ export default function HomePage() {
               Evidence-Based Transformations
             </Badge>
             <h2 className="text-3xl sm:text-4xl font-black text-brand-primary tracking-tight">
-              Verified Clinical Before & After Case Studies
+              Verified Clinical Before &amp; After Case Studies
             </h2>
             <p className="text-sm text-brand-muted">
               Interactive comparisons demonstrating our restorative dental smile redesigns and dermatological laser scar resurfacing protocols.
@@ -278,7 +334,7 @@ export default function HomePage() {
 
             <div className="p-6 rounded-3xl bg-brand-surface border border-brand-border shadow-xs">
               <BeforeAfterSlider
-                beforeImage="https://images.unsplash.com/photo-1512290900672-1f55b9659f4d?auto=format&fit=crop&q=80&w=800"
+                beforeImage="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&q=80&w=800"
                 afterImage="https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&q=80&w=800"
                 treatmentName="Fractional CO2 Laser Resurfacing for Severe Acne Scarring"
                 timeframe="3 clinical sessions by Dr. Sarah Jenkins"
@@ -311,6 +367,9 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* PATIENT FREQUENTLY ASKED QUESTIONS (FAQ SCHEMA ACCORDION) */}
+      <FAQAccordion />
+
       {/* PATIENT EDUCATION / BLOG HIGHLIGHTS */}
       <section className="w-full py-20 bg-brand-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -320,7 +379,7 @@ export default function HomePage() {
                 Patient Education
               </Badge>
               <h2 className="text-3xl sm:text-4xl font-black text-brand-primary tracking-tight">
-                Clinical Health & Wellness Insights
+                Clinical Health &amp; Wellness Insights
               </h2>
               <p className="text-sm text-brand-muted">
                 Evidence-based articles published directly by our consultant physicians and surgeons.
@@ -388,37 +447,50 @@ export default function HomePage() {
         </div>
       </section>
 
+
       {/* APPOINTMENT BOOKING CTA BANNER */}
-      <section className="w-full py-16 bg-brand-primary text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
-          <Badge variant="secondary" size="md">
-            Direct Private Access
-          </Badge>
-          <h2 className="text-3xl sm:text-4xl font-black tracking-tight max-w-2xl mx-auto">
-            Ready to Experience World-Class Medical Care in Bengaluru?
-          </h2>
-          <p className="text-slate-300 text-sm sm:text-base max-w-xl mx-auto">
-            Book an appointment online in under 2 minutes or connect directly with our clinic desk.
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
-            <Link href="/booking">
-              <Button
-                variant="secondary"
-                size="lg"
-                leftIcon={<Calendar className="w-5 h-5" />}
-              >
-                Launch Appointment Booking Engine
-              </Button>
-            </Link>
-            <a href={`tel:${CLINIC_INFO.phone}`}>
-              <Button
-                variant="outline"
-                size="lg"
-                className="text-white border-white/40 hover:bg-white/10"
-              >
-                Call Clinic: {CLINIC_INFO.phone}
-              </Button>
-            </a>
+      <section className="w-full py-20 bg-gradient-to-b from-brand-background to-brand-surface-low border-b border-brand-border/60">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="relative rounded-3xl bg-gradient-to-br from-brand-primary via-brand-primary to-brand-primary/95 p-10 sm:p-14 text-white shadow-2xl border border-brand-secondary/30 overflow-hidden text-center space-y-6">
+            {/* Ambient Lighting */}
+            <div className="absolute top-0 right-0 w-80 h-80 bg-brand-secondary/15 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-80 h-80 bg-brand-secondary/10 rounded-full blur-3xl pointer-events-none" />
+
+            <div className="relative z-10 space-y-5 max-w-3xl mx-auto">
+              <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-white/10 text-brand-secondary-light border border-white/15">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Direct Consultant Access · Open 7 Days</span>
+              </span>
+
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight">
+                Ready to Experience World-Class Medical Care in Bengaluru?
+              </h2>
+
+              <p className="text-slate-300 text-sm sm:text-base leading-relaxed max-w-xl mx-auto">
+                Schedule your consultation online in under 2 minutes or connect directly with our patient care coordinators in Kalyan Nagar.
+              </p>
+
+              <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
+                <Link href="/booking">
+                  <Button
+                    variant="secondary"
+                    size="lg"
+                    leftIcon={<Calendar className="w-5 h-5" />}
+                  >
+                    Reserve Consultation Online
+                  </Button>
+                </Link>
+                <a href={`tel:${CLINIC_INFO.phone}`}>
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="text-white border-white/20 bg-white/5 hover:bg-white/15 hover:border-white/40"
+                  >
+                    Call Clinic: {CLINIC_INFO.phone}
+                  </Button>
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </section>
