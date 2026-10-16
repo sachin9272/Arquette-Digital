@@ -17,6 +17,10 @@ interface DoctorCardProps {
 export const DoctorCard: React.FC<DoctorCardProps> = ({ doctor, onSelectDoctor, featured = false }) => {
   const [showBio, setShowBio] = useState(false);
 
+  if (doctor.isActive === false) {
+    return null;
+  }
+
   return (
     <article
       className={`relative bg-brand-surface border rounded-3xl overflow-hidden shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between group hover:-translate-y-1 ${

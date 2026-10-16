@@ -16,6 +16,7 @@ export interface Doctor {
   languages: string[];
   specializations: string[];
   isAvailableToday?: boolean;
+  isActive?: boolean;
 }
 
 export interface TreatmentItem {
@@ -75,6 +76,7 @@ export interface BlogPost {
   publishedDate: string;
   coverImage: string;
   tags: string[];
+  isActive?: boolean;
 }
 
 export interface Testimonial {

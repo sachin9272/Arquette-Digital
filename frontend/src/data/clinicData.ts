@@ -612,7 +612,7 @@ export const TESTIMONIALS: Testimonial[] = [
     treatment: "Cosmetic Porcelain Veneers & Whitening",
     department: "Dental",
     rating: 5,
-    comment: "Dr. Alistair Vance is an absolute artist. My smile looks effortlessly natural—not like fake plastic chiclets. The clinic atmosphere in Mayfair feels more like a private lounge than a dental practice.",
+    comment: "Dr. Alistair Vance is an absolute artist. My smile looks effortlessly natural—not like fake plastic chiclets. The clinic atmosphere in Kalyan Nagar feels more like a private luxury lounge than a dental practice.",
     date: "September 2026",
     doctorName: "Dr. Alistair Vance",
     verified: true,
