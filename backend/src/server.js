@@ -7,6 +7,7 @@ import { verifySmtpConnection } from './services/emailService.js';
 import appointmentRoutes from './routes/appointmentRoutes.js';
 import doctorRoutes from './routes/doctorRoutes.js';
 import themeRoutes from './routes/themeRoutes.js';
+import blogRoutes from './routes/blogRoutes.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -67,6 +68,7 @@ app.get('/', (req, res) => {
     endpoints: {
       appointments: '/api/appointments',
       doctors: '/api/doctors',
+      blogs: '/api/blogs',
       adminStats: '/api/appointments/stats/overview',
       health: '/api/health',
     },
@@ -86,6 +88,7 @@ app.get('/api/health', (req, res) => {
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/doctors', doctorRoutes);
 app.use('/api/theme', themeRoutes);
+app.use('/api/blogs', blogRoutes);
 
 // 404 Handler
 app.use((req, res) => {
