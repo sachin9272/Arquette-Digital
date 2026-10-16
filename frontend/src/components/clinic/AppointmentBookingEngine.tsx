@@ -79,7 +79,8 @@ export const AppointmentBookingEngine: React.FC<AppointmentBookingEngineProps> =
   const [doctorsList, setDoctorsList] = useState<Doctor[]>(DOCTORS);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/doctors')
+    const apiBase = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000').replace(/\/$/, '');
+    fetch(`${apiBase}/api/doctors`)
       .then((res) => res.json())
       .then((json) => {
         if (json.success && Array.isArray(json.data) && json.data.length > 0) {
@@ -170,8 +171,9 @@ export const AppointmentBookingEngine: React.FC<AppointmentBookingEngineProps> =
         // Complete booking and persist to MongoDB backend
         const bookingId = `PRL-2026-${Math.floor(100000 + Math.random() * 900000)}`;
 
+        const apiBase = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000').replace(/\/$/, '');
         try {
-          await fetch('http://localhost:5000/api/appointments', {
+          await fetch(`${apiBase}/api/appointments`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -195,7 +197,7 @@ export const AppointmentBookingEngine: React.FC<AppointmentBookingEngineProps> =
             }),
           });
         } catch (err) {
-          console.warn('Backend server not reachable at http://localhost:5000, continuing with client confirmation:', err);
+          console.warn('Backend server not reachable, continuing with client confirmation:', err);
         }
 
         const confirmed: ConfirmedAppointment = {

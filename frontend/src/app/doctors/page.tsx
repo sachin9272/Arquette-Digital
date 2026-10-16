@@ -35,7 +35,8 @@ export default function DoctorsPage() {
   const [doctorsList, setDoctorsList] = useState<Doctor[]>(DOCTORS);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/doctors')
+    const apiBase = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000').replace(/\/$/, '');
+    fetch(`${apiBase}/api/doctors`)
       .then((res) => res.json())
       .then((json) => {
         if (json.success && Array.isArray(json.data) && json.data.length > 0) {

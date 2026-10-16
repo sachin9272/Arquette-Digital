@@ -23,9 +23,12 @@ import {
   CloudUpload
 } from 'lucide-react';
 
-const API_BASE = 'http://localhost:5000/api/appointments';
-const DOCTOR_API = 'http://localhost:5000/api/doctors';
-const THEME_API = 'http://localhost:5000/api/theme';
+const SERVER_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/$/, '');
+const FRONTEND_URL = (import.meta.env.VITE_FRONTEND_URL || 'http://localhost:3000').replace(/\/$/, '');
+
+const API_BASE = `${SERVER_BASE}/api/appointments`;
+const DOCTOR_API = `${SERVER_BASE}/api/doctors`;
+const THEME_API = `${SERVER_BASE}/api/theme`;
 
 const CLINIC_THEMES = [
   {
@@ -224,7 +227,7 @@ export default function App() {
     formData.append('image', file);
 
     try {
-      const res = await fetch('http://localhost:5000/api/doctors/upload-image', {
+      const res = await fetch(`${DOCTOR_API}/upload-image`, {
         method: 'POST',
         body: formData,
       });
@@ -589,7 +592,7 @@ export default function App() {
           </div>
 
           <a
-            href="http://localhost:3000"
+            href={FRONTEND_URL}
             target="_blank"
             rel="noreferrer"
             className="btn btn-outline"
@@ -1094,7 +1097,7 @@ export default function App() {
                 </div>
 
                 <a
-                  href="http://localhost:3000"
+                  href={FRONTEND_URL}
                   target="_blank"
                   rel="noreferrer"
                   className="btn btn-outline"
