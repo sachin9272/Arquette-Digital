@@ -40,7 +40,7 @@ export default function AppointmentsTab({
     .reduce((sum, a) => sum + (a.consultationFee || 1200), 0);
 
   return (
-    <div className="p-8 space-y-6 max-w-7xl w-full">
+    <div className="p-8 space-y-6 w-full">
       {/* KPI Stats Cards - Standardized Clinical Vertical Layout */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {/* Card 1: Total Bookings */}
@@ -157,16 +157,16 @@ export default function AppointmentsTab({
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+            <table className="w-full text-left border-collapse min-w-[1080px]">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                  <th className="py-3.5 px-6">Patient Details</th>
-                  <th className="py-3.5 px-6">Date & Slot</th>
-                  <th className="py-3.5 px-6">Clinical Department</th>
-                  <th className="py-3.5 px-6">Specialist</th>
-                  <th className="py-3.5 px-6">Fee</th>
-                  <th className="py-3.5 px-6">Status</th>
-                  <th className="py-3.5 px-6 text-right">Actions</th>
+                <tr className="bg-slate-50/90 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                  <th className="py-3.5 px-6 whitespace-nowrap min-w-[260px]">Patient Details</th>
+                  <th className="py-3.5 px-6 whitespace-nowrap min-w-[150px]">Date & Slot</th>
+                  <th className="py-3.5 px-6 whitespace-nowrap min-w-[220px]">Clinical Department</th>
+                  <th className="py-3.5 px-6 whitespace-nowrap min-w-[180px]">Specialist</th>
+                  <th className="py-3.5 px-6 whitespace-nowrap min-w-[110px]">Fee</th>
+                  <th className="py-3.5 px-6 whitespace-nowrap min-w-[150px]">Status</th>
+                  <th className="py-3.5 px-6 whitespace-nowrap text-right min-w-[170px]">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-xs">
@@ -180,47 +180,55 @@ export default function AppointmentsTab({
 
                   return (
                     <tr key={apt._id} className="hover:bg-slate-50/70 transition-colors">
-                      <td className="py-4 px-6">
+                      <td className="py-4 px-6 whitespace-nowrap">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-full bg-teal-100 text-teal-800 font-bold flex items-center justify-center text-xs shrink-0">
+                          <div className="w-10 h-10 rounded-xl bg-teal-50 border border-teal-200/60 text-teal-800 font-extrabold flex items-center justify-center text-xs shrink-0 shadow-xs">
                             {getInitials(apt.patientName)}
                           </div>
                           <div>
-                            <div className="font-bold text-slate-800 text-sm">{apt.patientName}</div>
-                            <div className="text-[11px] text-slate-400 font-mono flex items-center gap-2 mt-0.5">
-                              <span>{apt.bookingReference}</span>
-                              <span>&bull;</span>
-                              <span className="flex items-center gap-1"><Phone size={10} /> {apt.phone}</span>
+                            <div className="font-bold text-slate-900 text-sm whitespace-nowrap">{apt.patientName}</div>
+                            <div className="text-[11px] text-slate-500 font-mono flex items-center gap-2 mt-0.5 whitespace-nowrap">
+                              <span className="font-semibold text-slate-600">{apt.bookingReference}</span>
+                              <span className="text-slate-300">&bull;</span>
+                              <span className="flex items-center gap-1 text-slate-500">
+                                <Phone size={10} className="text-slate-400" /> {apt.phone}
+                              </span>
                             </div>
                           </div>
                         </div>
                       </td>
 
-                      <td className="py-4 px-6">
-                        <div className="font-semibold text-slate-700">{formatTableDate(apt.appointmentDate)}</div>
-                        <div className="text-[11px] text-slate-400 flex items-center gap-1 mt-0.5 font-medium">
-                          <Clock size={11} /> {apt.timeSlot}
+                      <td className="py-4 px-6 whitespace-nowrap">
+                        <div className="font-semibold text-slate-800 text-xs">{formatTableDate(apt.appointmentDate)}</div>
+                        <div className="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5 font-medium">
+                          <Clock size={11} className="text-slate-400" /> {apt.timeSlot}
                         </div>
                       </td>
 
                       <td className="py-4 px-6">
-                        <div className="font-bold text-slate-800">{apt.department}</div>
-                        <div className="text-[11px] text-slate-400 truncate max-w-[200px] mt-0.5">
+                        <div className="font-bold text-slate-800 text-xs flex items-center gap-1.5 whitespace-nowrap">
+                          <span className={`w-2 h-2 rounded-full shrink-0 ${
+                            apt.department === 'Dental' ? 'bg-sky-500' :
+                            apt.department === 'Skin' ? 'bg-amber-500' : 'bg-teal-500'
+                          }`} />
+                          <span>{apt.department}</span>
+                        </div>
+                        <div className="text-[11px] text-slate-500 truncate max-w-[240px] mt-0.5 font-medium" title={apt.treatment}>
                           {apt.treatment}
                         </div>
                       </td>
 
-                      <td className="py-4 px-6">
-                        <div className="font-medium text-slate-700">{apt.doctor?.name || 'Attending Specialist'}</div>
+                      <td className="py-4 px-6 whitespace-nowrap">
+                        <div className="font-medium text-slate-800 text-xs">{apt.doctor?.name || 'Attending Specialist'}</div>
                       </td>
 
-                      <td className="py-4 px-6">
+                      <td className="py-4 px-6 whitespace-nowrap">
                         <div className="font-bold text-teal-700 text-sm">₹{(apt.consultationFee || 1200).toLocaleString('en-IN')}</div>
                       </td>
 
-                      <td className="py-4 px-6">
+                      <td className="py-4 px-6 whitespace-nowrap">
                         <div className="space-y-1">
-                          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold border ${statusColors[apt.status] || 'bg-slate-100 text-slate-700'}`}>
+                          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold border shadow-xs ${statusColors[apt.status] || 'bg-slate-100 text-slate-700'}`}>
                             {apt.status === 'pending' && <Clock3 size={11} />}
                             {apt.status === 'confirmed' && <CheckCircle2 size={11} />}
                             {apt.status === 'completed' && <Check size={11} />}
@@ -249,11 +257,11 @@ export default function AppointmentsTab({
                         </div>
                       </td>
 
-                      <td className="py-4 px-6 text-right">
+                      <td className="py-4 px-6 whitespace-nowrap text-right">
                         <div className="flex items-center justify-end gap-1.5">
                           <button
                             onClick={() => onViewAppointment(apt)}
-                            className="p-1.5 text-slate-400 hover:text-teal-700 hover:bg-teal-50 rounded-lg transition-colors"
+                            className="p-1.5 text-slate-400 hover:text-teal-700 hover:bg-teal-50 rounded-lg transition-colors border border-transparent hover:border-teal-200"
                             title="View full record & manage"
                           >
                             <Eye size={15} />
@@ -263,7 +271,7 @@ export default function AppointmentsTab({
                           {apt.status !== 'confirmed' && (
                             <button
                               onClick={() => onUpdateStatus(apt._id, 'confirmed')}
-                              className="p-1.5 text-slate-400 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors"
+                              className="p-1.5 text-slate-400 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors border border-transparent hover:border-emerald-200"
                               title="Confirm appointment & send customer email"
                             >
                               <Check size={15} />
@@ -274,7 +282,7 @@ export default function AppointmentsTab({
                           {apt.status !== 'cancelled' && (
                             <button
                               onClick={() => onUpdateStatus(apt._id, 'cancelled')}
-                              className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                              className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors border border-transparent hover:border-rose-200"
                               title="Reject / Cancel appointment & notify customer"
                             >
                               <XCircle size={15} />
@@ -284,7 +292,7 @@ export default function AppointmentsTab({
                           <button
                             onClick={() => onResendEmail(apt._id)}
                             disabled={sendingEmailId === apt._id}
-                            className="p-1.5 text-slate-400 hover:text-sky-700 hover:bg-sky-50 rounded-lg transition-colors"
+                            className="p-1.5 text-slate-400 hover:text-sky-700 hover:bg-sky-50 rounded-lg transition-colors border border-transparent hover:border-sky-200"
                             title="Resend email to patient"
                           >
                             <Mail size={15} className={sendingEmailId === apt._id ? 'animate-pulse text-sky-600' : ''} />
@@ -292,7 +300,7 @@ export default function AppointmentsTab({
 
                           <button
                             onClick={() => onDeleteAppointment(apt)}
-                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors border border-transparent hover:border-rose-200"
                             title="Delete record"
                           >
                             <Trash2 size={15} />
