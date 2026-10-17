@@ -395,19 +395,23 @@ export default async function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="p-6 rounded-3xl bg-brand-surface border border-brand-border shadow-xs">
               <BeforeAfterSlider
-                beforeImage="https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&q=80&w=800"
-                afterImage="https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&q=80&w=800"
+                beforeImage="/images/dental-veneers-before.jpg"
+                afterImage="/images/dental-veneers-after.jpg"
+                beforeAlt="Patient smile before treatment showing teeth misalignment and discoloration"
+                afterAlt="Patient smile after treatment showing aligned porcelain veneers and laser whitening"
                 treatmentName="Invisalign® + 8 Porcelain Veneers Full Smile Makeover"
-                timeframe="Treatment completed in 7 months by Dr. Alistair Vance"
+                timeframe="Treatment completed in 7 months by Dr. Shubha C. N."
               />
             </div>
 
             <div className="p-6 rounded-3xl bg-brand-surface border border-brand-border shadow-xs">
               <BeforeAfterSlider
-                beforeImage="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&q=80&w=800"
-                afterImage="https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&q=80&w=800"
+                beforeImage="/images/skin-scar-before.jpg"
+                afterImage="/images/skin-scar-after.jpg"
+                beforeAlt="Patient facial skin before treatment showing acne scarring"
+                afterAlt="Patient facial skin after 3 clinical Fractional CO2 laser sessions showing smoothed skin texture"
                 treatmentName="Fractional CO2 Laser Resurfacing for Severe Acne Scarring"
-                timeframe="3 clinical sessions by Dr. Sarah Jenkins"
+                timeframe="3 clinical sessions by Dr. Premalatha V."
               />
             </div>
           </div>

@@ -469,8 +469,8 @@ export default function DentalTreatmentsPage() {
 
           <div className="bg-brand-surface-card border border-brand-border/90 rounded-3xl p-6 sm:p-8 shadow-sm">
             <BeforeAfterSlider
-              beforeImage="https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&q=80&w=800"
-              afterImage="https://images.unsplash.com/photo-1606811841689-23dfddce3e95?auto=format&fit=crop&q=80&w=800"
+              beforeImage="/images/dental-veneers-before.jpg"
+              afterImage="/images/dental-veneers-after.jpg"
               beforeAlt="Before porcelain veneer smile makeover"
               afterAlt="After porcelain veneer smile makeover result"
               treatmentName="Full Upper Arch Porcelain Veneers & Laser Whitening"
