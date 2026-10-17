@@ -330,34 +330,6 @@ export default function App() {
     }
   };
 
-  // Seed Appointments
-  const handleSeedAppointments = () => {
-    setConfirmModal({
-      isOpen: true,
-      title: 'Reset & Seed MongoDB Appointments',
-      message: 'This will reset the appointment registry and populate 8 realistic clinic bookings with verified patient records.',
-      confirmLabel: 'Seed Appointments',
-      cancelLabel: 'Cancel',
-      type: 'warning',
-      onConfirm: async () => {
-        setConfirmModal(null);
-        setLoading(true);
-        try {
-          const res = await fetch(`${API_BASE}/seed`, { method: 'POST' });
-          if (res.ok) {
-            await fetchAppointments();
-            showToast('8 clinical appointments seeded into MongoDB!', 'success');
-          } else {
-            showToast('Failed to seed appointments.', 'error');
-          }
-        } catch {
-          showToast('Network error while seeding appointments.', 'error');
-        } finally {
-          setLoading(false);
-        }
-      },
-    });
-  };
 
 
 
@@ -858,7 +830,6 @@ export default function App() {
         <Header
           activeTab={activeTab}
           loading={loading}
-          onSeedAppointments={handleSeedAppointments}
           onExportCSV={handleExportCSV}
           onOpenCreateAppointment={() => setShowCreateModal(true)}
           onOpenAddDoctor={() => setShowAddDoctorModal(true)}

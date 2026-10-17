@@ -1,10 +1,9 @@
 import React from 'react';
-import { Database, Download, Plus } from 'lucide-react';
+import { Download, Plus } from 'lucide-react';
 
 export default function Header({
   activeTab,
   loading,
-  onSeedAppointments,
   onExportCSV,
   onOpenCreateAppointment,
   onOpenAddDoctor,
@@ -39,15 +38,6 @@ export default function Header({
       <div className="flex items-center gap-3">
         {activeTab === 'appointments' && (
           <>
-            <button
-              onClick={onSeedAppointments}
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-colors"
-              title="Reset & seed realistic clinical dummy appointments into MongoDB"
-            >
-              <Database size={14} className="text-slate-500" />
-              <span>Re-Seed DB</span>
-            </button>
-
             <button
               onClick={onExportCSV}
               className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-colors"
