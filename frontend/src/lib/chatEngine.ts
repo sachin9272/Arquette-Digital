@@ -252,7 +252,15 @@ export function processHealthcareQuery(query: string): ChatMessage {
   }
 
   // 10. GREETINGS
-  if (lower === 'hi' || lower === 'hello' || lower === 'hey' || lower.includes('good morning') || lower.includes('good evening')) {
+  const isGreeting =
+    /^(h+i+|h+e+l+l+o+|h+e+y+|h+e+y+a|hola|namaste|sup|greetings)\b/i.test(lower) ||
+    lower.includes('good morning') ||
+    lower.includes('good afternoon') ||
+    lower.includes('good evening') ||
+    lower === 'start' ||
+    lower === 'help';
+
+  if (isGreeting) {
     return {
       id: msgId,
       sender: 'bot',

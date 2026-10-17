@@ -10,8 +10,6 @@ import {
   ExternalLink,
   RotateCcw,
   Calendar,
-  Volume2,
-  VolumeX,
   Copy,
   Check,
   Bot,
@@ -33,7 +31,6 @@ export const HealthcareChatbot: React.FC = () => {
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [showWelcomeBubble, setShowWelcomeBubble] = useState(true);
-  const [soundEnabled, setSoundEnabled] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const initialGreeting: ChatMessage = {
@@ -55,54 +52,25 @@ export const HealthcareChatbot: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Synthesized Futuristic Web Audio Chimes
-  const playSound = useCallback((type: 'send' | 'receive') => {
-    if (!soundEnabled || typeof window === 'undefined') return;
-    try {
-      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-      if (!AudioCtx) return;
-      const ctx = new AudioCtx();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
 
-      osc.connect(gain);
-      gain.connect(ctx.destination);
 
-      if (type === 'send') {
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(520, ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.08);
-        gain.gain.setValueAtTime(0.04, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
-        osc.start();
-        osc.stop(ctx.currentTime + 0.08);
-      } else {
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(700, ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(1050, ctx.currentTime + 0.12);
-        gain.gain.setValueAtTime(0.05, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
-        osc.start();
-        osc.stop(ctx.currentTime + 0.12);
-      }
-    } catch {
-      // AudioContext policy suppression gracefully handled
-    }
-  }, [soundEnabled]);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  const scrollToBottom = useCallback((delay = 60) => {
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, delay);
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
-      scrollToBottom();
+      scrollToBottom(50);
       setShowWelcomeBubble(false);
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         inputRef.current?.focus();
+        scrollToBottom(50);
       }, 250);
+      return () => clearTimeout(timer);
     }
-  }, [isOpen, messages]);
+  }, [isOpen, messages, scrollToBottom]);
 
   // Auto-dismiss floating teaser after 14s if unclicked
   useEffect(() => {
@@ -126,7 +94,6 @@ export const HealthcareChatbot: React.FC = () => {
     if (!text || isTyping) return;
 
     setInputMessage('');
-    playSound('send');
 
     // Append User Message
     const userMsg: ChatMessage = {
@@ -155,7 +122,6 @@ export const HealthcareChatbot: React.FC = () => {
       setTimeout(() => {
         setMessages((prev) => [...prev, botReply]);
         setIsTyping(false);
-        playSound('receive');
       }, 450);
     } catch {
       setTimeout(() => {
@@ -173,7 +139,6 @@ export const HealthcareChatbot: React.FC = () => {
           },
         ]);
         setIsTyping(false);
-        playSound('receive');
       }, 400);
     }
   };
@@ -195,7 +160,7 @@ export const HealthcareChatbot: React.FC = () => {
   };
 
   // Helper to format bold markdown, bullet points and linebreaks
-  const renderFormattedText = (text: string) => {
+  const renderFormattedText = (text: string, isUserMessage = false) => {
     return text.split('\n').map((line, lineIdx) => {
       const trimmed = line.trim();
       const isBullet = trimmed.startsWith('•') || trimmed.startsWith('-');
@@ -205,7 +170,7 @@ export const HealthcareChatbot: React.FC = () => {
       const parsedSpans = parts.map((part, pIdx) => {
         if (part.startsWith('**') && part.endsWith('**')) {
           return (
-            <strong key={pIdx} className="font-semibold text-brand-text">
+            <strong key={pIdx} className={isUserMessage ? 'font-bold text-white' : 'font-semibold text-brand-text'}>
               {part.slice(2, -2)}
             </strong>
           );
@@ -216,8 +181,8 @@ export const HealthcareChatbot: React.FC = () => {
       if (isBullet) {
         return (
           <div key={lineIdx} className="flex items-start gap-2 mt-1.5 first:mt-0">
-            <span className="w-1.5 h-1.5 rounded-full bg-brand-secondary shrink-0 mt-1.5" />
-            <span className="flex-1 leading-relaxed text-brand-text/90">{parsedSpans}</span>
+            <span className={`w-1.5 h-1.5 rounded-full shrink-0 mt-1.5 ${isUserMessage ? 'bg-teal-200' : 'bg-brand-secondary'}`} />
+            <span className={`flex-1 leading-relaxed ${isUserMessage ? 'text-white' : 'text-brand-text/90'}`}>{parsedSpans}</span>
           </div>
         );
       }
@@ -227,7 +192,7 @@ export const HealthcareChatbot: React.FC = () => {
       }
 
       return (
-        <span key={lineIdx} className="block leading-relaxed text-brand-text/90">
+        <span key={lineIdx} className={`block leading-relaxed ${isUserMessage ? 'text-white font-medium' : 'text-brand-text/90'}`}>
           {parsedSpans}
         </span>
       );
@@ -278,7 +243,7 @@ export const HealthcareChatbot: React.FC = () => {
 
       {/* CHAT WINDOW MODAL */}
       {isOpen && (
-        <div className="pointer-events-auto w-[calc(100vw-2rem)] sm:w-[420px] h-[calc(100dvh-6rem)] sm:h-[610px] max-h-[640px] bg-brand-surface/95 backdrop-blur-2xl border border-brand-border/80 rounded-3xl sm:rounded-[2rem] shadow-[0_25px_70px_-15px_rgba(0,0,0,0.35)] flex flex-col overflow-hidden mb-2 sm:mb-3 animate-in zoom-in-95 duration-200">
+        <div className="pointer-events-auto w-[calc(100vw-2rem)] sm:w-[410px] h-[min(540px,calc(100dvh-7.5rem))] max-h-[calc(100dvh-7.5rem)] bg-brand-surface/95 backdrop-blur-2xl border border-brand-border/80 rounded-3xl sm:rounded-[2rem] shadow-[0_25px_70px_-15px_rgba(0,0,0,0.35)] flex flex-col overflow-hidden mb-2 sm:mb-3 animate-in zoom-in-95 duration-200">
           {/* Header */}
           <div className="relative bg-gradient-to-r from-brand-primary via-[#0f2b48] to-brand-secondary text-white p-4 flex items-center justify-between border-b border-white/10 shrink-0 shadow-sm overflow-hidden">
             {/* Subtle ambient light glow on header */}
@@ -315,14 +280,6 @@ export const HealthcareChatbot: React.FC = () => {
 
             {/* Header Actions */}
             <div className="flex items-center gap-1 relative z-10">
-              <button
-                onClick={() => setSoundEnabled((prev) => !prev)}
-                title={soundEnabled ? 'Mute chimes' : 'Enable sound chimes'}
-                aria-label="Toggle sound"
-                className="p-2 text-slate-300 hover:text-white hover:bg-white/10 rounded-xl transition-all"
-              >
-                {soundEnabled ? <Volume2 className="w-4 h-4 text-teal-300" /> : <VolumeX className="w-4 h-4" />}
-              </button>
               <button
                 onClick={handleResetChat}
                 title="Restart conversation"
@@ -367,7 +324,7 @@ export const HealthcareChatbot: React.FC = () => {
                         }`}
                     >
                       {/* Message Content */}
-                      <div>{renderFormattedText(msg.text)}</div>
+                      <div>{renderFormattedText(msg.text, !isBot)}</div>
 
                       {/* Doctor Highlight Card if matched */}
                       {msg.doctorCard && (
