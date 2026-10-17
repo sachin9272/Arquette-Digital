@@ -14,6 +14,7 @@ import {
   Building,
 } from 'lucide-react';
 import { CLINIC_INFO, DOCTORS, TESTIMONIALS, BLOG_POSTS, ALL_SERVICES_CATALOG } from '@/data/clinicData';
+import { Doctor, BlogPost } from '@/types';
 import { HOMEPAGE_FAQS } from '@/data/seoData';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
@@ -32,7 +33,7 @@ export const metadata = {
   },
 };
 
-async function getFeaturedDoctors() {
+async function getFeaturedDoctors(): Promise<Doctor[]> {
   try {
     const apiBase = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000').replace(/\/$/, '');
     const res = await fetch(`${apiBase}/api/doctors`, { cache: 'no-store' });
@@ -68,7 +69,7 @@ async function getFeaturedDoctors() {
   return DOCTORS.filter((d) => d.isActive !== false).slice(0, 4);
 }
 
-async function getFeaturedBlogs() {
+async function getFeaturedBlogs(): Promise<BlogPost[]> {
   try {
     const apiBase = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000').replace(/\/$/, '');
     const res = await fetch(`${apiBase}/api/blogs`, { cache: 'no-store' });
@@ -369,7 +370,7 @@ export default async function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {featuredDoctors.map((doc) => (
+            {featuredDoctors.map((doc: Doctor) => (
               <DoctorCard key={doc.id} doctor={doc} />
             ))}
           </div>
@@ -474,7 +475,7 @@ export default async function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {featuredArticles.map((post) => (
+            {featuredArticles.map((post: BlogPost) => (
               <article
                 key={post.id}
                 className="bg-brand-surface-card border border-brand-border rounded-2xl overflow-hidden shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col group hover:-translate-y-1"
