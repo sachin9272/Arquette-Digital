@@ -5,7 +5,6 @@ import {
   BookOpen,
   TrendingUp,
   Palette,
-  Database,
   ExternalLink,
 } from 'lucide-react';
 import { FRONTEND_URL } from '../../constants/theme';
@@ -93,19 +92,6 @@ export default function Sidebar({
 
       {/* Footer Section (Pinned at Bottom) */}
       <div className="p-4 border-t border-white/10 space-y-2.5 shrink-0 bg-[#091a2d]">
-        <div
-          className={`px-3 py-2 rounded-xl text-[11px] flex items-center gap-2 border font-medium ${
-            backendConnected
-              ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
-              : 'bg-amber-500/15 text-amber-300 border-amber-500/30'
-          }`}
-        >
-          <Database size={13} className="shrink-0" />
-          <span className="truncate">
-            {backendConnected ? 'MongoDB Live • Connected' : 'Backend Offline (Port 5000)'}
-          </span>
-        </div>
-
         <a
           href={FRONTEND_URL}
           target="_blank"

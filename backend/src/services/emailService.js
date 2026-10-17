@@ -67,22 +67,31 @@ const verifySmtpConnection = async () => {
 /**
  * Format date nicely for email display (e.g., "Saturday, 24 October 2026")
  */
-const formatFriendlyDate = (dateStr) => {
-  if (!dateStr) return 'Scheduled Date';
+const formatFriendlyDate = (dateVal) => {
+  if (!dateVal) return 'Scheduled Date';
   try {
-    const [year, month, day] = dateStr.split('-');
-    if (year && month && day) {
-      const d = new Date(Number(year), Number(month) - 1, Number(day));
-      return d.toLocaleDateString('en-IN', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      });
+    let d;
+    if (dateVal instanceof Date) {
+      d = dateVal;
+    } else if (typeof dateVal === 'string') {
+      const parts = dateVal.split('T')[0].split('-');
+      if (parts.length === 3) {
+        d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+      } else {
+        d = new Date(dateVal);
+      }
+    } else {
+      d = new Date(dateVal);
     }
-    return dateStr;
+    if (isNaN(d.getTime())) return String(dateVal);
+    return d.toLocaleDateString('en-IN', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
   } catch {
-    return dateStr;
+    return String(dateVal);
   }
 };
 
@@ -94,7 +103,14 @@ const generateIcsAttachment = (appointment) => {
   const patient = appointment.patientName || 'Patient';
   const doctorName = appointment.doctor?.name || 'PRALASH Specialist Consultant';
   const dept = appointment.department || 'Consultation';
-  const dateStr = appointment.appointmentDate ? appointment.appointmentDate.replace(/-/g, '') : '20261020';
+  let dateStr = '20261020';
+  if (appointment.appointmentDate) {
+    if (appointment.appointmentDate instanceof Date) {
+      dateStr = appointment.appointmentDate.toISOString().split('T')[0].replace(/-/g, '');
+    } else if (typeof appointment.appointmentDate === 'string') {
+      dateStr = appointment.appointmentDate.split('T')[0].replace(/-/g, '');
+    }
+  }
 
   // Construct start date string YYYYMMDD
   const icsData = [
@@ -170,7 +186,12 @@ const generateEmailHtml = (appointment) => {
     }
     img {
       border: 0;
-      display: block;
+      height: auto;
+      line-height: 100%;
+      outline: none;
+      text-decoration: none;
+      display: inline-block;
+      vertical-align: middle;
     }
     .wrapper {
       width: 100%;
@@ -454,16 +475,33 @@ const generateEmailHtml = (appointment) => {
         </div>
 
         <!-- CONTACT HELPLINE -->
-        <div style="text-align: center; padding: 12px 0;">
-          <div style="font-size: 13px; color: #64748b; margin-bottom: 6px;">Need immediate assistance or have clinical questions?</div>
-          <div style="font-size: 15px; font-weight: 700; color: #0D5C75;">
-            📞 Helpline: <a href="tel:+919900517699" style="color: #0D5C75; text-decoration: none;">+91 99005 17699</a> &nbsp;|&nbsp; 
-            ✉️ Email: <a href="mailto:care@pralash.com" style="color: #0D5C75; text-decoration: none;">care@pralash.com</a>
-          </div>
-          <div style="font-size: 12px; color: #94a3b8; margin-top: 4px;">
-            Open All 7 Days: 9:30 AM – 8:00 PM
-          </div>
-        </div>
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 20px 0 10px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; text-align: center;">
+          <tr>
+            <td style="padding: 18px 16px; text-align: center;">
+              <div style="font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 12px;">
+                Need immediate assistance or have clinical questions?
+              </div>
+              <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin: 0 auto;">
+                <tr>
+                  <td align="center" style="padding: 9px 18px; background-color: #0D5C75; border-radius: 8px;">
+                    <a href="tel:+919900517699" style="color: #ffffff !important; text-decoration: none; font-size: 13px; font-weight: 700; white-space: nowrap; display: inline-block;">
+                      Call Helpline: +91 99005 17699
+                    </a>
+                  </td>
+                  <td width="10" style="width: 10px;"></td>
+                  <td align="center" style="padding: 9px 18px; background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px;">
+                    <a href="mailto:care@pralash.com" style="color: #0D5C75 !important; text-decoration: none; font-size: 13px; font-weight: 700; white-space: nowrap; display: inline-block;">
+                      Email: care@pralash.com
+                    </a>
+                  </td>
+                </tr>
+              </table>
+              <div style="font-size: 11px; color: #64748b; margin-top: 10px;">
+                Open All 7 Days • 9:30 AM – 8:00 PM • Free Valet Patient Parking
+              </div>
+            </td>
+          </tr>
+        </table>
 
       </div>
 
@@ -626,6 +664,15 @@ const generateRejectionEmailHtml = (appointment, reason) => {
     }
     table {
       border-collapse: collapse;
+    }
+    img {
+      border: 0;
+      height: auto;
+      line-height: 100%;
+      outline: none;
+      text-decoration: none;
+      display: inline-block;
+      vertical-align: middle;
     }
     .wrapper {
       width: 100%;
@@ -828,16 +875,33 @@ const generateRejectionEmailHtml = (appointment, reason) => {
         </div>
 
         <!-- CONTACT HELPLINE -->
-        <div style="text-align: center; padding: 14px 0; border-top: 1px solid #f1f5f9;">
-          <div style="font-size: 13px; color: #64748b; margin-bottom: 6px;">Prefer to coordinate directly with our patient triage team?</div>
-          <div style="font-size: 15px; font-weight: 700; color: #0D5C75;">
-            📞 Priority Phone: <a href="tel:+919900517699" style="color: #0D5C75; text-decoration: none;">+91 99005 17699</a> &nbsp;|&nbsp; 
-            ✉️ Email: <a href="mailto:care@pralash.com" style="color: #0D5C75; text-decoration: none;">care@pralash.com</a>
-          </div>
-          <div style="font-size: 12px; color: #94a3b8; margin-top: 4px;">
-            Open All 7 Days: 9:30 AM – 8:00 PM (Valet parking available)
-          </div>
-        </div>
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 20px 0 10px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; text-align: center;">
+          <tr>
+            <td style="padding: 18px 16px; text-align: center;">
+              <div style="font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 12px;">
+                Prefer to coordinate directly with our patient triage team?
+              </div>
+              <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin: 0 auto;">
+                <tr>
+                  <td align="center" style="padding: 9px 18px; background-color: #0D5C75; border-radius: 8px;">
+                    <a href="tel:+919900517699" style="color: #ffffff !important; text-decoration: none; font-size: 13px; font-weight: 700; white-space: nowrap; display: inline-block;">
+                      Call Helpline: +91 99005 17699
+                    </a>
+                  </td>
+                  <td width="10" style="width: 10px;"></td>
+                  <td align="center" style="padding: 9px 18px; background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px;">
+                    <a href="mailto:care@pralash.com" style="color: #0D5C75 !important; text-decoration: none; font-size: 13px; font-weight: 700; white-space: nowrap; display: inline-block;">
+                      Email: care@pralash.com
+                    </a>
+                  </td>
+                </tr>
+              </table>
+              <div style="font-size: 11px; color: #64748b; margin-top: 10px;">
+                Open All 7 Days • 9:30 AM – 8:00 PM • Valet Parking Available
+              </div>
+            </td>
+          </tr>
+        </table>
 
       </div>
 
