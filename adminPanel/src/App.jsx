@@ -53,7 +53,7 @@ export default function App() {
   const [toast, setToast] = useState(null);
 
   // Theme & Async Action States
-  const [updatingTheme, setUpdatingTheme] = useState(false);
+  const [updatingThemeId, setUpdatingThemeId] = useState(null);
   const [themeNotification, setThemeNotification] = useState('');
   const [uploadingDoctorPhoto, setUploadingDoctorPhoto] = useState(false);
   const [photoUploadSuccess, setPhotoUploadSuccess] = useState(false);
@@ -242,7 +242,8 @@ export default function App() {
 
   // Theme update handler
   const handleSelectTheme = async (themeId) => {
-    setUpdatingTheme(true);
+    if (updatingThemeId) return; // Prevent duplicate clicks
+    setUpdatingThemeId(themeId);
     setThemeNotification('');
     try {
       const res = await fetch(THEME_API, {
@@ -254,13 +255,18 @@ export default function App() {
       if (json.success) {
         setCurrentTheme(themeId);
         const themeObj = CLINIC_THEMES.find((t) => t.id === themeId);
-        setThemeNotification(`Website theme updated to "${themeObj?.name}". The live public website has been switched!`);
+        const successMsg = `Website theme updated to "${themeObj?.name}". The live public website has been switched!`;
+        setThemeNotification(successMsg);
+        showToast(successMsg, 'success');
         setTimeout(() => setThemeNotification(''), 7000);
+      } else {
+        showToast(json.message || 'Failed to update theme.', 'error');
       }
     } catch (err) {
-      alert('Error updating theme: ' + err.message);
+      console.error('Error updating theme:', err);
+      showToast('Error updating theme: ' + err.message, 'error');
     } finally {
-      setUpdatingTheme(false);
+      setUpdatingThemeId(null);
     }
   };
 
@@ -983,7 +989,7 @@ export default function App() {
         {activeTab === 'theme' && (
           <ThemeTab
             currentTheme={currentTheme}
-            updatingTheme={updatingTheme}
+            updatingThemeId={updatingThemeId}
             themeNotification={themeNotification}
             onSelectTheme={handleSelectTheme}
           />

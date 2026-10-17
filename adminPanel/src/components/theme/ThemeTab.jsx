@@ -4,7 +4,7 @@ import { CLINIC_THEMES, FRONTEND_URL } from '../../constants/theme';
 
 export default function ThemeTab({
   currentTheme,
-  updatingTheme,
+  updatingThemeId,
   themeNotification,
   onSelectTheme,
 }) {
@@ -49,6 +49,8 @@ export default function ThemeTab({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {CLINIC_THEMES.map((th) => {
             const isActive = currentTheme === th.id;
+            const isThisThemeUpdating = updatingThemeId === th.id;
+            const isAnyThemeUpdating = Boolean(updatingThemeId);
             return (
               <div
                 key={th.id}
@@ -145,11 +147,24 @@ export default function ThemeTab({
                     <button
                       type="button"
                       onClick={() => onSelectTheme(th.id)}
-                      disabled={updatingTheme}
-                      className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-semibold text-xs shadow-md shadow-teal-700/20 transition-all disabled:opacity-50"
+                      disabled={isAnyThemeUpdating}
+                      className={`w-full inline-flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl font-semibold text-xs shadow-md transition-all ${
+                        isThisThemeUpdating
+                          ? 'bg-amber-600 text-white shadow-amber-600/20 cursor-wait'
+                          : 'bg-teal-700 hover:bg-teal-800 text-white shadow-teal-700/20 disabled:opacity-50 disabled:cursor-not-allowed'
+                      }`}
                     >
-                      <Palette size={13} />
-                      <span>{updatingTheme ? 'Switching Theme...' : `Apply "${th.name.split(' (')[0]}"`}</span>
+                      {isThisThemeUpdating ? (
+                        <>
+                          <span className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin shrink-0" />
+                          <span>Switching to {th.name.split(' (')[0]}...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Palette size={13} />
+                          <span>Apply "{th.name.split(' (')[0]}"</span>
+                        </>
+                      )}
                     </button>
                   )}
                 </div>
