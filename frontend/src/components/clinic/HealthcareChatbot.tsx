@@ -235,10 +235,10 @@ export const HealthcareChatbot: React.FC = () => {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-[999] flex flex-col items-end pointer-events-none">
-      {/* FLOATING TEASER / WELCOME CALLOUT */}
+    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[999] flex flex-col items-end pointer-events-none">
+      {/* FLOATING TEASER / WELCOME CALLOUT (Desktop & Tablet only to avoid obstructing phone screens) */}
       {showWelcomeBubble && !isOpen && (
-        <div className="pointer-events-auto mb-3 max-w-[320px] bg-brand-surface/95 backdrop-blur-xl border border-brand-border/80 rounded-3xl p-4 shadow-[0_20px_50px_rgba(0,0,0,0.18)] text-xs text-brand-text animate-in fade-in slide-in-from-bottom-3 duration-300 relative group">
+        <div className="hidden sm:block pointer-events-auto mb-3 max-w-[320px] bg-brand-surface/95 backdrop-blur-xl border border-brand-border/80 rounded-3xl p-4 shadow-[0_20px_50px_rgba(0,0,0,0.18)] text-xs text-brand-text animate-in fade-in slide-in-from-bottom-3 duration-300 relative group">
           <button
             onClick={() => setShowWelcomeBubble(false)}
             aria-label="Close welcome bubble"
@@ -251,8 +251,8 @@ export const HealthcareChatbot: React.FC = () => {
               <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-primary via-brand-secondary to-teal-400 text-white flex items-center justify-center shadow-md p-0.5">
                 <Bot className="w-5 h-5 text-white" />
               </div>
-              <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-brand-surface rounded-full animate-ping" />
-              <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-brand-surface rounded-full" />
+              <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 border-2 border-brand-surface rounded-full animate-ping" />
+              <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 border-2 border-brand-surface rounded-full" />
             </div>
             <div className="flex-1 pr-3">
               <div className="flex items-center gap-1.5">
@@ -278,7 +278,7 @@ export const HealthcareChatbot: React.FC = () => {
 
       {/* CHAT WINDOW MODAL */}
       {isOpen && (
-        <div className="pointer-events-auto w-[94vw] sm:w-[420px] h-[610px] max-h-[85vh] bg-brand-surface/95 backdrop-blur-2xl border border-brand-border/80 rounded-[2rem] shadow-[0_25px_70px_-15px_rgba(0,0,0,0.35)] flex flex-col overflow-hidden mb-3 animate-in zoom-in-95 duration-200">
+        <div className="pointer-events-auto w-[calc(100vw-2rem)] sm:w-[420px] h-[calc(100dvh-6rem)] sm:h-[610px] max-h-[640px] bg-brand-surface/95 backdrop-blur-2xl border border-brand-border/80 rounded-3xl sm:rounded-[2rem] shadow-[0_25px_70px_-15px_rgba(0,0,0,0.35)] flex flex-col overflow-hidden mb-2 sm:mb-3 animate-in zoom-in-95 duration-200">
           {/* Header */}
           <div className="relative bg-gradient-to-r from-brand-primary via-[#0f2b48] to-brand-secondary text-white p-4 flex items-center justify-between border-b border-white/10 shrink-0 shadow-sm overflow-hidden">
             {/* Subtle ambient light glow on header */}
@@ -303,10 +303,6 @@ export const HealthcareChatbot: React.FC = () => {
               <div>
                 <div className="flex items-center gap-1.5">
                   <h3 className="font-bold text-sm tracking-tight text-white leading-tight">Aria Concierge</h3>
-                  <span className="px-1.5 py-0.5 rounded-full bg-white/15 backdrop-blur-xs text-[10px] font-semibold text-teal-200 flex items-center gap-1 border border-white/10">
-                    <Sparkles className="w-2.5 h-2.5 text-amber-300 animate-pulse" />
-                    AI
-                  </span>
                 </div>
                 <div className="flex items-center gap-1.5 mt-0.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
@@ -346,15 +342,6 @@ export const HealthcareChatbot: React.FC = () => {
             </div>
           </div>
 
-          {/* Clinical Non-diagnostic Guardrail Bar */}
-          <div className="bg-emerald-500/10 dark:bg-emerald-500/15 border-b border-emerald-500/20 px-4 py-1.5 flex items-center justify-between text-[11px] text-emerald-800 dark:text-emerald-300 shrink-0">
-            <div className="flex items-center gap-1.5 truncate">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-              <span className="truncate font-medium">Verified Clinical Guide &bull; Non-diagnostic</span>
-            </div>
-            <span className="text-[10px] opacity-75 font-mono shrink-0">v2.4</span>
-          </div>
-
           {/* Messages Scroll Area */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-brand-background/60">
             {messages.map((msg) => {
@@ -374,11 +361,10 @@ export const HealthcareChatbot: React.FC = () => {
                     )}
 
                     <div
-                      className={`relative p-3.5 rounded-2xl text-xs sm:text-[13px] shadow-sm transition-all ${
-                        isBot
+                      className={`relative p-3.5 rounded-2xl text-xs sm:text-[13px] shadow-sm transition-all ${isBot
                           ? 'bg-brand-surface border border-brand-border text-brand-text rounded-bl-xs'
                           : 'bg-gradient-to-br from-brand-primary to-brand-secondary text-white rounded-br-xs shadow-brand-primary/20'
-                      }`}
+                        }`}
                     >
                       {/* Message Content */}
                       <div>{renderFormattedText(msg.text)}</div>
@@ -605,11 +591,10 @@ export const HealthcareChatbot: React.FC = () => {
         <button
           onClick={() => setIsOpen((prev) => !prev)}
           aria-label={isOpen ? 'Close chat assistant' : 'Open AI Healthcare Chatbot'}
-          className={`relative w-14 h-14 sm:w-16 sm:h-16 rounded-full text-white shadow-[0_12px_40px_rgba(0,0,0,0.35)] flex items-center justify-center transition-all duration-300 hover:scale-108 active:scale-95 border-2 border-white/25 focus:outline-none focus:ring-4 focus:ring-brand-secondary/40 cursor-pointer overflow-hidden ${
-            isOpen
+          className={`relative w-14 h-14 sm:w-16 sm:h-16 rounded-full text-white shadow-[0_12px_40px_rgba(0,0,0,0.35)] flex items-center justify-center transition-all duration-300 hover:scale-108 active:scale-95 border-2 border-white/25 focus:outline-none focus:ring-4 focus:ring-brand-secondary/40 cursor-pointer overflow-hidden ${isOpen
               ? 'bg-gradient-to-br from-brand-primary to-slate-900 rotate-90'
               : 'bg-gradient-to-br from-brand-primary via-[#0f2b48] to-brand-secondary hover:shadow-[0_15px_45px_rgba(13,148,136,0.4)]'
-          }`}
+            }`}
         >
           {/* Glass shine reflection overlay */}
           <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-transparent to-black/10 pointer-events-none" />

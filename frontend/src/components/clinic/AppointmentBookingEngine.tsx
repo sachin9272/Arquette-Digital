@@ -196,7 +196,7 @@ export const AppointmentBookingEngine: React.FC<AppointmentBookingEngineProps> =
               timeSlot: formData.timeSlot,
               symptomsOrNotes: formData.medicalNotes || '',
               consultationFee: selectedDoctor ? selectedDoctor.fee : 1200,
-              status: 'confirmed',
+              status: 'pending',
             }),
           });
         } catch (err) {
@@ -757,7 +757,7 @@ END:VCALENDAR`;
 
       {/* Navigation Controls (Steps 1 to 4) */}
       {currentStep < 5 && (
-        <div className="mt-8 pt-6 border-t border-brand-border/60 flex items-center justify-between">
+        <div className="mt-8 pt-6 border-t border-brand-border/60 flex items-center justify-between gap-3">
           {currentStep > 1 ? (
             <Button
               variant="outline"
@@ -777,7 +777,8 @@ END:VCALENDAR`;
             onClick={handleNext}
             rightIcon={<ArrowRight className="w-4 h-4" />}
           >
-            {currentStep === 4 ? 'Confirm & Book Appointment' : 'Continue to Next Step'}
+            <span>{currentStep === 4 ? 'Confirm & Book' : 'Continue'}</span>
+            <span className="hidden sm:inline">{currentStep === 4 ? ' Appointment' : ' to Next Step'}</span>
           </Button>
         </div>
       )}

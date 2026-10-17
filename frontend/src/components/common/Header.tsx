@@ -139,10 +139,12 @@ export const Header: React.FC = () => {
           <Link href="/booking">
             <Button
               variant="secondary"
-              size="md"
+              size="sm"
               leftIcon={<Calendar className="w-4 h-4" />}
+              className="px-3 sm:px-4 text-xs sm:text-sm"
             >
-              Book Appointment
+              <span>Book</span>
+              <span className="hidden sm:inline">&nbsp;Appointment</span>
             </Button>
           </Link>
 

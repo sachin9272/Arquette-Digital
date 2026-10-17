@@ -411,8 +411,8 @@ export default function App() {
     });
   };
 
-  // Update Appointment Status
-  const handleUpdateStatus = async (id, newStatus) => {
+  // Update Appointment Status (Confirmed or Rejected/Cancelled)
+  const handleUpdateStatus = async (id, newStatus, reason) => {
     setAppointments((prev) =>
       prev.map((a) => (a._id === id ? { ...a, status: newStatus } : a))
     );
@@ -421,11 +421,40 @@ export default function App() {
       const res = await fetch(`${API_BASE}/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus }),
+        body: JSON.stringify({
+          status: newStatus,
+          rejectionReason: reason,
+          forceEmail: true,
+        }),
       });
+      const data = await res.json();
       if (res.ok) {
         await fetchAppointments();
-        showToast(`Appointment status updated to ${newStatus.toUpperCase()}`, 'info');
+        if (newStatus === 'confirmed') {
+          if (data.emailSent) {
+            showToast(`Appointment CONFIRMED & confirmation email sent to ${data.data?.email}!`, 'success');
+          } else if (data.emailError) {
+            showToast(`Status CONFIRMED. (Email note: ${data.emailError})`, 'warning');
+          } else {
+            showToast(`Appointment status updated to CONFIRMED.`, 'success');
+          }
+        } else if (newStatus === 'cancelled') {
+          if (data.emailSent) {
+            showToast(`Appointment REJECTED & notification email sent to ${data.data?.email}.`, 'info');
+          } else if (data.emailError) {
+            showToast(`Status CANCELLED. (Email note: ${data.emailError})`, 'warning');
+          } else {
+            showToast(`Appointment status updated to CANCELLED.`, 'info');
+          }
+        } else {
+          showToast(`Appointment status updated to ${newStatus.toUpperCase()}`, 'info');
+        }
+
+        if (selectedAppointment && selectedAppointment._id === id && data.data) {
+          setSelectedAppointment(data.data);
+        }
+      } else {
+        showToast(`Failed to update status: ${data.message || 'Server error'}`, 'error');
       }
     } catch {
       showToast('Failed to update appointment status.', 'error');
@@ -447,7 +476,33 @@ export default function App() {
           setSelectedAppointment(data.data);
         }
       } else {
-        showToast(`Failed to send email: ${data.message || 'Check SMTP configuration'}`, 'error');
+        showToast(`Failed to send email: ${data.message || data.error || 'Check SMTP configuration'}`, 'error');
+      }
+    } catch (err) {
+      showToast(`Error sending email: ${err.message}`, 'error');
+    } finally {
+      setSendingEmailId(null);
+    }
+  };
+
+  // Resend / Send Rejection Email
+  const handleResendRejectionEmail = async (id, reason) => {
+    setSendingEmailId(id);
+    try {
+      const res = await fetch(`${API_BASE}/${id}/send-rejection`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(`Rejection notice email sent to ${data.data?.email}!`, 'info');
+        await fetchAppointments();
+        if (selectedAppointment && selectedAppointment._id === id) {
+          setSelectedAppointment(data.data);
+        }
+      } else {
+        showToast(`Failed to send rejection email: ${data.message || data.error || 'Check SMTP configuration'}`, 'error');
       }
     } catch (err) {
       showToast(`Error sending email: ${err.message}`, 'error');
@@ -941,6 +996,7 @@ export default function App() {
         onClose={() => setSelectedAppointment(null)}
         onUpdateStatus={handleUpdateStatus}
         onResendEmail={handleResendEmail}
+        onResendRejectionEmail={handleResendRejectionEmail}
         sendingEmailId={sendingEmailId}
       />
 

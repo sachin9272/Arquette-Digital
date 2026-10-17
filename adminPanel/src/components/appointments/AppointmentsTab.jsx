@@ -219,13 +219,34 @@ export default function AppointmentsTab({
                       </td>
 
                       <td className="py-4 px-6">
-                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold border ${statusColors[apt.status] || 'bg-slate-100 text-slate-700'}`}>
-                          {apt.status === 'pending' && <Clock3 size={11} />}
-                          {apt.status === 'confirmed' && <CheckCircle2 size={11} />}
-                          {apt.status === 'completed' && <Check size={11} />}
-                          {apt.status === 'cancelled' && <XCircle size={11} />}
-                          <span className="capitalize">{apt.status}</span>
-                        </span>
+                        <div className="space-y-1">
+                          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold border ${statusColors[apt.status] || 'bg-slate-100 text-slate-700'}`}>
+                            {apt.status === 'pending' && <Clock3 size={11} />}
+                            {apt.status === 'confirmed' && <CheckCircle2 size={11} />}
+                            {apt.status === 'completed' && <Check size={11} />}
+                            {apt.status === 'cancelled' && <XCircle size={11} />}
+                            <span className="capitalize">{apt.status}</span>
+                          </span>
+
+                          {/* Email Dispatch Indicator */}
+                          {apt.confirmationEmailSent && (
+                            <div className="text-[10px] text-emerald-700 flex items-center gap-1 font-bold">
+                              <CheckCircle2 size={10} className="text-emerald-600" />
+                              <span>Confirmation Mailed</span>
+                            </div>
+                          )}
+                          {apt.rejectionEmailSent && (
+                            <div className="text-[10px] text-rose-700 flex items-center gap-1 font-bold">
+                              <XCircle size={10} className="text-rose-600" />
+                              <span>Rejection Mailed</span>
+                            </div>
+                          )}
+                          {!apt.confirmationEmailSent && !apt.rejectionEmailSent && apt.emailError && (
+                            <div className="text-[10px] text-amber-700 flex items-center gap-1 font-medium" title={apt.emailError}>
+                              <span>⚠️ Mail Failed</span>
+                            </div>
+                          )}
+                        </div>
                       </td>
 
                       <td className="py-4 px-6 text-right">
@@ -233,18 +254,30 @@ export default function AppointmentsTab({
                           <button
                             onClick={() => onViewAppointment(apt)}
                             className="p-1.5 text-slate-400 hover:text-teal-700 hover:bg-teal-50 rounded-lg transition-colors"
-                            title="View full record"
+                            title="View full record & manage"
                           >
                             <Eye size={15} />
                           </button>
 
-                          {apt.status === 'pending' && (
+                          {/* Triage Action 1: Confirm */}
+                          {apt.status !== 'confirmed' && (
                             <button
                               onClick={() => onUpdateStatus(apt._id, 'confirmed')}
                               className="p-1.5 text-slate-400 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors"
-                              title="Mark as Confirmed"
+                              title="Confirm appointment & send customer email"
                             >
                               <Check size={15} />
+                            </button>
+                          )}
+
+                          {/* Triage Action 2: Reject / Cancel */}
+                          {apt.status !== 'cancelled' && (
+                            <button
+                              onClick={() => onUpdateStatus(apt._id, 'cancelled')}
+                              className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                              title="Reject / Cancel appointment & notify customer"
+                            >
+                              <XCircle size={15} />
                             </button>
                           )}
 
@@ -252,7 +285,7 @@ export default function AppointmentsTab({
                             onClick={() => onResendEmail(apt._id)}
                             disabled={sendingEmailId === apt._id}
                             className="p-1.5 text-slate-400 hover:text-sky-700 hover:bg-sky-50 rounded-lg transition-colors"
-                            title="Resend confirmation email"
+                            title="Resend email to patient"
                           >
                             <Mail size={15} className={sendingEmailId === apt._id ? 'animate-pulse text-sky-600' : ''} />
                           </button>

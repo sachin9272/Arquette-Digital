@@ -142,21 +142,23 @@ export default async function HomePage() {
                 Cosmetic Dentistry, Medical Dermatology, Trichology, and Aesthetics in Kalyan Nagar, Bengaluru.
               </p>
 
-              <div className="flex flex-wrap items-center gap-4 pt-2">
-                <Link href="/booking">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
+                <Link href="/booking" className="w-full sm:w-auto">
                   <Button
                     variant="primary"
                     size="lg"
+                    className="w-full justify-center"
                     leftIcon={<Calendar className="w-5 h-5 opacity-80" />}
                   >
                     Schedule a Consultation
                   </Button>
                 </Link>
 
-                <Link href="/services">
+                <Link href="/services" className="w-full sm:w-auto">
                   <Button
                     variant="outline"
                     size="lg"
+                    className="w-full justify-center"
                     rightIcon={<ArrowRight className="w-4 h-4 text-brand-secondary" />}
                   >
                     Explore Medical Departments
@@ -393,8 +395,8 @@ export default async function HomePage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="p-6 rounded-3xl bg-brand-surface border border-brand-border shadow-xs">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+            <div className="p-4 sm:p-6 rounded-3xl bg-brand-surface border border-brand-border shadow-xs">
               <BeforeAfterSlider
                 beforeImage="/images/dental-veneers-before.jpg"
                 afterImage="/images/dental-veneers-after.jpg"
@@ -405,7 +407,7 @@ export default async function HomePage() {
               />
             </div>
 
-            <div className="p-6 rounded-3xl bg-brand-surface border border-brand-border shadow-xs">
+            <div className="p-4 sm:p-6 rounded-3xl bg-brand-surface border border-brand-border shadow-xs">
               <BeforeAfterSlider
                 beforeImage="/images/skin-scar-before.jpg"
                 afterImage="/images/skin-scar-after.jpg"

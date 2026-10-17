@@ -1,5 +1,5 @@
 import Appointment from '../models/Appointment.js';
-import { sendBookingConfirmationEmail } from '../services/emailService.js';
+import { sendBookingConfirmationEmail, sendBookingRejectionEmail } from '../services/emailService.js';
 
 // @desc    Create a new appointment booking
 // @route   POST /api/appointments
@@ -186,7 +186,7 @@ export const getAppointmentById = async (req, res) => {
 export const updateAppointmentStatus = async (req, res) => {
   try {
     const { id } = req.params;
-    const { status, adminNotes, paymentStatus, appointmentDate, timeSlot, forceEmail } = req.body;
+    const { status, adminNotes, rejectionReason, paymentStatus, appointmentDate, timeSlot, forceEmail } = req.body;
 
     const existing = await Appointment.findById(id);
     if (!existing) {
@@ -201,6 +201,7 @@ export const updateAppointmentStatus = async (req, res) => {
     const updateFields = {};
     if (status) updateFields.status = status;
     if (adminNotes !== undefined) updateFields.adminNotes = adminNotes;
+    if (rejectionReason !== undefined) updateFields.rejectionReason = rejectionReason;
     if (paymentStatus) updateFields.paymentStatus = paymentStatus;
     if (appointmentDate) updateFields.appointmentDate = appointmentDate;
     if (timeSlot) updateFields.timeSlot = timeSlot;
@@ -210,18 +211,43 @@ export const updateAppointmentStatus = async (req, res) => {
       runValidators: true,
     });
 
-    // If status changed to 'confirmed' (or forceEmail is requested), send email to customer
     let emailResult = null;
+
+    // 1. If status is set to 'confirmed' (or forceEmail is requested), send Confirmation email
     if (status === 'confirmed' && (previousStatus !== 'confirmed' || forceEmail)) {
       try {
         emailResult = await sendBookingConfirmationEmail(updated);
         if (emailResult && emailResult.success) {
           updated.confirmationEmailSent = true;
           updated.confirmationEmailSentAt = new Date();
-          await updated.save();
+          updated.emailError = null;
+        } else if (emailResult && !emailResult.success) {
+          updated.emailError = emailResult.error || 'SMTP delivery failed';
         }
+        await updated.save();
       } catch (mailErr) {
         console.error('Failed to dispatch confirmation email during status update:', mailErr);
+        updated.emailError = mailErr.message;
+        await updated.save();
+      }
+    }
+
+    // 2. If status is set to 'cancelled' (or forceEmail is requested), send Rejection email
+    if (status === 'cancelled' && (previousStatus !== 'cancelled' || forceEmail)) {
+      try {
+        emailResult = await sendBookingRejectionEmail(updated, rejectionReason || adminNotes);
+        if (emailResult && emailResult.success) {
+          updated.rejectionEmailSent = true;
+          updated.rejectionEmailSentAt = new Date();
+          updated.emailError = null;
+        } else if (emailResult && !emailResult.success) {
+          updated.emailError = emailResult.error || 'SMTP delivery failed';
+        }
+        await updated.save();
+      } catch (mailErr) {
+        console.error('Failed to dispatch rejection email during status update:', mailErr);
+        updated.emailError = mailErr.message;
+        await updated.save();
       }
     }
 
@@ -230,6 +256,7 @@ export const updateAppointmentStatus = async (req, res) => {
       message: `Appointment updated to status: ${updated.status}`,
       data: updated,
       emailSent: emailResult ? emailResult.success : undefined,
+      emailError: emailResult && !emailResult.success ? emailResult.error : undefined,
     });
   } catch (error) {
     return res.status(500).json({
@@ -261,6 +288,7 @@ export const resendConfirmationEmail = async (req, res) => {
     if (emailResult.success) {
       appointment.confirmationEmailSent = true;
       appointment.confirmationEmailSentAt = new Date();
+      appointment.emailError = null;
       await appointment.save();
 
       return res.status(200).json({
@@ -269,15 +297,67 @@ export const resendConfirmationEmail = async (req, res) => {
         data: appointment,
       });
     } else {
+      appointment.emailError = emailResult.error;
+      await appointment.save();
       return res.status(500).json({
         success: false,
-        message: `Failed to dispatch email: ${emailResult.error}`,
+        message: `Failed to dispatch confirmation email: ${emailResult.error}`,
+        error: emailResult.error,
       });
     }
   } catch (error) {
     return res.status(500).json({
       success: false,
       message: 'Failed to process confirmation email request.',
+      error: error.message,
+    });
+  }
+};
+
+// @desc    Resend or trigger booking rejection email manually
+// @route   POST /api/appointments/:id/send-rejection
+// @access  Admin
+export const resendRejectionEmail = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { reason } = req.body || {};
+    const appointment = id.startsWith('PRL-')
+      ? await Appointment.findOne({ bookingReference: id })
+      : await Appointment.findById(id);
+
+    if (!appointment) {
+      return res.status(404).json({
+        success: false,
+        message: 'Appointment not found.',
+      });
+    }
+
+    const emailResult = await sendBookingRejectionEmail(appointment, reason || appointment.rejectionReason);
+    if (emailResult.success) {
+      appointment.rejectionEmailSent = true;
+      appointment.rejectionEmailSentAt = new Date();
+      if (reason) appointment.rejectionReason = reason;
+      appointment.emailError = null;
+      await appointment.save();
+
+      return res.status(200).json({
+        success: true,
+        message: `Booking rejection email dispatched successfully to ${appointment.email}`,
+        data: appointment,
+      });
+    } else {
+      appointment.emailError = emailResult.error;
+      await appointment.save();
+      return res.status(500).json({
+        success: false,
+        message: `Failed to dispatch rejection email: ${emailResult.error}`,
+        error: emailResult.error,
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to process rejection email request.',
       error: error.message,
     });
   }

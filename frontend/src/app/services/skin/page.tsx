@@ -218,14 +218,14 @@ export default function SkinTreatmentsPage() {
               </p>
 
               {/* CTAs */}
-              <div className="flex flex-wrap items-center gap-3 pt-1">
-                <Link href="/booking?dept=Skin">
-                  <Button variant="primary" size="lg" leftIcon={<Calendar className="w-5 h-5 text-brand-badge-bg" />}>
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-1">
+                <Link href="/booking?dept=Skin" className="w-full sm:w-auto">
+                  <Button variant="primary" size="lg" className="w-full sm:w-auto" leftIcon={<Calendar className="w-5 h-5 text-brand-badge-bg" />}>
                     Book Dermatology Consult
                   </Button>
                 </Link>
-                <a href="#skin-catalog">
-                  <Button variant="outline" size="lg" rightIcon={<ArrowRight className="w-4 h-4" />}>
+                <a href="#skin-catalog" className="w-full sm:w-auto">
+                  <Button variant="outline" size="lg" className="w-full sm:w-auto" rightIcon={<ArrowRight className="w-4 h-4" />}>
                     Explore 6 Treatments
                   </Button>
                 </a>

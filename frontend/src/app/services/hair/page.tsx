@@ -213,14 +213,14 @@ export default function HairTreatmentsPage() {
               </p>
 
               {/* CTAs */}
-              <div className="flex flex-wrap items-center gap-3 pt-1">
-                <Link href="/booking?dept=Hair">
-                  <Button variant="primary" size="lg" leftIcon={<Calendar className="w-5 h-5 text-brand-badge-bg" />}>
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-1">
+                <Link href="/booking?dept=Hair" className="w-full sm:w-auto">
+                  <Button variant="primary" size="lg" className="w-full sm:w-auto" leftIcon={<Calendar className="w-5 h-5 text-brand-badge-bg" />}>
                     Book Trichology Assessment
                   </Button>
                 </Link>
-                <a href="#hair-catalog">
-                  <Button variant="outline" size="lg" rightIcon={<ArrowRight className="w-4 h-4" />}>
+                <a href="#hair-catalog" className="w-full sm:w-auto">
+                  <Button variant="outline" size="lg" className="w-full sm:w-auto" rightIcon={<ArrowRight className="w-4 h-4" />}>
                     Explore 7 Treatments
                   </Button>
                 </a>

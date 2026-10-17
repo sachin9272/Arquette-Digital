@@ -89,12 +89,28 @@ const appointmentSchema = new mongoose.Schema(
       trim: true,
       maxlength: 1000,
     },
+    rejectionReason: {
+      type: String,
+      trim: true,
+      maxlength: 1000,
+    },
     confirmationEmailSent: {
       type: Boolean,
       default: false,
     },
     confirmationEmailSentAt: {
       type: Date,
+    },
+    rejectionEmailSent: {
+      type: Boolean,
+      default: false,
+    },
+    rejectionEmailSentAt: {
+      type: Date,
+    },
+    emailError: {
+      type: String,
+      trim: true,
     },
   },
   {
