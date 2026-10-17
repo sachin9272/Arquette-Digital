@@ -15,6 +15,21 @@ const getTransporter = () => {
     return null;
   }
 
+  const customHost = (process.env.SMTP_HOST || '').trim();
+  const customPort = process.env.SMTP_PORT ? Number(process.env.SMTP_PORT) : 465;
+
+  if (customHost) {
+    return nodemailer.createTransport({
+      host: customHost,
+      port: customPort,
+      secure: customPort === 465,
+      auth: { user, pass },
+      connectionTimeout: 10000,
+      greetingTimeout: 10000,
+      socketTimeout: 15000,
+    });
+  }
+
   return nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -397,17 +412,16 @@ const generateEmailHtml = (appointment) => {
               </td>
             </tr>
 
-            ${
-              appointment.phone
-                ? `
+            ${appointment.phone
+      ? `
             <tr>
               <td colspan="2" valign="top" class="detail-row" style="padding-top: 6px; border-top: 1px solid #f1f5f9;">
                 <div class="detail-label">Registered Contact Phone</div>
                 <div class="detail-value" style="font-size: 13px;">📞 ${appointment.phone}</div>
               </td>
             </tr>`
-                : ''
-            }
+      : ''
+    }
           </table>
         </div>
 
