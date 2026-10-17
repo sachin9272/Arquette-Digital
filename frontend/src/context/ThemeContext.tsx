@@ -52,15 +52,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       }
     };
 
-    // Initial fetch
+    // Fetch theme once on mount / page refresh
     fetchAdminTheme();
-
-    // Periodic sync (every 3 seconds) to reflect live admin theme changes instantly
-    const interval = setInterval(fetchAdminTheme, 3000);
 
     return () => {
       isMounted = false;
-      clearInterval(interval);
     };
   }, []);
 
