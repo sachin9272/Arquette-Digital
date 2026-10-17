@@ -359,63 +359,7 @@ export default function App() {
     });
   };
 
-  // Seed Doctors
-  const handleSeedDoctors = () => {
-    setConfirmModal({
-      isOpen: true,
-      title: 'Seed Specialist Doctors',
-      message: 'This will seed all 7 clinical specialist doctors across Dental, Skin, and Hair departments into MongoDB.',
-      confirmLabel: 'Seed 7 Specialists',
-      cancelLabel: 'Cancel',
-      type: 'warning',
-      onConfirm: async () => {
-        setConfirmModal(null);
-        setLoading(true);
-        try {
-          const res = await fetch(`${DOCTOR_API}/seed`, { method: 'POST' });
-          if (res.ok) {
-            await fetchDoctors();
-            showToast('All 7 specialist doctors seeded successfully into MongoDB!', 'success');
-          } else {
-            showToast('Failed to seed doctors.', 'error');
-          }
-        } catch {
-          showToast('Network error while seeding doctors.', 'error');
-        } finally {
-          setLoading(false);
-        }
-      },
-    });
-  };
 
-  // Seed Blogs
-  const handleSeedBlogs = () => {
-    setConfirmModal({
-      isOpen: true,
-      title: 'Seed & Restore Clinical Health Guides',
-      message: 'This will seed and sync the 6 verified clinical articles into MongoDB, ensuring all departments have live guides with active visibility.',
-      confirmLabel: 'Seed Articles',
-      cancelLabel: 'Cancel',
-      type: 'warning',
-      onConfirm: async () => {
-        setConfirmModal(null);
-        setLoading(true);
-        try {
-          const res = await fetch(`${BLOG_API}/seed`, { method: 'POST' });
-          if (res.ok) {
-            await fetchBlogs();
-            showToast('Successfully seeded 6 clinical articles into MongoDB!', 'success');
-          } else {
-            showToast('Failed to seed blogs on server.', 'error');
-          }
-        } catch {
-          showToast('Network error while seeding articles.', 'error');
-        } finally {
-          setLoading(false);
-        }
-      },
-    });
-  };
 
   // Update Appointment Status (Confirmed or Rejected/Cancelled)
   const handleUpdateStatus = async (id, newStatus, reason) => {
@@ -917,9 +861,7 @@ export default function App() {
           onSeedAppointments={handleSeedAppointments}
           onExportCSV={handleExportCSV}
           onOpenCreateAppointment={() => setShowCreateModal(true)}
-          onSeedDoctors={handleSeedDoctors}
           onOpenAddDoctor={() => setShowAddDoctorModal(true)}
-          onSeedBlogs={handleSeedBlogs}
           onOpenAddBlog={() => setShowAddBlogModal(true)}
         />
 

@@ -7,9 +7,7 @@ export default function Header({
   onSeedAppointments,
   onExportCSV,
   onOpenCreateAppointment,
-  onSeedDoctors,
   onOpenAddDoctor,
-  onSeedBlogs,
   onOpenAddBlog,
 }) {
   const titles = {
@@ -70,45 +68,23 @@ export default function Header({
         )}
 
         {activeTab === 'doctors' && (
-          <>
-            <button
-              onClick={onSeedDoctors}
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-colors"
-              title="Seed all 7 clinical specialists into MongoDB"
-            >
-              <Database size={14} className="text-slate-500" />
-              <span>Seed Doctors to DB</span>
-            </button>
-
-            <button
-              onClick={onOpenAddDoctor}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-teal-700 hover:bg-teal-800 text-white text-xs font-semibold shadow-md shadow-teal-700/20 transition-all"
-            >
-              <Plus size={15} />
-              <span>Add New Doctor</span>
-            </button>
-          </>
+          <button
+            onClick={onOpenAddDoctor}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-teal-700 hover:bg-teal-800 text-white text-xs font-semibold shadow-md shadow-teal-700/20 transition-all"
+          >
+            <Plus size={15} />
+            <span>Add New Doctor</span>
+          </button>
         )}
 
         {activeTab === 'blogs' && (
-          <>
-            <button
-              onClick={onSeedBlogs}
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-colors"
-              title="Seed and restore all 6 clinical articles into MongoDB"
-            >
-              <Database size={14} className="text-slate-500" />
-              <span>Seed Existing Blogs</span>
-            </button>
-
-            <button
-              onClick={onOpenAddBlog}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-teal-700 hover:bg-teal-800 text-white text-xs font-semibold shadow-md shadow-teal-700/20 transition-all"
-            >
-              <Plus size={15} />
-              <span>New Health Guide</span>
-            </button>
-          </>
+          <button
+            onClick={onOpenAddBlog}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-teal-700 hover:bg-teal-800 text-white text-xs font-semibold shadow-md shadow-teal-700/20 transition-all"
+          >
+            <Plus size={15} />
+            <span>New Health Guide</span>
+          </button>
         )}
       </div>
     </header>
