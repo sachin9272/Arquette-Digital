@@ -440,28 +440,6 @@ export default function HairTreatmentsPage() {
               );
             })}
           </div>
-
-          {/* Pricing Guarantee Strip */}
-          <div className="mt-12 p-6 rounded-3xl bg-brand-surface border border-brand-border/80 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-brand-badge-bg text-brand-secondary flex items-center justify-center shrink-0 border border-brand-secondary/20">
-                <CreditCard className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="text-sm font-black text-brand-primary">
-                  100% Transparent Rupee Pricing &amp; 0% Interest EMI Available
-                </h4>
-                <p className="text-xs text-brand-muted">
-                  No hidden graft counts or surprise post-op kit fees. Written fixed quote given after your trichoscopic analysis.
-                </p>
-              </div>
-            </div>
-            <Link href="/contact" className="shrink-0 w-full sm:w-auto">
-              <Button variant="outline" size="sm" className="w-full">
-                Inquire About Hair EMI
-              </Button>
-            </Link>
-          </div>
         </div>
       </section>
 
